@@ -1,0 +1,61 @@
+{
+  "name": "@rease/jsxtype",
+  "version": "0.4.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "wip: @rease/types",
+  "keywords": [
+    "rease",
+    "types"
+  ],
+  "license": "MIT",
+  "author": "rease <cftcview@gmail.com>",
+  "main": "",
+  "types": "index.d.ts",
+  "files": [
+    "generated/**/*",
+    "index.d.ts"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./index.d.ts"
+    },
+    "./generated/html_global_attributes": {
+      "types": "./generated/html_global_attributes.d.ts"
+    },
+    "./generated/html_tags": {
+      "types": "./generated/html_tags.d.ts"
+    },
+    "./generated/html_value_sets": {
+      "types": "./generated/html_value_sets.d.ts"
+    },
+    "./generated/jsx_svg": {
+      "types": "./generated/jsx_svg.d.ts"
+    },
+    "./generated/svg_attr_categories": {
+      "types": "./generated/svg_attr_categories.d.ts"
+    }
+  },
+  "scripts": {
+    "tasks-ts": "nodemon --watch ./tasks/** --exec 'node --loader ts-node/esm --inspect ./tasks/index.mts'",
+    "tasks": "nodemon --watch ./tasks --inspect ./tasks/index.mjs",
+    "build": "tsc"
+  },
+  "peerDependencies": {
+    "rease": "0.4.x"
+  },
+  "devDependencies": {
+    "@types/sax": "1.2.6",
+    "@vscode/web-custom-data": "0.4.8",
+    "nodemon": "^3.1.1",
+    "sax": "1.3.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.2.2",
+    "w3c--svgwg": "git+https://github.com/w3c/svgwg.git"
+  },
+  "dependencies": {
+    "csstype": "3.1.2"
+  }
+}

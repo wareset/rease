@@ -1,0 +1,1 @@
+export declare const listen: <Type extends keyof GlobalEventHandlersEventMap>(E: Window | Document | Element, type: `${Type}` | `${Type}-${string}`, callback: (e: GlobalEventHandlersEventMap[Type]) => void) => () => void;

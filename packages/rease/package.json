@@ -1,0 +1,52 @@
+{
+  "name": "rease",
+  "version": "0.4.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "wip: Reactive ease jsx/tsx renderer",
+  "keywords": [
+    "rease"
+  ],
+  "license": "MIT",
+  "author": "rease <cftcview@gmail.com>",
+  "main": "index",
+  "module": "index.mjs",
+  "types": "types/index.d.ts",
+  "files": [
+    "README.md",
+    "index.d.ts",
+    "index.js",
+    "index.mjs",
+    "jsx-runtime/**/*",
+    "types/**/*"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "types": "./types/index.d.ts"
+    },
+    "./jsx-runtime": {
+      "import": "./jsx-runtime/index.mjs",
+      "require": "./jsx-runtime/index.js",
+      "types": "./types/jsx-runtime.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "dester -m",
+    "dev": "dester -mw",
+    "build:dist": "rollup -c __scripts__/rollup.config.js"
+  },
+  "devDependencies": {
+    "dester": "1.0.x",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@rease/css": "0.4.0",
+    "@rease/jsxtype": "0.4.0",
+    "@rease/listen": "0.4.0",
+    "@rease/signal": "0.4.0"
+  }
+}
