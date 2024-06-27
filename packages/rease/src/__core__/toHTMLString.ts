@@ -46,15 +46,13 @@ const is_childless_tag_name = (function (REG_CHILDLESS_TAGS) {
   }
 })(/^(?:area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/)
 
-
-
 export function toHTMLString(rease: Rease) {
   const res: any[] = []
   if (rease instanceof RText) {
     res.push(escapeHTML(rease._data))
   } else if (rease instanceof RElement) {
     const localName = rease.localName
-    if (!(localName in INCLUDE_HTML_TAGS)) {
+    if (localName && !INCLUDE_HTML_TAGS.hasOwnProperty(localName)) {
       const _class = rease._class
       const _style = rease._style
       const _attrs = rease._attrs

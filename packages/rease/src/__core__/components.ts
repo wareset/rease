@@ -29,28 +29,32 @@ export class RMove extends Rease {
 //
 type Element = HTMLElement | SVGElement
 
+function noopNull() {
+  return null
+}
+
 let get_parent_and_before_node = function () {
   return {}
 } as unknown as (iam: RText | RElement) => {
   p: Element | null | undefined
   b: Element | Text | null | undefined
 }
-let createText = noop as unknown as (
+let createText = noopNull as unknown as (
   data: any,
-  parentNode: Element | null | undefined,
-  beforeNode: any
-) => HTMLFormElement | undefined
-let createElem = noop as unknown as (
+  parNode: Element | null | undefined,
+  befNode: any
+) => HTMLFormElement | null
+let createElem = noopNull as unknown as (
   tagName: string,
-  parentNode: Element | null | undefined,
-  beforeNode: any
-) => Element | undefined
+  parNode: Element | null | undefined,
+  befNode: any
+) => Element | null
 let insertNode = noop as unknown as (
   node: Node,
-  parentNode: Node | null | undefined,
-  beforeNode: Node | null | undefined
+  parNode: Node | null | undefined,
+  befNode: Node | null | undefined
 ) => void
-let removeNode = noop as unknown as (iam: RText | RElement) => void
+let deleteNode = noop as unknown as (iam: RText | RElement) => void
 let movingNode = noop as unknown as (iam: RText | RElement) => void
 let initedNode = noop as unknown as (iam: RText | RElement) => void
 let DOCUMENT = {} as Document
@@ -59,95 +63,89 @@ if (typeof document !== 'undefined') {
 
   const REASE_NODE_MARK = '_rease_relement_or_rtext'
   const RESERVED_LOCAL_NAMES = { style: 1, script: 1 }
-  function removeNotHydratedNode(node: any) {
-    return node.nodeType !== 1 || !RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)
-      ? (node.parentNode && node.parentNode.removeChild(node), true)
-      : false
+  function removeNode(node: Node) {
+    node.parentNode && node.parentNode.removeChild(node)
   }
 
   get_parent_and_before_node = function (iam) {
     const { parent, prev } = iam.findParentOrPrev(RElement, [RElement, RText])
-    const beforeNode = prev && prev.node
-    const parentNode = (beforeNode && beforeNode.parentElement) || (parent && parent.node)
-
-    return {
-      p: parentNode,
-      b: beforeNode
-    }
+    const befNode = prev && prev.node
+    const parNode = (befNode && befNode.parentElement) || (parent && parent.node)
+    return { p: parNode, b: befNode }
   }
 
-  function createElementNS(tagName: string, parentNode: any) {
+  function createElementNS(tagName: string, parNode: any) {
     return document.createElementNS(
       NAMESPACES_URI.hasOwnProperty(tagName)
         ? NAMESPACES_URI[tagName as 'svg']
-        : (parentNode && parentNode.localName !== 'foreignObject'
-            ? parentNode
-            : document.documentElement
-          ).namespaceURI,
+        : (parNode && parNode.localName !== 'foreignObject' ? parNode : document.documentElement)
+            .namespaceURI,
       tagName
     ) as Element
   }
-  createText = function (data, parentNode, bNode) {
-    // debugger
-    if ((bNode = bNode ? bNode.nextSibling : parentNode && parentNode.firstChild)) {
-      if (bNode.nodeType === 3 && !(REASE_NODE_MARK in bNode)) {
-        removeNotHydratedNode(bNode)
-      }
+  createText = function (data, parNode, befNode) {
+    if ((befNode = befNode ? befNode.nextSibling : parNode && parNode.firstChild)) {
+      if (befNode.nodeType === 3 && !(REASE_NODE_MARK in befNode)) removeNode(befNode)
     }
     // return document.createTextNode(data)
-    bNode = createElementNS('font', parentNode)
-    bNode.style.verticalAlign = 'inherit'
-    bNode.textContent = data
-    return bNode
+    befNode = createElementNS('font', parNode)
+    befNode.style.verticalAlign = 'inherit'
+    befNode.textContent = data
+    return befNode
   }
-  createElem = function (tagName, parentNode, bNode) {
-    // debugger
-    if ((bNode = bNode ? bNode.nextSibling : parentNode && parentNode.firstChild)) {
-      let node: any
-      for (; bNode && !(REASE_NODE_MARK in bNode); ) {
-        node = bNode
-        bNode = bNode.nextSibling
-        if (node.nodeType !== 1) {
-          removeNotHydratedNode(node)
-        } else if (node.localName === tagName) {
-          for (let a = node.attributes, i = a.length; i-- > 0; ) {
-            node.removeAttribute(a[i].name)
+  createElem = function (tagName, parNode, befNode) {
+    if (tagName) {
+      if ((befNode = befNode ? befNode.nextSibling : parNode && parNode.firstChild)) {
+        let node: any
+        for (; befNode && !(REASE_NODE_MARK in befNode); ) {
+          node = befNode
+          befNode = befNode.nextSibling
+          if (node.nodeType !== 1) {
+            removeNode(node)
+          } else if (node.localName === tagName) {
+            for (let a = node.attributes, i = a.length; i-- > 0; ) {
+              node.removeAttribute(a[i].name)
+            }
+            // node.setAttribute('rease-hydro', true)
+            return node
+          } else if (!RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
+            break
           }
-          // node.setAttribute('rease-hydro', true)
-          return node
-        } else if (!RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
-          break
         }
       }
+      // console.log('create: ' + tagName)
+      return createElementNS(tagName, parNode)
     }
-    // console.log('create: ' + tagName)
-    return createElementNS(tagName, parentNode)
+    return null
   }
-  insertNode = function (node, parentNode, beforeNode) {
+  insertNode = function (node, parNode, befNode) {
     // node.setAttribute('rease', true)
     // @ts-ignore
     node[REASE_NODE_MARK] = true
-    parentNode &&
-      parentNode.insertBefore(
-        node,
-        (beforeNode ? beforeNode.nextSibling : parentNode.firstChild) || null
-      )
+    parNode &&
+      parNode.insertBefore(node, (befNode ? befNode.nextSibling : parNode.firstChild) || null)
   }
-  removeNode = function (iam) {
-    const node = iam.node!
-    node.parentNode && node.parentNode.removeChild(node)
+  deleteNode = function (iam) {
+    const node = iam.node
+    node && removeNode(node)
   }
   movingNode = function (iam) {
-    const { p: parentNode, b: beforeNode } = get_parent_and_before_node(iam)
-    if (parentNode) insertNode(iam.node!, parentNode, beforeNode)
-    else removeNode(iam)
+    const node = iam.node
+    if (node) {
+      const { p: parNode, b: befNode } = get_parent_and_before_node(iam)
+      if (parNode) insertNode(node, parNode, befNode)
+      else deleteNode(iam)
+    }
   }
   initedNode = function (iam) {
-    let node = iam.node as ChildNode
-    for (let a = node.childNodes, i = a.length; i-- > 0; ) {
-      if (REASE_NODE_MARK in (node = a[i])) break
-      else removeNotHydratedNode(node)
-    }
+    let node = iam.node!
+    if (node)
+      for (let a = node.childNodes, i = a.length; i-- > 0; ) {
+        if (REASE_NODE_MARK in (node = a[i] as any)) break
+        else if (node.nodeType !== 1 || !RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
+          removeNode(node)
+        }
+      }
   }
 }
 
@@ -160,7 +158,7 @@ function textDataWatch(this: RText, data: any): void {
 }
 export class RText extends Rease {
   _data: string
-  node?: HTMLFormElement | undefined
+  node: HTMLFormElement | null
 
   constructor({ data: is }: { data: any }) {
     super()
@@ -168,11 +166,11 @@ export class RText extends Rease {
     if (is && (is.subscribe || is.then)) (this._data = ''), this.watchDeep(is, textDataWatch, this)
     else this._data = is === void 0 ? '' : '' + is
 
-    const { p: parentNode, b: beforeNode } = get_parent_and_before_node(this)
-    if ((this.node = createText(this._data, parentNode, beforeNode))) {
-      insertNode(this.node, parentNode, beforeNode)
+    const { p: parNode, b: befNode } = get_parent_and_before_node(this)
+    if ((this.node = createText(this._data, parNode, befNode))) {
+      insertNode(this.node, parNode, befNode)
       this.onMove(movingNode)
-      this.onDestroy(removeNode)
+      this.onDestroy(deleteNode)
     }
   }
 }
@@ -189,7 +187,7 @@ export class RText extends Rease {
 
 export class RElement extends Rease {
   localName: string
-  node?: Element | undefined
+  node: Element | null
   _attrs: { [key: string]: any }
   _class?: { [key: string]: any }
   _style?: { [key: string]: any }
@@ -214,12 +212,12 @@ export class RElement extends Rease {
         this.node = (node as Element) || DOCUMENT.body
         break
       default: {
-        const { p: parentNode, b: beforeNode } = get_parent_and_before_node(this)
-        if ((this.node = (node as any) || (node = createElem(type, parentNode, beforeNode)!))) {
-          insertNode(node as Element, parentNode, beforeNode)
+        const { p: parNode, b: befNode } = get_parent_and_before_node(this)
+        if ((this.node = (node as any) || (node = createElem(type, parNode, befNode)))) {
+          insertNode(node as Element, parNode, befNode)
           afterInsert = initedNode
           this.onMove(movingNode)
-          this.onDestroy(removeNode)
+          this.onDestroy(deleteNode)
         }
       }
     }

@@ -10,14 +10,14 @@ export declare class RMove extends Rease {
 type Element = HTMLElement | SVGElement;
 export declare class RText extends Rease {
     _data: string;
-    node?: HTMLFormElement | undefined;
+    node: HTMLFormElement | null;
     constructor({ data: is }: {
         data: any;
     });
 }
 export declare class RElement extends Rease {
     localName: string;
-    node?: Element | undefined;
+    node: Element | null;
     _attrs: {
         [key: string]: any;
     };
