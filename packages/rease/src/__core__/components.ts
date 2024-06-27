@@ -201,7 +201,7 @@ export class RElement extends Rease {
     if (isString(node)) (type = node), (node = null as any)
     else type = node ? node.localName : ''
 
-    switch ((this.localName = type)) {
+    switch ((this.localName = type || (type = 'template'))) {
       case 'html':
         this.node = (node as Element) || DOCUMENT.documentElement
         break
