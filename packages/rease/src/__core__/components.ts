@@ -58,96 +58,6 @@ let deleteNode = noop as unknown as (iam: RText | RElement) => void
 let movingNode = noop as unknown as (iam: RText | RElement) => void
 let initedNode = noop as unknown as (iam: RText | RElement) => void
 let DOCUMENT = {} as Document
-if (typeof document !== 'undefined') {
-  DOCUMENT = document
-
-  const REASE_NODE_MARK = '_rease_relement_or_rtext'
-  const RESERVED_LOCAL_NAMES = { style: 1, script: 1 }
-  function removeNode(node: Node) {
-    node.parentNode && node.parentNode.removeChild(node)
-  }
-
-  get_parent_and_before_node = function (iam) {
-    const { parent, prev } = iam.findParentOrPrev(RElement, [RElement, RText])
-    const befNode = prev && prev.node
-    const parNode = (befNode && befNode.parentElement) || (parent && parent.node)
-    return { p: parNode, b: befNode }
-  }
-
-  function createElementNS(tagName: string, parNode: any) {
-    return document.createElementNS(
-      NAMESPACES_URI.hasOwnProperty(tagName)
-        ? NAMESPACES_URI[tagName as 'svg']
-        : (parNode && parNode.localName !== 'foreignObject' ? parNode : document.documentElement)
-            .namespaceURI,
-      tagName
-    ) as Element
-  }
-  createText = function (data, parNode, befNode) {
-    if ((befNode = befNode ? befNode.nextSibling : parNode && parNode.firstChild)) {
-      if (befNode.nodeType === 3 && !(REASE_NODE_MARK in befNode)) removeNode(befNode)
-    }
-    // return document.createTextNode(data)
-    befNode = createElementNS('font', parNode)
-    befNode.style.verticalAlign = 'inherit'
-    befNode.textContent = data
-    return befNode
-  }
-  createElem = function (tagName, parNode, befNode) {
-    if (tagName) {
-      if ((befNode = befNode ? befNode.nextSibling : parNode && parNode.firstChild)) {
-        let node: any
-        for (; befNode && !(REASE_NODE_MARK in befNode); ) {
-          node = befNode
-          befNode = befNode.nextSibling
-          if (node.nodeType !== 1) {
-            removeNode(node)
-          } else if (node.localName === tagName) {
-            for (let a = node.attributes, i = a.length; i-- > 0; ) {
-              node.removeAttribute(a[i].name)
-            }
-            // node.setAttribute('rease-hydro', true)
-            return node
-          } else if (!RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
-            break
-          }
-        }
-      }
-      // console.log('create: ' + tagName)
-      return createElementNS(tagName, parNode)
-    }
-    return null
-  }
-  insertNode = function (node, parNode, befNode) {
-    // node.setAttribute('rease', true)
-    // @ts-ignore
-    node[REASE_NODE_MARK] = true
-    parNode &&
-      parNode.insertBefore(node, (befNode ? befNode.nextSibling : parNode.firstChild) || null)
-  }
-  deleteNode = function (iam) {
-    const node = iam.node
-    node && removeNode(node)
-  }
-  movingNode = function (iam) {
-    const node = iam.node
-    if (node) {
-      const { p: parNode, b: befNode } = get_parent_and_before_node(iam)
-      if (parNode) insertNode(node, parNode, befNode)
-      else deleteNode(iam)
-    }
-  }
-  initedNode = function (iam) {
-    let node = iam.node!
-    if (node)
-      for (let a = node.childNodes, i = a.length; i-- > 0; ) {
-        if (REASE_NODE_MARK in (node = a[i] as any)) break
-        else if (node.nodeType !== 1 || !RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
-          removeNode(node)
-        }
-      }
-  }
-}
 
 //
 // RText
@@ -231,6 +141,98 @@ export class RElement extends Rease {
 
     this.insert(children)
     afterInsert(this)
+  }
+}
+
+if (typeof document !== 'undefined') {
+  DOCUMENT = document
+
+  const REASE_NODE_MARK = '_rease_relement_or_rtext'
+  const RESERVED_LOCAL_NAMES = { style: 1, script: 1 }
+  function removeNode(node: Node) {
+    node.parentNode && node.parentNode.removeChild(node)
+  }
+
+  const BEFORE_CLASSES = [RElement, RText]
+  get_parent_and_before_node = function (iam) {
+    const { parent, prev } = iam.findParentOrPrev(RElement, BEFORE_CLASSES)
+    const befNode = prev && prev.node
+    const parNode = (befNode && befNode.parentElement) || (parent && parent.node)
+    return { p: parNode, b: befNode }
+  }
+
+  function createElementNS(tagName: string, parNode: any) {
+    return document.createElementNS(
+      NAMESPACES_URI.hasOwnProperty(tagName)
+        ? NAMESPACES_URI[tagName as 'svg']
+        : (parNode && parNode.localName !== 'foreignObject' ? parNode : document.documentElement)
+            .namespaceURI,
+      tagName
+    ) as Element
+  }
+  createText = function (data, parNode, befNode) {
+    if ((befNode = befNode ? befNode.nextSibling : parNode && parNode.firstChild)) {
+      if (befNode.nodeType === 3 && !(REASE_NODE_MARK in befNode)) removeNode(befNode)
+    }
+    // return document.createTextNode(data)
+    befNode = createElementNS('font', parNode)
+    befNode.style.verticalAlign = 'inherit'
+    befNode.textContent = data
+    return befNode
+  }
+  createElem = function (tagName, parNode, befNode) {
+    if (tagName) {
+      if ((befNode = befNode ? befNode.nextSibling : parNode && parNode.firstChild)) {
+        let node: any
+        for (; befNode && !(REASE_NODE_MARK in befNode); ) {
+          node = befNode
+          befNode = befNode.nextSibling
+          if (node.nodeType !== 1) {
+            removeNode(node)
+          } else if (node.localName === tagName) {
+            for (let a = node.attributes, i = a.length; i-- > 0; ) {
+              node.removeAttribute(a[i].name)
+            }
+            // node.setAttribute('rease-hydro', true)
+            return node
+          } else if (!RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
+            break
+          }
+        }
+      }
+      // console.log('create: ' + tagName)
+      return createElementNS(tagName, parNode)
+    }
+    return null
+  }
+  insertNode = function (node, parNode, befNode) {
+    // node.setAttribute('rease', true)
+    // @ts-ignore
+    node[REASE_NODE_MARK] = true
+    parNode &&
+      parNode.insertBefore(node, (befNode ? befNode.nextSibling : parNode.firstChild) || null)
+  }
+  deleteNode = function (iam) {
+    const node = iam.node
+    node && removeNode(node)
+  }
+  movingNode = function (iam) {
+    const node = iam.node
+    if (node) {
+      const { p: parNode, b: befNode } = get_parent_and_before_node(iam)
+      if (parNode) insertNode(node, parNode, befNode)
+      else deleteNode(iam)
+    }
+  }
+  initedNode = function (iam) {
+    let node = iam.node!
+    if (node)
+      for (let a = node.childNodes, i = a.length; i-- > 0; ) {
+        if (REASE_NODE_MARK in (node = a[i] as any)) break
+        else if (node.nodeType !== 1 || !RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
+          removeNode(node)
+        }
+      }
   }
 }
 
