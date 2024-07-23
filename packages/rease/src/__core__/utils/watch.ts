@@ -20,11 +20,13 @@ function observablefyThenable<T>(promise: IThenable<T>) {
 function _s1<T, C>(this: { f: ISubscriber<T, C>; c: C; s: ISignal<any>; u: any }, v: T) {
   // if (v !== this) this.f.call(this.c, v)
   if (v !== this) {
-    this.f.call(this.c, v)
     // FIX
     // @ts-ignore
-    const n = this.s._.s
+    const n = this.s._.p
     if (n && n.c === this) (n.f = this.f), (n.c = this.c)
+    else console.error('rease signal service')
+
+    this.f.call(this.c, v)
   }
 }
 
