@@ -20,7 +20,7 @@ export type {
   ISubscribed,
   ISubscribedDeep,
   ISubscribedOrThened,
-  ISubscribedOrThenedDeep
+  ISubscribedOrThenedDeep,
 } from './__core__'
 
 export { isThenable, isSubscribable } from './__core__'
@@ -47,7 +47,7 @@ export {
   RForIn,
   RForOf,
   // r-move
-  RMove
+  RMove,
 } from './__core__'
 
 export { Rease } from './__core__'

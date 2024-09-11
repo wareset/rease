@@ -26,49 +26,48 @@ export type ISubscribableOrThenableDeep<T> =
   | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
     ISubscribableOrThenable<T>
     >>>
-  // | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<T>>
-  //   >>>
-  // | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<T>>>
-  //   >>>
-  // | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<T>
-  //   >>>
-  //   >>>
-  // | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<T>>
-  //   >>>
-  //   >>>
-  // | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<T>>>
-  //   >>>
-  //   >>>
-  // | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<T>
-  //   >>>
-  //   >>>
-  //   >>>
-  // | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<T>>
-  //   >>>
-  //   >>>
-  //   >>>
-  // | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-  //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<T>>>
-  //   >>>
-  //   >>>
-  //   >>>
-
+// | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<T>>
+//   >>>
+// | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<T>>>
+//   >>>
+// | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<T>
+//   >>>
+//   >>>
+// | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<T>>
+//   >>>
+//   >>>
+// | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<T>>>
+//   >>>
+//   >>>
+// | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<T>
+//   >>>
+//   >>>
+//   >>>
+// | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<T>>
+//   >>>
+//   >>>
+//   >>>
+// | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<T>>>
+//   >>>
+//   >>>
+//   >>>
 
 // prettier-ignore
 export type IMaybeSubscribableOrThenableDeep<T> = T | ISubscribableOrThenableDeep<T>

@@ -105,7 +105,7 @@ declare class Rease {
 type FindsArg<T> = T | T[];
 type FindsRes<T> = T extends {
     new (...a: any[]): infer R;
-} ? (R extends Rease ? R : never) : Rease;
+} ? R extends Rease ? R : never : Rease;
 declare function createElement<P extends {
     [key: string]: any;
 }>(component: string | IComponent<P>, props: P | null, ...children: any[]): JSX;

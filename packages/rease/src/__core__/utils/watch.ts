@@ -13,7 +13,7 @@ function observablefyThenable<T>(promise: IThenable<T>) {
   return {
     subscribe<C>(cb: ISubscriber<T, C>, thisArg?: C) {
       return then(promise, cb, thisArg)
-    }
+    },
   }
 }
 
@@ -128,7 +128,10 @@ export const watchAll = _w0(watch) as <T extends readonly unknown[] | [], C = un
   ctx?: C
 ) => IUnsubscriber
 
-export const watchDeepAll = _w0(watchDeep) as <T extends readonly unknown[] | [], C = undefined>(
+export const watchDeepAll = _w0(watchDeep) as <
+  T extends readonly unknown[] | [],
+  C = undefined
+>(
   a: T,
   cb: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }, C>,
   ctx?: C

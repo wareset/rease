@@ -73,7 +73,8 @@ export class RText extends Rease {
   constructor({ data: is }: { data: any }) {
     super()
 
-    if (is && (is.subscribe || is.then)) (this._data = ''), this.watchDeep(is, textDataWatch, this)
+    if (is && (is.subscribe || is.then))
+      (this._data = ''), this.watchDeep(is, textDataWatch, this)
     else this._data = is === void 0 ? '' : '' + is
 
     const { p: parNode, b: befNode } = get_parent_and_before_node(this)
@@ -103,7 +104,14 @@ export class RElement extends Rease {
   _style?: { [key: string]: any }
   _unevt?: (() => void)[]
 
-  constructor({ children, node, ...props }: { node: string | Element | null; [k: string]: any }) {
+  constructor({
+    children,
+    node,
+    ...props
+  }: {
+    node: string | Element | null
+    [k: string]: any
+  }) {
     // constructor({ children, node, ...props }: IRElementProps & { children?: any }) {
     super()
     let type: string
@@ -165,8 +173,10 @@ if (typeof document !== 'undefined') {
     return document.createElementNS(
       NAMESPACES_URI.hasOwnProperty(tagName)
         ? NAMESPACES_URI[tagName as 'svg']
-        : (parNode && parNode.localName !== 'foreignObject' ? parNode : document.documentElement)
-            .namespaceURI,
+        : (parNode && parNode.localName !== 'foreignObject'
+            ? parNode
+            : document.documentElement
+          ).namespaceURI,
       tagName
     ) as Element
   }
@@ -261,7 +271,7 @@ export class RWatch extends Rease {
     // @ts-ignore
     this[isArray(is) ? 'watchDeepAll' : 'watchDeep'](is, watch_subscribe, {
       r: this,
-      c: children
+      c: children,
     })
   }
 }
@@ -406,7 +416,7 @@ export class RForIn extends Rease {
   constructor({
     is,
     watch,
-    children
+    children,
   }: {
     is: any
     watch?: any
@@ -465,7 +475,7 @@ export class RForOf extends Rease {
   constructor({
     is,
     watch,
-    children
+    children,
   }: {
     is: any
     watch?: any

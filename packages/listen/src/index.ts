@@ -46,7 +46,7 @@ export const listen = (function (setTimeout) {
     prevent: 1,
 
     capture: 1,
-    passive: 1
+    passive: 1,
   }
 
   let defineTargetForCustomEvent = function (E: any, event: any) {
@@ -78,7 +78,7 @@ export const listen = (function (setTimeout) {
         Object.defineProperty({}, 'passive', {
           get(): any {
             return (isPassive = true)
-          }
+          },
         })
       )
     } catch {}
@@ -175,7 +175,7 @@ export const listen = (function (setTimeout) {
         attributes: true,
         childList: true,
         characterData: true,
-        subtree: true
+        subtree: true,
       }
       onCustomResize = function (E: IElement) {
         if (!E[KEY_DATA]) {
@@ -344,7 +344,13 @@ export const listen = (function (setTimeout) {
         }
       }
 
-      unsub = add_event_listener(E, TYPE as any, callback as any, !!MODS.capture, !!MODS.passive)
+      unsub = add_event_listener(
+        E,
+        TYPE as any,
+        callback as any,
+        !!MODS.capture,
+        !!MODS.passive
+      )
 
       if (TYPE === 'resize') {
         if (isWindow(E)) {

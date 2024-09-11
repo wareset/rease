@@ -38,7 +38,9 @@ export const get_attrs_parser = (function () {
       (camel2dash = function (v: string): string {
         return hasOwn(
           _cssProperties,
-          (v = hasOwn(_C2D, v) ? _C2D[v] : (_C2D[v] = v.replace(REG_DASH, '-$1').toLowerCase()))
+          (v = hasOwn(_C2D, v)
+            ? _C2D[v]
+            : (_C2D[v] = v.replace(REG_DASH, '-$1').toLowerCase()))
         )
           ? _cssProperties[v]
           : v
@@ -71,7 +73,9 @@ export const get_attrs_parser = (function () {
   function is(v: any) {
     // (typeof v === 'string' && v !== '') || typeof v === 'number' || typeof v === 'boolean'
     return (
-      v === v && v !== '' && ((v = typeof v), v === 'string' || v === 'number' || v === 'boolean')
+      v === v &&
+      v !== '' &&
+      ((v = typeof v), v === 'string' || v === 'number' || v === 'boolean')
     )
   }
 

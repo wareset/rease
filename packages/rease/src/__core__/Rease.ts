@@ -27,7 +27,7 @@ import {
   RForIn,
   RForOf,
   // r-move
-  RMove
+  RMove,
 } from '.'
 
 type IComponent<P extends { [key: string]: any } = any> =
@@ -223,7 +223,8 @@ function runDestroyHooks(iam: Rease, head: IDblList | null) {
   if (head) for (let n = head; (n = n.n) !== head; ) n.f.call(n.c, iam)
 }
 function runEmitHooks(head: IDblList | undefined, iam: Rease, detail: any) {
-  if (head) for (let n = head; (n = n.n) !== head && !iam.destroyed; ) n.f.call(n.c, iam, detail)
+  if (head)
+    for (let n = head; (n = n.n) !== head && !iam.destroyed; ) n.f.call(n.c, iam, detail)
 }
 
 function runFuncComponentThen(this: Rease, jsx: any) {
@@ -378,7 +379,7 @@ class Rease {
       cr: this.constructor,
       in: [],
       oc: {},
-      on: {}
+      on: {},
     }
 
     set_parent_prev_next(this)
@@ -526,8 +527,10 @@ class Rease {
       : noop
   }
   emit<Detail>(type: string, detail?: Detail, isCapture?: boolean | null) {
-    if (isCapture != null) runEmitHooks((isCapture ? this._.oc : this._.on)[type], this, detail)
-    else runEmitHooks(this._.oc[type], this, detail), runEmitHooks(this._.on[type], this, detail)
+    if (isCapture != null)
+      runEmitHooks((isCapture ? this._.oc : this._.on)[type], this, detail)
+    else
+      runEmitHooks(this._.oc[type], this, detail), runEmitHooks(this._.on[type], this, detail)
   }
   emitDeep<Detail>(type: string, detail?: Detail) {
     runEmitHooks(this._.oc[type], this, detail)
@@ -722,7 +725,11 @@ class Rease {
     if (prev) return { prev }
     const isAp = isArray(parentCtor)
     const isAc = isArray(prevCtor)
-    for (let parent: Rease | null = this, child; (child = parent), (parent = parent.parent); ) {
+    for (
+      let parent: Rease | null = this, child;
+      (child = parent), (parent = parent.parent);
+
+    ) {
       for (let a = parent.children, i = a.indexOf(child); i-- > 0; ) {
         if (
           _find(isAc, (prev = a[i] as FindsRes<S>), prevCtor) ||
@@ -742,11 +749,16 @@ class Rease {
     if (next) return { next }
     const isAp = isArray(parentCtor)
     const isAc = isArray(nextCtor)
-    for (let parent: Rease | null = this, child; (child = parent), (parent = parent.parent); ) {
+    for (
+      let parent: Rease | null = this, child;
+      (child = parent), (parent = parent.parent);
+
+    ) {
       for (let a = parent.children, i = a.lastIndexOf(child), l = a.length; ++i < l; ) {
         if (
           _find(isAc, (next = a[i] as FindsRes<S>), nextCtor) ||
-          (!_find(isAp, next, parentCtor) && (next = next.findFirstChild(nextCtor, parentCtor)))
+          (!_find(isAp, next, parentCtor) &&
+            (next = next.findFirstChild(nextCtor, parentCtor)))
         )
           return { next }
       }
@@ -775,7 +787,11 @@ function _find(isArray: any, rease: any, ctor: any) {
 }
 
 type FindsArg<T> = T | T[]
-type FindsRes<T> = T extends { new (...a: any[]): infer R } ? (R extends Rease ? R : never) : Rease
+type FindsRes<T> = T extends { new (...a: any[]): infer R }
+  ? R extends Rease
+    ? R
+    : never
+  : Rease
 
 function createElement<P extends { [key: string]: any }>(
   component: string | IComponent<P>,

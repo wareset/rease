@@ -37,7 +37,7 @@ const INCLUDE_HTML_TAGS = {
 
   // Web Components
   slot: 1,
-  template: 1
+  template: 1,
 } as const
 
 const is_childless_tag_name = (function (REG_CHILDLESS_TAGS) {

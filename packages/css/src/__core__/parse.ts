@@ -19,7 +19,7 @@ export const parse = (function () {
     '@media': 1,
     '@scope': 1,
     '@starting-style': 1,
-    '@supports': 1
+    '@supports': 1,
   }
 
   const REG_NOT_STR = /^[^`'"]/

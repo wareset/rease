@@ -13,7 +13,9 @@ export function then<T, C = undefined>(
   v.then(function (v: any) {
     u &&
       (u(),
-      (u = onfulfilled ? thenSafe(v, onfulfilled, ((onfulfilled = null as any), thisArg)) : null))
+      (u = onfulfilled
+        ? thenSafe(v, onfulfilled, ((onfulfilled = null as any), thisArg))
+        : null))
   })
   return function () {
     u && (u(), (u = onfulfilled = null as any))
@@ -46,7 +48,8 @@ export function thenSafeAll<T extends readonly unknown[] | [], C = undefined>(
     const vals: any[] = [],
       cnt: [number] = [a.length]
     const u = _Array(l) as any[]
-    for (let i = 0; i < l; i++) u[i] = thenSafe(a[i], __tsa1, [vals, i, true, cnt, cb, thisArg])
+    for (let i = 0; i < l; i++)
+      u[i] = thenSafe(a[i], __tsa1, [vals, i, true, cnt, cb, thisArg])
     return function () {
       for (; u.length > 0; ) u.pop()!()
     }

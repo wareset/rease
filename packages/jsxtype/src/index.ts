@@ -144,7 +144,11 @@ declare global {
       'r-switch': { is: any } & Children
       'r-case': { is: any } & Children
       'r-for-in': { is: any; watch?: any; children: (v: any, k: string, a: any) => any }
-      'r-for-of': { is: any; watch?: any; children: (v: any, k: string | number, a: any) => any }
+      'r-for-of': {
+        is: any
+        watch?: any
+        children: (v: any, k: string | number, a: any) => any
+      }
       'r-move': { is: any; index?: any } & Children
       // [key: string]: any
     }
