@@ -8,7 +8,7 @@ export declare class ISignal<T> {
     get $(): T;
     set $(v: T);
     get(): T;
-    set(v: T): void;
+    set(v: T): this;
     subscribe<C>(callback: (this: C, value: T) => void, thisArg?: C): () => void;
     toString(...a: any): T extends {
         toString(...a: any): infer I;

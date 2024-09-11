@@ -205,7 +205,7 @@ let STORE = function (value: any, props: any) {
         cmp.x.push({
           g: cmp.g,
           v: computedItemCheck,
-          u: cmp.s._.h === cmp.s._.h.n ? noop : computedItemSubscribe(cmp, item)
+          u: cmp.s._.h === cmp.s._.h.n ? noop : computedItemSubscribe(cmp, item),
         })
       } else {
         cmp.x[i].g = cmp.g
@@ -245,7 +245,7 @@ let STORE = function (value: any, props: any) {
     const iam = new STORE(void 0, {
       prepare() {
         return (u = $value$.subscribe(sub)), uns
-      }
+      },
     })
     return iam
   }
@@ -316,9 +316,9 @@ let STORE = function (value: any, props: any) {
                 c: props.compute,
                 i: [],
                 x: [],
-                o: props!.observe
+                o: props!.observe,
               }
-            : null
+            : null,
       })
       this._value = value
       _.p = _.h.n = _.h.p = _.h
@@ -331,7 +331,8 @@ let STORE = function (value: any, props: any) {
       COMPUTED = null
       if (COMPUTED_PREV) computedItemCheck(COMPUTED_PREV, this)
       const _ = this._
-      const u = _.h === _.h.n && (_.c || _.f) ? this.subscribe(noop) : _.c && computedTestFast(_.c)
+      const u =
+        _.h === _.h.n && (_.c || _.f) ? this.subscribe(noop) : _.c && computedTestFast(_.c)
       const v = this._value
       if (u) u()
       COMPUTED = COMPUTED_PREV
@@ -343,6 +344,7 @@ let STORE = function (value: any, props: any) {
       if (_.c) THROW('computed')
       if (_.o) batch(setWithCaptureBatch, this, [value])
       else setValue(this, value)
+      return this
     }
 
     // get $() {
@@ -360,7 +362,7 @@ let STORE = function (value: any, props: any) {
         p: null as any,
         v: runsub,
         f: callback,
-        c: thisArg
+        c: thisArg,
       }
       _.p = (sub.p = (sub.n = _.p.n).p).n = sub.n.p = sub
       batch(sub.n === sub.p && (_.c || _.f) ? subFirst : runsub, iam, [sub])
@@ -474,7 +476,7 @@ export declare class ISignal<T> {
   get $(): T
   set $(v: T)
   get(): T
-  set(v: T): void
+  set(v: T): this
   subscribe<C>(callback: (this: C, value: T) => void, thisArg?: C): () => void
   toString(...a: any): T extends { toString(...a: any): infer I } ? I : string
   valueOf(...a: any): T extends { valueOf(...a: any): infer I } ? I : T
