@@ -47,6 +47,7 @@
     "@rease/css": "0.4.0",
     "@rease/jsxtype": "0.4.0",
     "@rease/listen": "0.4.0",
-    "@rease/signal": "0.4.0"
+    "@rease/signal": "0.4.0",
+    "@rease/tween": "0.4.0"
   }
 }

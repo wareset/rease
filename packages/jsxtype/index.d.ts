@@ -2,7 +2,7 @@ import { JSX_SVG } from './generated/jsx_svg';
 import { Tags as JSX_HTML } from './generated/html_tags';
 import { GlobalAttributes } from './generated/html_global_attributes';
 import { Properties as CSSProperties } from 'csstype';
-import type { RElement } from 'rease';
+import type { RElement, Rease } from 'rease';
 type StyleBasic = (CSSProperties & {
     [K: `--${string}`]: string | number;
 }) | string | StyleBasic[];
@@ -60,29 +60,12 @@ declare global {
         interface IntrinsicElements extends Intristics {
             'r-text': {
                 data: any;
-                node?: Text | null;
             } & Children;
             'r-element': {
                 node: string | Element | null;
                 [k: string]: any;
             } & Children;
             'r-fragment': {} & Children;
-            'r-watch': {
-                is: any;
-            } & Children;
-            'r-if': {
-                is: any;
-            } & Children;
-            'r-else-if': {
-                is: any;
-            } & Children;
-            'r-else': {} & Children;
-            'r-switch': {
-                is: any;
-            } & Children;
-            'r-case': {
-                is: any;
-            } & Children;
             'r-for-in': {
                 is: any;
                 watch?: any;
@@ -93,9 +76,43 @@ declare global {
                 watch?: any;
                 children: (v: any, k: string | number, a: any) => any;
             };
-            'r-move': {
+            'r-if': {
                 is: any;
-                index?: any;
+                context?: any;
+            } & Children;
+            'r-else-if': {
+                is: any;
+                context?: any;
+            } & Children;
+            'r-else': {
+                context?: any;
+            } & Children;
+            'r-await': {
+                is: any;
+                context?: any;
+            } & Children;
+            'r-then': {
+                is: any;
+                context?: any;
+            } & Children;
+            'r-catch': {
+                is: any;
+                context?: any;
+            } & Children;
+            'r-move': {
+                to: ISubscribableOrThenableDeep<Rease>;
+                index?: ISubscribableOrThenableDeep<number>;
+            } & Children;
+            'r-switch': {
+                is: any;
+            } & Children;
+            'r-case': {
+                is: any;
+                context?: any;
+            } & Children;
+            'r-watch': {
+                is: any;
+                context?: any;
             } & Children;
         }
     }

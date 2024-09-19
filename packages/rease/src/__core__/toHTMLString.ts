@@ -1,5 +1,6 @@
-import type { Rease } from '.'
-import { RElement, RText, escapeHTML } from '.'
+import type { Rease } from './Rease'
+import { escapeHTML } from './utils/shared'
+import { RElement, RText } from './components'
 
 const INCLUDE_HTML_TAGS = {
   // Embedded content
@@ -51,7 +52,7 @@ export function toHTMLString(rease: Rease) {
   if (rease instanceof RText) {
     res.push(escapeHTML(rease._data))
   } else if (rease instanceof RElement) {
-    const localName = rease.localName
+    const localName = rease.name
     if (localName && !INCLUDE_HTML_TAGS.hasOwnProperty(localName)) {
       const _class = rease._class
       const _style = rease._style

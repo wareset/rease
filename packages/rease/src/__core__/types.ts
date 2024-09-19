@@ -9,6 +9,9 @@ export interface ISubscribable<T> {
 export interface IThenable<T> {
   then(resolver: (value: T, ...args: any) => any): any
 }
+export interface ICatchable<T> {
+  catch(resolver: (error: T, ...args: any) => any): any
+}
 
 export type IMaybeThenable<T> = T | IThenable<T>
 

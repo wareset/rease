@@ -1,4 +1,4 @@
-import { IThenable, ISubscribable } from '..'
+import { IThenable, ICatchable, ISubscribable } from '../types'
 
 export function isString(v: any): v is string {
   return typeof v === 'string'
@@ -9,7 +9,7 @@ export function isFunction(v: any): v is Function {
 export function isThenable(v: any): v is IThenable<any> {
   return v != null && typeof v.then === 'function'
 }
-export function isCatchable(v: any): v is IThenable<any> {
+export function isCatchable(v: any): v is ICatchable<any> {
   return v != null && typeof v.catch === 'function'
 }
 export function isSubscribable(v: any): v is ISubscribable<any> {

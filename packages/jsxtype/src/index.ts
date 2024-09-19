@@ -4,7 +4,7 @@ import { GlobalAttributes } from './generated/html_global_attributes'
 
 import { Properties as CSSProperties } from 'csstype'
 
-import type { RElement } from 'rease'
+import type { RElement, Rease } from 'rease'
 
 type StyleBasic =
   | (CSSProperties & {
@@ -134,22 +134,34 @@ declare global {
     // interface IntrinsicClassAttributes extends IntrinsicAttributes {}
 
     interface IntrinsicElements extends Intristics {
-      'r-text': { data: any; node?: Text | null } & Children
+      'r-text': { data: any } & Children
       'r-element': { node: string | Element | null; [k: string]: any } & Children
       'r-fragment': {} & Children
-      'r-watch': { is: any } & Children
-      'r-if': { is: any } & Children
-      'r-else-if': { is: any } & Children
-      'r-else': {} & Children
-      'r-switch': { is: any } & Children
-      'r-case': { is: any } & Children
+
       'r-for-in': { is: any; watch?: any; children: (v: any, k: string, a: any) => any }
       'r-for-of': {
         is: any
         watch?: any
         children: (v: any, k: string | number, a: any) => any
       }
-      'r-move': { is: any; index?: any } & Children
+
+      'r-if': { is: any; context?: any } & Children
+      'r-else-if': { is: any; context?: any } & Children
+      'r-else': { context?: any } & Children
+
+      'r-await': { is: any; context?: any  } & Children
+      'r-then': { is: any; context?: any } & Children
+      'r-catch': { is: any; context?: any } & Children
+
+      'r-move': {
+        to: ISubscribableOrThenableDeep<Rease>
+        index?: ISubscribableOrThenableDeep<number>
+      } & Children
+
+      'r-switch': { is: any } & Children
+      'r-case': { is: any; context?: any } & Children
+
+      'r-watch': { is: any; context?: any } & Children
       // [key: string]: any
     }
   }

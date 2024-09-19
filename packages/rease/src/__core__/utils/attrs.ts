@@ -1,11 +1,11 @@
-import type { RElement } from '..'
-import { NAMESPACES_URI } from '..'
-import { noop } from '..'
-import { hasOwn, getPrototypeOf, getOwnPropertyDescriptor } from '..'
+import type { RElement } from '../components'
+import { NAMESPACES_URI } from './shared'
+import { noop } from './noop'
+import { hasOwn, getPrototypeOf, getOwnPropertyDescriptor } from './object'
 import { listen } from '@rease/listen'
 import { _cssInit, _cssProperties } from '@rease/css'
 
-import { isArray } from '..'
+import { isArray } from './array'
 
 export const get_attrs_parser = (function () {
   type Element = HTMLElement | SVGElement

@@ -1,10 +1,16 @@
-import type { IThenable, ISubscriber, IUnsubscriber, ISubscribable } from '..'
-import type { ISubscribedOrThened, ISubscribedOrThenedDeep } from '..'
+import type {
+  IThenable,
+  ISubscriber,
+  IUnsubscriber,
+  ISubscribable,
+  ISubscribedOrThened,
+  ISubscribedOrThenedDeep,
+} from '../types'
 
-import { noop } from '..'
-import { then } from '..'
-import { _Array } from '..'
-import { isSubscribable, isThenable } from '..'
+import { noop } from './noop'
+import { then } from './then'
+import { _Array } from './array'
+import { isSubscribable, isThenable } from './is'
 
 import type { ISignal } from '@rease/signal'
 import { isSignal, signal, batch } from '@rease/signal'
@@ -88,7 +94,7 @@ export function watchDeep<T, C = undefined>(
 
 function _s3(
   this: {
-    d: { l: number; v: any[]; u: any[]; s: ISignal<any>; f: any; c: any }
+    d: { l: number; v: any[]; u: any[]; s: ISignal<any> | null; f: any; c: any }
     i: number
     f: boolean
   },
@@ -97,16 +103,26 @@ function _s3(
   const data = this.d
   data.v[this.i] = value
   if (data.l < 1) {
-    data.s.set(data.v.slice())
+    if (data.s) {
+      data.s.set(data.v.slice())
+    }
   } else if (this.f && ((this.f = false), --data.l < 1)) {
-    data.s.set(data.v.slice())
-    data.u.push(data.s.subscribe(data.f, data.c))
+    if (data.s) {
+      data.s.set(data.v.slice())
+      data.u.push(data.s.subscribe(data.f, data.c))
+    } else {
+      data.f.call(data.c, data.v)
+    }
   }
 }
 function _wb(u: any[], watchFn: any, a: any, cb: any, thisArg: any) {
   const l = a.length
-  const data = { l, v: _Array(l), u, s: signal(u), f: cb, c: thisArg }
-  for (let i = 0; i < l; i++) u[i] = watchFn(a[i], _s3, { d: data, i, f: true })
+  const data = { l, v: _Array(l), u, s: null as any, f: cb, c: thisArg }
+  for (let i = 0; i < l; i++) {
+    ;(u[i] = watchFn(a[i], _s3, { d: data, i, f: true })) === noop ||
+      data.s ||
+      (data.s = signal(u))
+  }
 }
 function _w0(watchFn: typeof watchDeep | typeof watch) {
   return function (a: any, cb: any, thisArg: any) {

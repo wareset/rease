@@ -1,5 +1,5 @@
-import { IThenable, IThened } from '..';
-import { noop } from '..';
+import type { IThenable, IThened } from '../types';
+import { noop } from './noop';
 export declare function then<T, C = undefined>(v: IThenable<T>, onfulfilled: (this: C, value: T) => any, thisArg?: C): () => void;
 export declare function thenSafe<T, C = undefined>(v: T, onfulfilled: (this: C, value: IThened<T>) => any, thisArg?: C): typeof noop;
 export declare function thenSafeAll<T extends readonly unknown[] | [], C = undefined>(a: T, cb: (this: C, a: {

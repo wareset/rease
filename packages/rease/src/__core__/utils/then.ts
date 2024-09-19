@@ -1,7 +1,7 @@
-import { IThenable, IThened } from '..'
-import { isThenable } from '..'
-import { noop } from '..'
-import { _Array } from '..'
+import type { IThenable, IThened } from '../types'
+import { isThenable } from './is'
+import { noop } from './noop'
+import { _Array } from './array'
 // import { batch, batchify } from '@rease/signal'
 
 export function then<T, C = undefined>(

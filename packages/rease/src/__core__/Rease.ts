@@ -1,15 +1,23 @@
-import type { ISubscribedOrThened, ISubscribedOrThenedDeep, ISubscriber } from '.'
-import { IThened } from '.'
+import type {
+  ISubscribedOrThened,
+  ISubscribedOrThenedDeep,
+  ISubscriber,
+  IThened,
+} from './types'
 
-import { noop } from '.'
-import { then, thenSafe, thenSafeAll } from '.'
+import { noop } from './utils/noop'
+import { then, thenSafe, thenSafeAll } from './utils/then'
 
-import { isArray } from '.'
-import { getPrototypeOf } from '.'
-import { isString, isFunction, isThenable } from '.'
-import { watch, watchDeep, watchAll, watchDeepAll } from '.'
+import { isArray } from './utils/array'
+import { getPrototypeOf } from './utils/object'
+import { isString, isFunction, isThenable } from './utils/is'
+import { watch, watchDeep, watchAll, watchDeepAll } from './utils/watch'
 
 import {
+  // r-await t-then r-catch
+  RAwait,
+  RThen,
+  RCatch,
   // r-text r-element r-fragment
   RText,
   RElement,
@@ -28,7 +36,7 @@ import {
   RForOf,
   // r-move
   RMove,
-} from '.'
+} from './components'
 
 type IComponent<P extends { [key: string]: any } = any> =
   | ((this: Rease, props: P) => any)
@@ -76,7 +84,7 @@ function runWatch(this: { f: Function; c: any }, v: any) {
 }
 function addWatch(iam: Rease, watchFn: Function, $val$: any, cb?: Function, thisArg?: any) {
   let u = noop
-  if (!iam.destroyed) {
+  if (iam._.a0) {
     iam._.$1++
     const data = { f: preWatch, c: { r: iam, d: null as any, f: cb || noop, c: thisArg } }
     data.c.d = data
@@ -108,7 +116,7 @@ function runAwait(this: { r: Rease; f: any; c: any }, v: any) {
 }
 function addAwait(iam: Rease, awaitFn: Function, thing: any, cb?: Function, thisArg?: any) {
   let u = noop
-  if (!iam.destroyed) {
+  if (iam._.a0) {
     iam._.$1++
     const data = { r: iam, f: cb || noop, c: thisArg }
     const un = awaitFn(thing, runAwait, data)
@@ -142,46 +150,49 @@ function splice_child_from_parent(parent: Rease, idx: number) {
 let PARENT: Rease | null = null
 let PINDEX: number | undefined
 function set_parent_prev_next(iam: Rease) {
-  if (PARENT) {
-    PARENT._.$1++
+  let parent = PARENT
+  let pindex = PINDEX
+  PARENT = null
+  PINDEX = NaN
+  if (parent) {
+    parent._.$1++
     // @ts-ignore
-    iam.root = PARENT.root
+    iam.root = parent.root
     // @ts-ignore
-    iam.parent = PARENT
-    const pc = PARENT.children
-    if (PINDEX === +PINDEX! && PINDEX < pc.length) {
-      if ((PINDEX |= 0) < 0) PINDEX = 0
+    iam.parent = parent
+    const pc = parent.children
+    if (pindex === +pindex! && pindex < pc.length) {
+      if ((pindex |= 0) < 0) pindex = 0
       // @ts-ignore
-      if ((iam.prev = (iam.next = pc[PINDEX]).prev)) iam.prev.next = iam
+      if ((iam.prev = (iam.next = pc[pindex]).prev)) iam.prev.next = iam
       // @ts-ignore
-      pc.splice(PINDEX, 0, iam)
+      pc.splice(pindex, 0, iam)
       // @ts-ignore
       iam.next.prev = iam
     } else {
       // @ts-ignore
       iam.next = null
       // @ts-ignore
-      PINDEX = pc.push(iam) - 1
+      pindex = pc.push(iam) - 1
       // @ts-ignore
-      PINDEX ? ((iam.prev = pc[PINDEX - 1]).next = iam) : (iam.prev = null)
+      pindex ? ((iam.prev = pc[pindex - 1]).next = iam) : (iam.prev = null)
     }
-    for (let a = PARENT._.in, j = a.length, aj; j--; ) (aj = a[j]).i < PINDEX || aj.i++
+    for (let a = parent._.in, j = a.length, aj; j--; ) (aj = a[j]).i < pindex || aj.i++
   } else {
     // @ts-ignore
     iam.root = iam
     // @ts-ignore
     iam.parent = iam.prev = iam.next = null
   }
-  PARENT = null
-  PINDEX = NaN
 }
 function insert(iam: Rease, res: Rease[], jsx: any, idx: { i: number | undefined }) {
   if (jsx !== void 0) {
+    const _ = iam._
     if (isArray(jsx)) {
-      for (let i = 0; i < jsx.length && !iam.destroyed; i++) insert(iam, res, jsx[i], idx)
-    } else if (!iam.destroyed) {
+      for (let i = 0; i < jsx.length && _.a0; i++) insert(iam, res, jsx[i], idx)
+    } else if (_.a0) {
       jsx instanceof Rease
-        ? jsx.destroyed || (res.push(jsx), jsx.move(iam, idx.i))
+        ? jsx._.a0 && (res.push(jsx), jsx.move(iam, idx.i))
         : res.push(create_rease(jsx, iam, idx.i))
     }
   }
@@ -193,14 +204,16 @@ function runOnReadyThen(this: Rease) {
   if (--this._.$2 < 1) (this._.$2 = NaN), this.parent && testRunOnReadyHead(this.parent)
 }
 function runOnReadyHook(iam: Rease, hook: any, thisArg: any) {
-  if (isThenable((hook = hook.call(thisArg, iam))) && !iam.destroyed)
+  if (isThenable((hook = hook.call(thisArg, iam))) && iam._.a0)
     iam._.$2++, then(hook, runOnReadyThen, iam)
 }
 function runOnReadyHead(iam: Rease) {
-  const head = iam._.c2
+  const _ = iam._
+  const head = _.c2
   if (head) {
-    iam._.c2 = null
-    for (let n = head; (n = n.n) !== head && !iam.destroyed; ) runOnReadyHook(iam, n.f, n.c)
+    _.c2 = null
+    // iam._.a0 && runOnReadyHook(iam, iam.hookOnReady, iam)
+    for (let n = head; (n = n.n) !== head && _.a0; ) runOnReadyHook(iam, n.f, n.c)
     runOnReadyThen.call(iam)
   }
 }
@@ -215,16 +228,26 @@ function testRunOnReadyHead(iam: Rease) {
 // runOnBeforeReady
 //
 
-// function runOnMoveHooks(iam: Rease) {
-//   for (let head = iam._.om, n = head; (n = n.n) !== head && !iam.destroyed; ) n.f.call(n.c, iam)
-//   for (let a = iam.children.slice(), i = 0, l = a.length; i < l; i++) runOnMoveHooks(a[i])
-// }
-function runDestroyHooks(iam: Rease, head: IDblList | null) {
-  if (head) for (let n = head; (n = n.n) !== head; ) n.f.call(n.c, iam)
+function runOnMoveHooks(iam: Rease, rease: Rease, from: Rease | null, to: Rease | null) {
+  const _ = iam._
+  // _.a0 && iam.hookOnMove.call(iam, rease, from, to)
+  for (let head: IDblList | undefined, a = [_.m2, _.m1], i = 2; i-- > 0; ) {
+    if ((head = a[i]))
+      for (let n = head; (n = n.n) !== head && _.a0; ) n.f.call(n.c, rease, from, to)
+  }
+
+  const ni = _.in
+  const n = { i: 0 }
+  ni.push(n)
+  for (let a = iam.children; n.i < a.length; n.i++) runOnMoveHooks(a[n.i], rease, from, to)
+  ni.splice(ni.lastIndexOf(n), 1)
+}
+function runDestroyHooks(iam: Rease, head: IDblList) {
+  for (let n = head; (n = n.n) !== head; ) n.f.call(n.c, iam)
 }
 function runEmitHooks(head: IDblList | undefined, iam: Rease, detail: any) {
   if (head)
-    for (let n = head; (n = n.n) !== head && !iam.destroyed; ) n.f.call(n.c, iam, detail)
+    for (let n = head, _ = iam._; (n = n.n) !== head && _.a0; ) n.f.call(n.c, iam, detail)
 }
 
 function runFuncComponentThen(this: Rease, jsx: any) {
@@ -284,7 +307,7 @@ function create_rease(jsx: any, parent: Rease | null, idx?: number) {
   if (isClass) {
     ;(iam = new c(p)).init()
   } else {
-    ;(iam = new Rease()), (iam._.cr = c), ((iam as any)._name = c.name)
+    ;(iam = new Rease()), ((iam as any)._name = c.name), ((iam as any)._ctor = c)
     if (isThenable((jsx = c.call(iam, p)))) then(jsx, runFuncComponentThen, iam)
     else runFuncComponentThen.call(iam, jsx)
   }
@@ -298,38 +321,46 @@ function create_rease(jsx: any, parent: Rease | null, idx?: number) {
   return iam
 }
 
-// function normalize_idx(idx: number | undefined, l: number) {
-//   return idx !== +idx! || idx > l ? l : (idx |= 0) < 0 ? ((idx = l - idx) < 0 ? 0 : idx) : idx
-// }
 function normalize_idx(i: number | undefined, l: number) {
-  return typeof i === 'number' && i <= l ? ((i |= 0) < 0 ? ((i = l - i) < 0 ? 0 : i) : i) : l
+  return typeof i === 'number' && i <= l
+    ? (i |= 0) < 0
+      ? (i = l + i - 1) < 0
+        ? 0
+        : i
+      : i
+    : l
 }
 
 class Rease {
-  // @ts-ignore
-  private readonly _name: string
+  protected readonly _name: string
+  readonly _ctor: Function
 
   readonly _: {
+    // isActive
+    a0: boolean
     // onBeforeReady
     c1: boolean
     $1: number
     // onReady
-    c2: IDblList | null
+    c2?: IDblList | null
     $2: number
     // onBeforeDestroy
-    d1: IDblList | null
+    d1?: IDblList | null
     // onDestroy
-    d2: IDblList | null
+    d2?: IDblList | null
     // onMove
-    // om: IDblList
+    m1?: IDblList
+    m2?: IDblList
 
     // get/set Context
     // cx: Map<any, any> | null
 
+    // r-await
+    // aw?: any
     // r-if
-    if: any[]
+    // if?: any[]
     // ctor
-    cr: Function
+    // cr: Function
     // insert counters
     readonly in: { i: number }[] // [number][]
     // readonly ou: { [key: string]: IDblList }
@@ -354,6 +385,7 @@ class Rease {
 
   constructor() {
     this._name = this.constructor.name
+    this._ctor = this.constructor
 
     this.inited = false
     this.destroyed = false
@@ -366,17 +398,19 @@ class Rease {
     // this.next = null
 
     this._ = {
+      a0: true,
       c1: false,
       $1: 1,
-      c2: createDblList(),
+      // c2: createDblList(),
       $2: 1,
-      d1: createDblList(),
-      d2: createDblList(),
-      // om: createDblList(),
+      // d1: createDblList(),
+      // d2: createDblList(),
+
+      // m1: createDblList(),
+      // m2: createDblList(),
 
       // cx: null,
-      if: [],
-      cr: this.constructor,
+      // cr: this.constructor,
       in: [],
       oc: {},
       on: {},
@@ -419,17 +453,17 @@ class Rease {
     this._.c1 || ((this._.c1 = (this as any).inited = true), testRunOnReadyHead(this))
   }
 
-  insert(jsx: any, idx?: number) {
+  insert(jsx: any, index?: number) {
     const res: Rease[] = []
-    if (!this.destroyed && jsx !== void 0) {
+    if (this._.a0 && jsx !== void 0) {
       const ni = this._.in
-      const n = { i: normalize_idx(idx, this.children.length) }
+      const n = { i: normalize_idx(index, this.children.length) }
       ni.push(n), insert(this, res, jsx, n), ni.splice(ni.lastIndexOf(n), 1)
     }
     return res
   }
   splice(start: number, remove: number, jsx: any) {
-    if (!this.destroyed && (jsx !== void 0 || remove)) {
+    if (this._.a0 && (jsx !== void 0 || remove)) {
       const ni = this._.in
       const n = { i: start }
       ni.push(n)
@@ -441,14 +475,16 @@ class Rease {
   }
 
   destroy() {
-    if (!this.destroyed) {
-      const _ = this._
+    const _ = this._
+    if (_.a0) {
       const $2 = _.$2
-      _.c2 = null
+      _.a0 = false
+      _.c2 && (_.c2 = null)
       _.$1 = _.$2 = NaN
       // @ts-ignore
       this.destroyed = true
-      runDestroyHooks(this, _.d1), (_.d1 = null)
+      // this.hookOnDestroyCapture.call(this, this)
+      _.d1 && (runDestroyHooks(this, _.d1), (_.d1 = null))
       this.destroyChildren()
       // prettier-ignore
       const parent = this.parent, prev = this.prev, next = this.next
@@ -461,7 +497,8 @@ class Rease {
       if (parent) {
         splice_child_from_parent(parent, parent.children.lastIndexOf(this))
       }
-      runDestroyHooks(this, _.d2), (_.d2 = null)
+      // this.hookOnDestroy.call(this, this)
+      _.d2 && (runDestroyHooks(this, _.d2), (_.d2 = null))
       $2 && parent && testRunOnReadyHead(parent)
     }
   }
@@ -469,17 +506,18 @@ class Rease {
     for (let a = this.children.slice(), i = a.length; i-- > 0; ) a[i].destroy()
   }
 
-  move(to: Rease | null, idx?: number) {
-    if (!this.destroyed && (to ? !to.destroyed : this.parent)) {
+  move(to: Rease | null, index?: number) {
+    if (this._.a0 && (to ? to._.a0 : this.parent)) {
       // prettier-ignore
       const parent = this.parent, prev = this.prev, next = this.next
-      idx = to ? normalize_idx(idx, to.children.length) : 0
+      index = to ? normalize_idx(index, to.children.length) : 0
       if (parent) {
         const i = parent.children.indexOf(this)
         if (parent === to) {
           const l = parent.children.length
-          idx < l || (idx = l - 1), idx > i && idx--
-          if (idx === i) return false
+          // index > i && index--
+          index < l || (index = l - 1)
+          if (index === i) return false
         }
         splice_child_from_parent(parent, i)
       }
@@ -488,12 +526,12 @@ class Rease {
       // @ts-ignore
       if (next) next.prev = prev
       PARENT = to
-      PINDEX = idx
+      PINDEX = index
       set_parent_prev_next(this)
       this._.$1++
       const $2 = this._.$2
-      this.emitDeep('move')
-      // runOnMoveHooks(this)
+      // this.emitDeep('rease-move', this)
+      runOnMoveHooks(this, this, parent, to)
       this.init()
       testRunOnReadyHead(this)
       if (parent === to) {
@@ -517,9 +555,10 @@ class Rease {
     thisArg?: C,
     isCapture?: boolean | null
   ) {
-    return !this.destroyed
+    const _ = this._
+    return _.a0
       ? addHookInDblList(
-          (isCapture = isCapture ? this._.oc : (this._.on as any))[type] ||
+          (isCapture = (isCapture ? _.oc : _.on) as any)[type] ||
             ((isCapture as any)[type] = createDblList()),
           cb,
           thisArg
@@ -527,20 +566,15 @@ class Rease {
       : noop
   }
   emit<Detail>(type: string, detail?: Detail, isCapture?: boolean | null) {
-    if (isCapture != null)
-      runEmitHooks((isCapture ? this._.oc : this._.on)[type], this, detail)
-    else
-      runEmitHooks(this._.oc[type], this, detail), runEmitHooks(this._.on[type], this, detail)
+    const _ = this._
+    if (isCapture != null) runEmitHooks((isCapture ? _.oc : _.on)[type], this, detail)
+    else runEmitHooks(_.oc[type], this, detail), runEmitHooks(_.on[type], this, detail)
   }
   emitDeep<Detail>(type: string, detail?: Detail) {
-    runEmitHooks(this._.oc[type], this, detail)
-    const ni = this._.in
-    const n = { i: 0 }
-    ni.push(n)
-    for (let a = this.children; n.i < a.length && !this.destroyed; n.i++)
-      a[n.i].emitDeep(type, detail)
-    ni.splice(ni.lastIndexOf(n), 1)
-    runEmitHooks(this._.on[type], this, detail)
+    const _ = this._
+    runEmitHooks(_.oc[type], this, detail)
+    this.notifyChildren(type, detail)
+    runEmitHooks(_.on[type], this, detail)
   }
   notifyParents<Detail>(type: string, detail?: Detail) {
     for (let parent: Rease | null = this; (parent = parent.parent); ) parent.emit(type, detail)
@@ -561,29 +595,44 @@ class Rease {
   //
   // HOOKS
   //
-  // onBeforeMove(hook: (iam: this) => any) {
-  //   return hook !== noop && !this.destroyed ? addHookInDblList(this._.bm, hook) : noop
-  // }
-  onMove<C = undefined>(hook: (this: C, iam: this) => any, thisArg?: C) {
-    return this.on('move', hook, thisArg, true)
+  // hookOnMove(_rease: Rease, _from: Rease | null, _to: Rease | null) {}
+  onMoveCapture<C = undefined>(
+    hook: (this: C, rease: Rease, from: Rease | null, to: Rease | null) => any,
+    thisArg?: C
+  ) {
+    const _ = this._
+    return _.a0 ? addHookInDblList(_.m1 || (_.m1 = createDblList()), hook, thisArg) : noop
+  }
+  onMove<C = undefined>(
+    hook: (this: C, rease: Rease, from: Rease | null, to: Rease | null) => any,
+    thisArg?: C
+  ) {
+    const _ = this._
+    return _.a0 ? addHookInDblList(_.m2 || (_.m2 = createDblList()), hook, thisArg) : noop
   }
 
+  // hookOnReady(_iam: this) {}
   onReady<C = undefined>(hook: (this: C, iam: this) => any, thisArg?: C) {
-    return !this.destroyed
-      ? this._.c2
-        ? addHookInDblList(this._.c2, hook, thisArg)
-        : (this._.$2 ? runOnReadyHook(this, hook, thisArg) : hook.call(thisArg!, this), noop)
+    const _ = this._
+    return _.a0
+      ? _.c2 !== null
+        ? addHookInDblList(_.c2 || (_.c2 = createDblList()), hook, thisArg)
+        : (_.$2 ? runOnReadyHook(this, hook, thisArg) : hook.call(thisArg!, this), noop)
       : noop
   }
 
-  onBeforeDestroy<C = undefined>(hook: (this: C, iam: this) => any, thisArg?: C) {
-    return this._.d1
-      ? addHookInDblList(this._.d1, hook, thisArg)
+  // hookOnDestroyCapture(_iam: this) {}
+  onDestroyCapture<C = undefined>(hook: (this: C, iam: this) => any, thisArg?: C) {
+    const _ = this._
+    return _.d1 !== null
+      ? addHookInDblList(_.d1 || (_.d1 = createDblList()), hook, thisArg)
       : (hook.call(thisArg!, this), noop)
   }
+  // hookOnDestroy(_iam: this) {}
   onDestroy<C = undefined>(hook: (this: C, iam: this) => any, thisArg?: C) {
-    return this._.d2
-      ? addHookInDblList(this._.d2, hook, thisArg)
+    const _ = this._
+    return _.d2 !== null
+      ? addHookInDblList(_.d2 || (_.d2 = createDblList()), hook, thisArg)
       : (hook.call(thisArg!, this), noop)
   }
   //
@@ -618,29 +667,33 @@ class Rease {
   //
   // WATCH
   //
-  watch<T, C = undefined>($val$: T, cb?: ISubscriber<ISubscribedOrThened<T>, C>, thisArg?: C) {
-    return addWatch(this, watch, $val$, cb, thisArg)
+  watch<T, C = undefined>(
+    $value$: T,
+    cb?: ISubscriber<ISubscribedOrThened<T>, C>,
+    thisArg?: C
+  ) {
+    return addWatch(this, watch, $value$, cb, thisArg)
   }
   watchDeep<T, C = undefined>(
-    $val$: T,
+    $value$: T,
     cb?: ISubscriber<ISubscribedOrThenedDeep<T>, C>,
     thisArg?: C
   ) {
-    return addWatch(this, watchDeep, $val$, cb, thisArg)
+    return addWatch(this, watchDeep, $value$, cb, thisArg)
   }
   watchAll<T extends readonly unknown[] | [], C = undefined>(
-    $vals$: T,
+    $values$: T,
     cb?: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThened<T[P]> }, C>,
     thisArg?: C
   ) {
-    return addWatch(this, watchAll, $vals$, cb, thisArg)
+    return addWatch(this, watchAll, $values$, cb, thisArg)
   }
   watchDeepAll<T extends readonly unknown[] | [], C = undefined>(
-    $vals$: T,
+    $values$: T,
     cb?: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }, C>,
     thisArg?: C
   ) {
-    return addWatch(this, watchDeepAll, $vals$, cb, thisArg)
+    return addWatch(this, watchDeepAll, $values$, cb, thisArg)
   }
   //
   // WATCH
@@ -667,51 +720,71 @@ class Rease {
       if (_find(isAp, p, parentCtor)) return p as FindsRes<P>
   }
 
-  findFirstChild<C extends Function>(childCtor: FindsArg<C>, skipCtor?: FindsArg<Function>) {
+  findFirstChild<C extends Function>(
+    childCtor: FindsArg<C>,
+    isDeep?: boolean,
+    skipCtor?: FindsArg<Function>
+  ) {
     const isAc = isArray(childCtor)
     const isAs = skipCtor && isArray(skipCtor)
-    for (let a = this.children, i = 0, l = a.length, child: any; i < l; i++) {
+    for (let a = this.children, i = 0, l = a.length, child: Rease; i < l; i++) {
       if (
         _find(isAc, (child = a[i]), childCtor) ||
-        (!(skipCtor && _find(isAs!, child, skipCtor)) &&
-          (child = child.findFirstChild(childCtor, skipCtor)))
+        (isDeep &&
+          !(skipCtor && _find(isAs!, child, skipCtor)) &&
+          (child = child.findFirstChild(childCtor, isDeep, skipCtor)!))
       )
         return child as FindsRes<C>
     }
   }
-  findLastChild<C extends Function>(childCtor: FindsArg<C>, skipCtor?: FindsArg<Function>) {
+  findLastChild<C extends Function>(
+    childCtor: FindsArg<C>,
+    isDeep?: boolean,
+    skipCtor?: FindsArg<Function>
+  ) {
     const isAc = isArray(childCtor)
     const isAs = skipCtor && isArray(skipCtor)
-    for (let a = this.children, i = a.length, child: any; i-- > 0; ) {
+    for (let a = this.children, i = a.length, child: Rease; i-- > 0; ) {
       if (
         _find(isAc, (child = a[i]), childCtor) ||
-        (!(skipCtor && _find(isAs!, child, skipCtor)) &&
-          (child = child.findLastChild(childCtor, skipCtor)))
+        (isDeep &&
+          !(skipCtor && _find(isAs!, child, skipCtor)) &&
+          (child = child.findLastChild(childCtor, isDeep, skipCtor)!))
       )
         return child as FindsRes<C>
     }
   }
 
-  findPrevSibling<S extends Function>(prevCtor: FindsArg<S>, skipCtor?: FindsArg<Function>) {
+  findPrevSibling<S extends Function>(
+    prevCtor: FindsArg<S>,
+    isDeep?: boolean,
+    skipCtor?: FindsArg<Function>
+  ) {
     const isAc = isArray(prevCtor)
     const isAs = skipCtor && isArray(skipCtor)
     for (let prev: Rease | null = this, sibling; (prev = prev.prev); ) {
       if (
         _find(isAc, (sibling = prev), prevCtor) ||
-        (!(skipCtor && _find(isAs!, sibling, skipCtor)) &&
-          (sibling = prev.findLastChild(prevCtor, skipCtor)))
+        (isDeep &&
+          !(skipCtor && _find(isAs!, sibling, skipCtor)) &&
+          (sibling = prev.findLastChild(prevCtor, isDeep, skipCtor)))
       )
         return sibling as FindsRes<S>
     }
   }
-  findNextSibling<S extends Function>(nextCtor: FindsArg<S>, skipCtor?: FindsArg<Function>) {
+  findNextSibling<S extends Function>(
+    nextCtor: FindsArg<S>,
+    isDeep?: boolean,
+    skipCtor?: FindsArg<Function>
+  ) {
     const isAc = isArray(nextCtor)
     const isAs = skipCtor && isArray(skipCtor)
     for (let next: Rease | null = this, sibling; (next = next.next); ) {
       if (
         _find(isAc, (sibling = next), nextCtor) ||
-        (!(skipCtor && _find(isAs!, sibling, skipCtor)) &&
-          (sibling = next.findFirstChild(nextCtor, skipCtor)))
+        (isDeep &&
+          !(skipCtor && _find(isAs!, sibling, skipCtor)) &&
+          (sibling = next.findFirstChild(nextCtor, isDeep, skipCtor)))
       )
         return sibling as FindsRes<S>
     }
@@ -721,7 +794,7 @@ class Rease {
     parentCtor: FindsArg<P>,
     prevCtor: FindsArg<S>
   ) {
-    let prev = this.findPrevSibling(prevCtor, parentCtor)
+    let prev = this.findPrevSibling(prevCtor, true, parentCtor)
     if (prev) return { prev }
     const isAp = isArray(parentCtor)
     const isAc = isArray(prevCtor)
@@ -733,7 +806,8 @@ class Rease {
       for (let a = parent.children, i = a.indexOf(child); i-- > 0; ) {
         if (
           _find(isAc, (prev = a[i] as FindsRes<S>), prevCtor) ||
-          (!_find(isAp, prev, parentCtor) && (prev = prev.findLastChild(prevCtor, parentCtor)))
+          (!_find(isAp, prev, parentCtor) &&
+            (prev = prev.findLastChild(prevCtor, true, parentCtor)))
         )
           return { prev }
       }
@@ -745,7 +819,7 @@ class Rease {
     parentCtor: FindsArg<P>,
     nextCtor: FindsArg<S>
   ) {
-    let next = this.findNextSibling(nextCtor, parentCtor)
+    let next = this.findNextSibling(nextCtor, true, parentCtor)
     if (next) return { next }
     const isAp = isArray(parentCtor)
     const isAc = isArray(nextCtor)
@@ -758,7 +832,7 @@ class Rease {
         if (
           _find(isAc, (next = a[i] as FindsRes<S>), nextCtor) ||
           (!_find(isAp, next, parentCtor) &&
-            (next = next.findFirstChild(nextCtor, parentCtor)))
+            (next = next.findFirstChild(nextCtor, true, parentCtor)))
         )
           return { next }
       }
@@ -779,10 +853,10 @@ function _find<T extends Rease, C extends Function>(
 function _find(isArray: any, rease: any, ctor: any) {
   if (isArray) {
     for (let j = ctor.length; j--; )
-      if (rease._.cr === ctor || rease instanceof ctor[j]) return true
+      if (rease._ctor === ctor || rease instanceof ctor[j]) return true
     return false
   } else {
-    return rease._.cr === ctor || rease instanceof ctor
+    return rease._ctor === ctor || rease instanceof ctor
   }
 }
 
@@ -805,12 +879,24 @@ function createElement(component: any, props: any, ...children: any[]) {
 
   if (isString(component)) {
     switch (component) {
+      // case 'html':
+      // case 'head':
+      // case 'body':
+      //   throw ctor
+      case 'r-text':
+        component = RText
+        break
+      case 'r-element':
+        component = RElement
+        break
       case 'r-fragment':
         component = RFragment
         break
+
       case 'r-watch':
         component = RWatch
         break
+
       case 'r-if':
         component = RIf
         break
@@ -820,31 +906,34 @@ function createElement(component: any, props: any, ...children: any[]) {
       case 'r-else':
         component = RElse
         break
+
       case 'r-switch':
         component = RSwitch
         break
       case 'r-case':
         component = RCase
         break
+
+      case 'r-await':
+        component = RAwait
+        break
+      case 'r-then':
+        component = RThen
+        break
+      case 'r-catch':
+        component = RCatch
+        break
+
       case 'r-for-in':
         component = RForIn
         break
       case 'r-for-of':
         component = RForOf
         break
+
       case 'r-move':
         component = RMove
         break
-      case 'r-text':
-        component = RText
-        break
-      case 'r-element':
-        component = RElement
-        break
-      // case 'html':
-      // case 'head':
-      // case 'body':
-      //   throw ctor
       default:
         props.node = component
         component = RElement
