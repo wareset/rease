@@ -56,7 +56,7 @@ declare class Rease {
     destroy(): void;
     destroyChildren(): void;
     move(to: Rease | null, index?: number): boolean;
-    on<Detail, C = undefined>(type: string, cb: (this: C, iam: this, detail: Detail) => void, thisArg?: C, isCapture?: boolean | null): typeof noop;
+    on<Detail, C = undefined>(type: string, cb: (this: C, detail: Detail) => void, thisArg?: C, isCapture?: boolean | null): typeof noop;
     emit<Detail>(type: string, detail?: Detail, isCapture?: boolean | null): void;
     emitDeep<Detail>(type: string, detail?: Detail): void;
     notifyParents<Detail>(type: string, detail?: Detail): void;

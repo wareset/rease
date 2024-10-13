@@ -4,7 +4,7 @@
 // export type IReaseGlobalEventHandlersEventMap =
 //   ToIReaseGlobalEventHandlersEventMap<GlobalEventHandlersEventMap>
 
-export const listen = (function (setTimeout) {
+export const listen = (function () {
   const PACKAGE = '@rease/listen: '
 
   function noop() {}
@@ -152,7 +152,7 @@ export const listen = (function (setTimeout) {
       // checkData(E)
     }
 
-    let Observer: any
+    let Observer: typeof ResizeObserver
     if ((Observer = WINDOW.ResizeObserver)) {
       // console.info(PACKAGE + 'ResizeObserver')
       const observer = new Observer(function (a: ResizeObserverEntry[]) {
@@ -169,55 +169,60 @@ export const listen = (function (setTimeout) {
           }
         }
       }
-    } else if ((Observer = WINDOW.MutationObserver)) {
-      // console.info(PACKAGE + 'MutationObserver')
-      const config = {
-        attributes: true,
-        childList: true,
-        characterData: true,
-        subtree: true,
-      }
-      onCustomResize = function (E: IElement) {
-        if (!E[KEY_DATA]) {
-          function check() {
-            checkData(E)
-          }
-          const view = E.ownerDocument.defaultView
-          initData(E)
-          ;(E[KEY_DATA]!.m = new Observer(check)).observe(E, config)
-          E[KEY_DATA]!.u = view ? add_event_listener(view, 'resize', check, true, true) : noop
-        }
-        let data = E[KEY_DATA]
-        data!.c++
-        return function () {
-          if (data) {
-            if (--data.c < 1) data.m!.disconnect(), data.u!(), (E[KEY_DATA] = null)
-            data = null as any
-          }
-        }
-      }
+      // } else if ((Observer = WINDOW.MutationObserver)) {
+      //   // console.info(PACKAGE + 'MutationObserver')
+      //   const config = {
+      //     attributes: true,
+      //     childList: true,
+      //     characterData: true,
+      //     subtree: true,
+      //   }
+      //   onCustomResize = function (E: IElement) {
+      //     if (!E[KEY_DATA]) {
+      //       function check() {
+      //         checkData(E)
+      //       }
+      //       const view = E.ownerDocument.defaultView
+      //       initData(E)
+      //       ;(E[KEY_DATA]!.m = new Observer(check)).observe(E, config)
+      //       E[KEY_DATA]!.u = view ? add_event_listener(view, 'resize', check, true, true) : noop
+      //     }
+      //     let data = E[KEY_DATA]
+      //     data!.c++
+      //     return function () {
+      //       if (data) {
+      //         if (--data.c < 1) data.m!.disconnect(), data.u!(), (E[KEY_DATA] = null)
+      //         data = null as any
+      //       }
+      //     }
+      //   }
     } else {
+      const refresher =
+        (WINDOW.requestAnimationFrame as typeof setTimeout) || WINDOW.setTimeout
+
+      let looping = false
+      function runLoop() {
+        looping || ((looping = true), refresher(loop, 17))
+      }
       // console.info(PACKAGE + 'setTimeout')
-      let allowLoop = true
       const ELEMENTS: IElement[] = []
       function loop(): void {
-        if (allowLoop) {
-          allowLoop = false
+        looping = false
+        if (!document.hidden) {
           for (let i = 0, E: IElement; i < ELEMENTS.length; i++) {
             checkData((E = ELEMENTS[i]))
             if (!E[KEY_DATA]!.c) (E[KEY_DATA] = null), ELEMENTS.splice(i--, 1)
           }
-          if (ELEMENTS.length && !document.hidden) setTimeout(loop, 25)
-          allowLoop = true
+          if (ELEMENTS.length) runLoop()
         }
       }
 
-      add_event_listener(document, 'visibilitychange' as any, loop, true, true)
+      add_event_listener(document, 'visibilitychange' as any, runLoop, true, true)
 
       onCustomResize = function (E: IElement) {
         if (ELEMENTS.indexOf(E) < 0) initData(E), ELEMENTS.push(E)
         let data = E[KEY_DATA]!
-        data.c++, setTimeout(loop)
+        data.c++, runLoop()
         return function () {
           data && (--data.c, (data = null as any))
         }
@@ -372,7 +377,7 @@ export const listen = (function (setTimeout) {
   }
 
   return listen
-})(setTimeout)
+})()
 
 // listen<'mousedown'>(window, 'mousedown-capture', (e) => {
 //   console.log(e)

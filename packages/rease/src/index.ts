@@ -2,6 +2,7 @@ export * from '@rease/css'
 export * from '@rease/listen'
 export * from '@rease/signal'
 export * from '@rease/tween'
+export type { ReaseTween as ITween } from '@rease/tween'
 
 export type {
   //

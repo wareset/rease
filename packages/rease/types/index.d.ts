@@ -2,6 +2,7 @@ export * from '@rease/css';
 export * from '@rease/listen';
 export * from '@rease/signal';
 export * from '@rease/tween';
+export type { ReaseTween as ITween } from '@rease/tween';
 export type { ISubscriber, IUnsubscriber, IThenable, ICatchable, ISubscribable, IMaybeThenable, IMaybeSubscribable, ISubscribableOrThenable, ISubscribableOrThenableDeep, IMaybeSubscribableOrThenable, IMaybeSubscribableOrThenableDeep, IThened, ISubscribed, ISubscribedDeep, ISubscribedOrThened, ISubscribedOrThenedDeep, } from './__core__/types';
 export { isString, isFunction, isThenable, isCatchable, isSubscribable, } from './__core__/utils/is';
 export { then, thenSafe, thenSafeAll, thenable, timeout, interval, } from './__core__/utils/then';

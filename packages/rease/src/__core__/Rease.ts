@@ -247,7 +247,7 @@ function runDestroyHooks(iam: Rease, head: IDblList) {
 }
 function runEmitHooks(head: IDblList | undefined, iam: Rease, detail: any) {
   if (head)
-    for (let n = head, _ = iam._; (n = n.n) !== head && _.a0; ) n.f.call(n.c, iam, detail)
+    for (let n = head, _ = iam._; (n = n.n) !== head && _.a0; ) n.f.call(n.c, detail)
 }
 
 function runFuncComponentThen(this: Rease, jsx: any) {
@@ -551,7 +551,7 @@ class Rease {
   //
   on<Detail, C = undefined>(
     type: string,
-    cb: (this: C, iam: this, detail: Detail) => void,
+    cb: (this: C, detail: Detail) => void,
     thisArg?: C,
     isCapture?: boolean | null
   ) {
