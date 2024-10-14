@@ -37,22 +37,8 @@ let insertNode = noop as unknown as (
 ) => void
 let deleteNode = noop as unknown as (iam: RText | RElement) => void
 let initedNode = noop as unknown as (iam: RText | RElement) => void
+let movingNode = noop as unknown as (this: RText | RElement, rease: Rease) => void
 let DOCUMENT = {} as Document
-
-function movingNode(this: RText | RElement, rease: Rease) {
-  const node = this.node
-  if (node) {
-    if (this !== rease) {
-      for (let parent = this as Rease; (parent = parent.parent!); ) {
-        if (parent instanceof RElement) return
-        if (parent === rease) break
-      }
-    }
-
-    const { p: parNode, b: befNode } = get_parent_and_before_node(this)
-    parNode ? insertNode(node, parNode, befNode) : deleteNode(this)
-  }
-}
 
 // class _RHTML_ extends Rease {
 //   protected _isMoveAndDelete?: boolean
@@ -139,8 +125,8 @@ export class RElement extends Rease {
         break
       default: {
         const { p: parNode, b: befNode } = get_parent_and_before_node(this)
-        if ((this.node = (node as any) || (node = createElem(type, parNode, befNode)))) {
-          insertNode(node as Element, parNode, befNode)
+        if ((this.node = (node as any) || createElem(type, parNode, befNode))) {
+          insertNode(this.node, parNode, befNode)
           this.onMove(movingNode, this)
           this.onDestroy(deleteNode)
           // this._isMoveAndDelete = true
@@ -233,11 +219,28 @@ if (typeof document !== 'undefined') {
     //   if (parNode !== node.parentNode || befNode !== node.nextSibling)
     //     parNode.insertBefore(node, befNode)
     // }
-    if (parNode)
+    if (parNode) {
       parNode.insertBefore(node, (befNode ? befNode.nextSibling : parNode.firstChild) || null)
+    } else {
+      removeNode(node)
+    }
+  }
+  movingNode = function (this, rease) {
+    let node = this.node
+    if (node) {
+      if (this !== rease) {
+        for (let parent = this as Rease; (parent = parent.parent!); ) {
+          if (parent instanceof RElement) return
+          if (parent === rease) break
+        }
+      }
+
+      const { p: parNode, b: befNode } = get_parent_and_before_node(this)
+      insertNode(node, parNode, befNode)
+    }
   }
   deleteNode = function (iam) {
-    const node = iam.node
+    let node = iam.node
     node && removeNode(node)
   }
   initedNode = function (iam) {
