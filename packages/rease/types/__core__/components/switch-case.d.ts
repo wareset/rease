@@ -24,4 +24,8 @@ export declare class RCase<T = unknown, C = undefined> extends Rease {
         context?: C;
         children?: ISubscriber<ISubscribedOrThenedDeep<T>, C>;
     });
+    constructor({}: {
+        is: any;
+        children?: any;
+    });
 }

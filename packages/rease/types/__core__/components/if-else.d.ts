@@ -10,6 +10,10 @@ export declare class RIf<T = unknown, C = undefined> extends _RIfElseIf_ {
         context?: C;
         children?: ISubscriber<ISubscribedOrThenedDeep<T>, C>;
     });
+    constructor({}: {
+        is: any;
+        children?: any;
+    });
 }
 export declare class RElseIf<T = unknown, C = undefined> extends _RIfElseIf_ {
     constructor({}: {
@@ -17,11 +21,18 @@ export declare class RElseIf<T = unknown, C = undefined> extends _RIfElseIf_ {
         context?: C;
         children?: ISubscriber<ISubscribedOrThenedDeep<T>, C>;
     });
+    constructor({}: {
+        is: any;
+        children?: any;
+    });
 }
 export declare class RElse<C = undefined> extends _RIfElseIf_ {
     constructor({}: {
         context?: C;
         children?: (this: C, value: true) => any;
+    });
+    constructor({}: {
+        children?: any;
     });
 }
 export {};

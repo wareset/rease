@@ -41,6 +41,7 @@ export class RIf<T = unknown, C = undefined> extends _RIfElseIf_ {
     context?: C
     children?: ISubscriber<ISubscribedOrThenedDeep<T>, C>
   })
+  constructor({}: { is: any; children?: any })
   constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
     super()
     ifelseif(this, context, children, (this._is = [is]))
@@ -53,6 +54,7 @@ export class RElseIf<T = unknown, C = undefined> extends _RIfElseIf_ {
     context?: C
     children?: ISubscriber<ISubscribedOrThenedDeep<T>, C>
   })
+  constructor({}: { is: any; children?: any })
   constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
     super()
     for_else(this, is, context, children)
@@ -61,6 +63,7 @@ export class RElseIf<T = unknown, C = undefined> extends _RIfElseIf_ {
 
 export class RElse<C = undefined> extends _RIfElseIf_ {
   constructor({}: { context?: C; children?: (this: C, value: true) => any })
+  constructor({}: { children?: any })
   constructor({ context, children }: { context?: any; children?: any }) {
     super()
     for_else(this, true, context, children)

@@ -7,35 +7,22 @@
 //                                || window[vendors[x]+'CancelRequestAnimationFrame'];
 // }
 
-let _perf: any
-let cAF: typeof cancelAnimationFrame
-let rAF: typeof requestAnimationFrame
+let _perf: typeof performance | typeof Date
+const win = typeof window !== 'undefined' ? window : ({} as any)
 
-rAF =
-  typeof requestAnimationFrame === 'function'
-    ? ((cAF = cancelAnimationFrame), requestAnimationFrame)
-    : // @ts-ignore
-    typeof oRequestAnimationFrame === 'function'
-    ? // @ts-ignore
-      ((cAF = oCancelAnimationFrame), oRequestAnimationFrame)
-    : // @ts-ignore
-    typeof msRequestAnimationFrame === 'function'
-    ? // @ts-ignore
-      ((cAF = msCancelAnimationFrame), msRequestAnimationFrame)
-    : // @ts-ignore
-    typeof mozRequestAnimationFrame === 'function'
-    ? // @ts-ignore
-      ((cAF = mozCancelAnimationFrame), mozRequestAnimationFrame)
-    : // @ts-ignore
-    typeof webkitRequestAnimationFrame === 'function'
-    ? // @ts-ignore
-      ((cAF = webkitCancelAnimationFrame), webkitRequestAnimationFrame)
-    : ((cAF = clearTimeout),
-      (_perf = typeof performance === 'object' ? performance : Date),
-      function (callback: (t: number) => any) {
-        return setTimeout(function () {
-          callback(_perf.now())
-        }, 16)
-      })
+let cAF: typeof cancelAnimationFrame
+let rAF: typeof requestAnimationFrame =
+  ((cAF = win.cancelAnimationFrame), win.requestAnimationFrame) ||
+  ((cAF = win.oCancelAnimationFrame), win.oRequestAnimationFrame) ||
+  ((cAF = win.msCancelAnimationFrame), win.msRequestAnimationFrame) ||
+  ((cAF = win.mozCancelAnimationFrame), win.mozRequestAnimationFrame) ||
+  ((cAF = win.webkitCancelAnimationFrame), win.webkitRequestAnimationFrame) ||
+  ((cAF = clearTimeout),
+  (_perf = typeof performance === 'object' ? performance : Date),
+  function (callback: (t: number) => any) {
+    return setTimeout(function () {
+      callback(_perf.now())
+    }, 16)
+  })
 
 export { rAF as requestAnimationFrame, cAF as cancelAnimationFrame }

@@ -77,13 +77,14 @@ type IDBTaskCont = {
   t: ITweenTask
 }
 
-const FST = { p: null, n: null } as unknown as IDBTaskCont
-FST.p = FST.n = FST
+let FST: IDBTaskCont
 let queueNeedRun = false
 export const TWEEN_DEFAULTS = {
   ticker(t: number) {
-    for (let CUR = FST; (CUR = CUR.n) !== FST; ) calc(CUR, t)
-    if ((queueNeedRun = FST.n !== FST)) requestAnimationFrame(TWEEN_DEFAULTS.ticker)
+    if (FST) {
+      for (let CUR = FST; (CUR = CUR.n) !== FST; ) calc(CUR, t)
+      if ((queueNeedRun = FST.n !== FST)) requestAnimationFrame(TWEEN_DEFAULTS.ticker)
+    }
   },
   paused: false,
   delay: 0,
@@ -210,8 +211,7 @@ function calc(dbl: IDBTaskCont, t: number) {
         self
       )
 
-      if (progress === 1)
-        startDblList(_.of, self.value, self), remove_or_replace_task(_, dbl)
+      if (progress === 1) startDblList(_.of, self.value, self), remove_or_replace_task(_, dbl)
 
       // console.log(progress)
     }
@@ -253,6 +253,8 @@ export class ReaseTween<T extends ITweenValue> {
     this.value = value
     this.task = null
     this.paused = false
+
+    FST || ((FST = { p: null, n: null } as any), (FST.p = FST.n = FST))
   }
 
   to(newValue: DeepPartial<T>, options?: ITweenOptions) {

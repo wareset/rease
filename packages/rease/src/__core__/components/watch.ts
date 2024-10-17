@@ -21,6 +21,7 @@ export class RWatch<T = unknown, C = undefined> extends Rease {
       ? ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }, C>
       : ISubscriber<ISubscribedOrThenedDeep<T>, C>
   })
+  constructor({}: { is: any; children?: any })
   constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
     super()
     ;(this as any)[isArray(is) ? 'watchDeepAll' : 'watchDeep'](is, watch, {

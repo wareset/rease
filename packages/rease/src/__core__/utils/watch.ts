@@ -60,41 +60,51 @@ export function watch<T, C = undefined>(
   cb: ISubscriber<ISubscribedOrThened<T>, C>,
   thisArg?: C
 ): IUnsubscriber {
-  if (isSignal(v)) return (v as any).subscribe(cb, thisArg)
-  if (isSubscribable(v)) {
+  let uRes: IUnsubscriber
+  if (isSignal(v)) {
+    uRes = (v as any).subscribe(cb, thisArg)
+  } else if (isSubscribable(v)) {
     const data = { f: cb, c: thisArg, s: null } as any
     data.s = signal(data as any)
     let u1: any = (v as any).subscribe(function (v: any) {
       data.s.set(v)
     })
     let u0 = data.s.subscribe(_s1, data)
-    return function () {
+    uRes = function () {
       u0(), u1.unsubscribe ? u1.unsubscribe() : u1(), (u0 = u1 = noop)
     }
+  } else if (isThenable(v)) {
+    uRes = then(v, _o1, { f: cb, c: thisArg })
+  } else {
+    uRes = noop
+    batch(cb, thisArg!, [v as any])
   }
-  if (isThenable(v)) return then(v, _o1, { f: cb, c: thisArg })
-  return batch(cb, thisArg!, [v as any]), noop
+  return uRes
 }
 export function watchDeep<T, C = undefined>(
   v: T,
   cb: ISubscriber<ISubscribedOrThenedDeep<T>, C>,
   thisArg?: C
 ): IUnsubscriber {
+  let uRes: IUnsubscriber
   if (isSubscribable(v) || (isThenable(v) && ((v = observablefyThenable(v) as any), true))) {
     const data = { f: cb, c: thisArg, s: null } as any
     data.s = signal(data as any)
     let u1 = _s2(v as any, data)
     let u0 = data.s.subscribe(_s1, data)
-    return function () {
+    uRes = function () {
       u0(), u1(), (u0 = u1 = noop)
     }
+  } else {
+    uRes = noop
+    batch(cb, thisArg!, [v as any])
   }
-  return batch(cb, thisArg!, [v as any]), noop
+  return uRes
 }
 
 function _s3(
   this: {
-    d: { l: number; v: any[]; u: any[]; s: ISignal<any> | null; f: any; c: any }
+    d: { l: number; v: any[]; u: any[]; s: ISignal<any>; f: any; c: any }
     i: number
     f: boolean
   },
@@ -103,39 +113,33 @@ function _s3(
   const data = this.d
   data.v[this.i] = value
   if (data.l < 1) {
-    if (data.s) {
-      data.s.set(data.v.slice())
-    }
+    data.s.set(data.v.slice())
+    // data.s
+    //   ? data.s.set(data.v.slice())
+    //   : data.u.push((data.s = signal(data.v.slice())).subscribe(data.f, data.c))
   } else if (this.f && ((this.f = false), --data.l < 1)) {
-    if (data.s) {
-      data.s.set(data.v.slice())
-      data.u.push(data.s.subscribe(data.f, data.c))
-    } else {
-      data.f.call(data.c, data.v)
-    }
-  }
-}
-function _wb(u: any[], watchFn: any, a: any, cb: any, thisArg: any) {
-  const l = a.length
-  const data = { l, v: _Array(l), u, s: null as any, f: cb, c: thisArg }
-  for (let i = 0; i < l; i++) {
-    ;(u[i] = watchFn(a[i], _s3, { d: data, i, f: true })) === noop ||
-      data.s ||
-      (data.s = signal(u))
+    data.s.set(data.v.slice())
+    data.u.push(data.s.subscribe(data.f, data.c))
+    // batch(data.f, data.c, [data.v.slice()])
   }
 }
 function _w0(watchFn: typeof watchDeep | typeof watch) {
-  return function (a: any, cb: any, thisArg: any) {
+  return function (a: any, cb: any, thisArg: any): IUnsubscriber {
+    let uRes: IUnsubscriber
     const l = a.length
     if (l > 0) {
       const u = _Array(l) as any[]
-      batch(_wb, void 0, [u, watchFn, a, cb, thisArg])
-      return function () {
+      const d = { l, v: _Array(l), u, s: signal(u), f: cb, c: thisArg }
+      for (let i = 0; i < l; i++) u[i] = watchFn(a[i], _s3, { d, i, f: true })
+
+      uRes = function () {
         for (; u.length > 0; ) u.pop()!()
       }
     } else {
-      return batch(cb, thisArg, [[]]), noop
+      uRes = noop
+      batch(cb, thisArg, [[]])
     }
+    return uRes
   }
 }
 export const watchAll = _w0(watch) as <T extends readonly unknown[] | [], C = undefined>(
@@ -152,3 +156,15 @@ export const watchDeepAll = _w0(watchDeep) as <
   cb: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }, C>,
   ctx?: C
 ) => IUnsubscriber
+
+// const $q = signal(1)
+// const $w = signal(10)
+
+// watchDeepAll([$q, $w], (v) => {
+//   console.log(v)
+// })
+
+// batch(() => {
+//   $q.$ *= 2
+//   $w.$ *= 2
+// })

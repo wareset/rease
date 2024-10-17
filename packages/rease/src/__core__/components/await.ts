@@ -10,6 +10,7 @@ function insertChildren(iam: Rease, children: any, context: any, v: any) {
 
 export class RAwait<T = unknown, C = undefined> extends Rease {
   constructor({}: { is: T; context?: C; children?: ISubscriber<T, C> })
+  constructor({}: { is: any; children?: any })
   constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
     super()
     const iam = this
@@ -26,6 +27,7 @@ export class RAwait<T = unknown, C = undefined> extends Rease {
 
 export class RThen<T = unknown, C = undefined> extends Rease {
   constructor({}: { is: T; context?: C; children?: ISubscriber<IThened<T>, C> })
+  constructor({}: { is: any; children?: any })
   constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
     super()
     const iam = this
@@ -38,6 +40,7 @@ export class RThen<T = unknown, C = undefined> extends Rease {
 
 export class RCatch<T = unknown, C = undefined> extends Rease {
   constructor({}: { is: T; context?: C; children?: ISubscriber<Error, C> })
+  constructor({}: { is: any; children?: any })
   constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
     super()
     const iam = this

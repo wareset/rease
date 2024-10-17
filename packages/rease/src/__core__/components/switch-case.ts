@@ -49,6 +49,7 @@ export class RCase<T = unknown, C = undefined> extends Rease {
     context?: C
     children?: ISubscriber<ISubscribedOrThenedDeep<T>, C>
   })
+  constructor({}: { is: any; children?: any })
   constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
     // @ts-ignore
     super()

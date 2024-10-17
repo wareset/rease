@@ -25,16 +25,17 @@ export type IMaybeSubscribableOrThenable<T> = T | ISubscribable<T> | IThenable<T
 export type ISubscribableOrThenableDeep<T> =
   | ISubscribableOrThenable<T>
   | ISubscribableOrThenable<ISubscribableOrThenable<T>>
-  | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<T>>>
+  | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<T>
+    >>
   | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
     ISubscribableOrThenable<T>
     >>>
-// | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-//   ISubscribableOrThenable<ISubscribableOrThenable<T>>
-//   >>>
-// | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
-//   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<T>>>
-//   >>>
+  | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+    ISubscribableOrThenable<ISubscribableOrThenable<T>>
+    >>>
+  | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
+    ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<T>>>
+    >>>
 // | ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
 //   ISubscribableOrThenable<ISubscribableOrThenable<ISubscribableOrThenable<
 //   ISubscribableOrThenable<T>
@@ -80,7 +81,7 @@ export type ISubscriber<T, C = any> = (this: C, value: T) => any
 // prettier-ignore
 export type IThened<T> = T extends null | undefined
   ? T
-  : T extends object & { then(callback: infer F): any }
+  : T extends { then(callback: infer F): any }
     ? F extends (value: infer V, ...args: any) => any
       ? IThened<V>
       : never
@@ -90,7 +91,7 @@ export type IThened<T> = T extends null | undefined
 export type ISubscribed<T> =
   T extends null | undefined
     ? T
-    : T extends object & { subscribe(callback: infer F): any }
+    : T extends { subscribe(callback: infer F): any }
       ? F extends (value: infer V, ...args: any) => any
         ? V
         : never
@@ -100,7 +101,7 @@ export type ISubscribed<T> =
 export type ISubscribedDeep<T> =
   T extends null | undefined
     ? T
-    : T extends object & { subscribe(callback: infer F): any }
+    : T extends { subscribe(callback: infer F): any }
       ? F extends (value: infer V, ...args: any) => any
         ? ISubscribedDeep<V>
         : never
@@ -110,11 +111,11 @@ export type ISubscribedDeep<T> =
 export type ISubscribedOrThened<T> =
   T extends null | undefined
     ? T
-    : T extends object & { subscribe(callback: infer F): any }
+    : T extends { subscribe(callback: infer F): any }
       ? F extends (value: infer V, ...args: any) => any
         ? ISubscribedOrThened<V>
         : never
-      : T extends object & { then(callback: infer F): any }
+      : T extends { then(callback: infer F): any }
         ? F extends (value: infer V, ...args: any) => any
           ? V
           : never
@@ -124,10 +125,10 @@ export type ISubscribedOrThened<T> =
 export type ISubscribedOrThenedDeep<T> =
   T extends null | undefined
     ? T
-    : T extends object & { subscribe(callback: infer F): any }
+    : T extends { subscribe(callback: infer F): any }
       ? F extends (value: infer V, ...args: any) => any
         ? ISubscribedOrThenedDeep<V> : never
-      : T extends object & { then(callback: infer F): any }
+      : T extends { then(callback: infer F): any }
         ? F extends (value: infer V, ...args: any) => any
           ? ISubscribedOrThenedDeep<V>
           : never

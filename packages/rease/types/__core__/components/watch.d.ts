@@ -8,4 +8,8 @@ export declare class RWatch<T = unknown, C = undefined> extends Rease {
             -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]>;
         }, C> : ISubscriber<ISubscribedOrThenedDeep<T>, C>;
     });
+    constructor({}: {
+        is: any;
+        children?: any;
+    });
 }

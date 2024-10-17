@@ -3,6 +3,7 @@ type Element = HTMLElement | SVGElement;
 export declare class RText extends Rease {
     _data: string;
     node: HTMLFontElement | null;
+    text: Text | null;
     constructor({ data: is }: {
         data: any;
     });

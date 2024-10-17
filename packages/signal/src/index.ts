@@ -442,9 +442,54 @@ let STORE = function (value: any, props: any) {
 } as any
 
 //
+//
+// ISignal, ISignalComputed, IObserve, IObserveValues
+//
+export declare class ISignal<G, S = G> {
+  readonly _value: G
+  // @ts-ignore
+  get $(): G
+  // @ts-ignore
+  set $(v: S)
+  get(): G
+  set(v: S): this
+  subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void
+  toString(...a: any): G extends { toString(...a: any): infer I } ? I : string
+  valueOf(...a: any): G extends { valueOf(...a: any): infer I } ? I : G
+  toJSON(...a: any): G extends { toJSON(...a: any): infer I } ? I : G
+}
+export declare class ISignalComputed<G> {
+  readonly _value: G
+  get $(): G
+  get(): G
+  subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void
+  toString(...a: any): G extends { toString(...a: any): infer I } ? I : string
+  valueOf(...a: any): G extends { valueOf(...a: any): infer I } ? I : G
+  toJSON(...a: any): G extends { toJSON(...a: any): infer I } ? I : G
+}
+
+type IObserve = readonly unknown[] | [] | null
+// prettier-ignore
+type _ISubscribed<T> = T extends null | undefined
+  ? T
+  : T extends { subscribe(callback: infer F): any }
+    ? F extends (value: infer V, ...args: any) => any
+      ? V
+      : never
+    : T
+type IObserveValues<O extends IObserve> = O extends null | undefined
+  ? O
+  : { -readonly [P in keyof O]: _ISubscribed<O[P]> }
+//
+// ISignal, ISignalComputed, IObserve, IObserveValues
+//
+//
+
+//
+//
 // batch
 //
-function batch<C>(func: (this: C) => any, thisArg?: C): void
+function batch<C, F extends (this: C) => any>(func: F, thisArg?: C): void
 function batch<C, F extends (this: C, ...a: any[]) => any>(
   func: F,
   thisArg: C,
@@ -454,103 +499,147 @@ function batch(f: any, c: any, a?: any) {
   LAST ? f.apply(c, a) : (($batcher._value = { f, c, a }), run_queue($batcher))
 }
 export { batch }
+//
+// batch
+//
+//
 
+//
 //
 // batchify
 //
 function _insideBatchify(this: any[]) {
   this[0] = this[0].apply(this[1], this[2])
 }
-function batchify<T extends (...a: any[]) => any>(fn: T): T {
+function batchify<T extends (...a: any[]) => any>(fn: T): T
+function batchify(fn: any) {
   return function (this: any, ...args: any[]) {
     return batch(_insideBatchify, (args = [fn, this, args])), args[0]
-  } as T
+  }
 }
 export { batchify }
+//
+// batchify
+//
+//
 
+//
 //
 // signal
 //
-export declare class ISignal<T> {
-  readonly _value: T
-  get $(): T
-  set $(v: T)
-  get(): T
-  set(v: T): this
-  subscribe<C>(callback: (this: C, value: T) => void, thisArg?: C): () => void
-  toString(...a: any): T extends { toString(...a: any): infer I } ? I : string
-  valueOf(...a: any): T extends { valueOf(...a: any): infer I } ? I : T
-  toJSON(...a: any): T extends { toJSON(...a: any): infer I } ? I : T
-}
-export declare class ISignalComputed<T> {
-  readonly _value: T
-  get $(): T
-  get(): T
-  subscribe<C>(callback: (this: C, value: T) => void, thisArg?: C): () => void
-  toString(...a: any): T extends { toString(...a: any): infer I } ? I : string
-  valueOf(...a: any): T extends { valueOf(...a: any): infer I } ? I : T
-  toJSON(...a: any): T extends { toJSON(...a: any): infer I } ? I : T
-}
-
-type IObserve = readonly unknown[] | [] | null
-// prettier-ignore
-type ISubscribed<T> = T extends null | undefined
-  ? T
-  : T extends object & { subscribe(callback: infer F): any }
-    ? F extends (value: infer V, ...args: any) => any
-      ? V
-      : never
-    : T
-type IObserveValues<O extends IObserve> = O extends null | undefined
-  ? O
-  : { -readonly [P in keyof O]: ISubscribed<O[P]> }
-
-function signal<T, O extends IObserve = null>(
-  value: T,
+function signal<G, S = G, O extends IObserve = null>(
+  value: S,
   props: {
-    prepare?: (iam: ISignalComputed<T>) => void | ((iam: ISignalComputed<T>) => void)
-    capture?: (newValue: T, oldValue: T) => T
-    compute: (value: T, observe: IObserveValues<O>) => T
+    prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
+    compute: <V = G>(value: V, observe: IObserveValues<O>) => S
+    observe?: O
+    capture: (newValue: S, oldValue: G) => G
+  }
+): ISignalComputed<G>
+function signal<G, O extends IObserve = null>(
+  value: G,
+  props: {
+    prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
+    compute: <V = G>(value: V, observe: IObserveValues<O>) => G
     observe?: O
   }
-): ISignalComputed<T>
-function signal<T>(
-  value: T,
-  props?: {
-    prepare?: (iam: ISignal<T>) => void | ((iam: ISignal<T>) => void)
-    capture?: (newValue: T, oldValue: T) => T
+): ISignalComputed<G>
+function signal<G, S = G>(
+  value: S,
+  props: {
+    prepare?: (iam: ISignal<G, S>) => void | ((iam: ISignal<G, S>) => void)
+    capture: (newValue: S, oldValue: G) => G
   }
-): ISignal<T>
+): ISignal<G, S>
+function signal<G>(
+  value?: G,
+  props?: {
+    prepare?: (iam: ISignal<G>) => void | ((iam: ISignal<G>) => void)
+  }
+): ISignal<G>
+
 function signal(value: any, props: any) {
   return new STORE(value, props)
 }
 export { signal }
+//
+// signal
+//
+//
 
+// const $q = signal('', {
+//   compute: (_, [a, b]) => a + b,
+//   observe: [1, 10],
+//   capture(v: number | string) {
+//     return +v * 2
+//   },
+// })
+
+//
 //
 // computed
 //
-function computed<T, O extends IObserve = null, V = T | undefined>(
+/*
+function computed<G = undefined, S = G, O extends IObserve = null>(
   observe: O,
-  compute: (_: V, observe: IObserveValues<O>) => T
-): ISignalComputed<T> {
+  compute: (_: G | undefined, observe: IObserveValues<O>) => S,
+  props: {
+    prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
+    capture: (newValue: S, oldValue: G | undefined) => G
+  }
+): ISignalComputed<G>
+function computed<G = undefined, O extends IObserve = null>(
+  observe: O,
+  compute: (_: G | undefined, observe: IObserveValues<O>) => G,
+  props?: {
+    prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
+  }
+): ISignalComputed<G>
+function computed(observe: any, compute: any, props: any) {
+  return new STORE(void 0, {
+    compute,
+    observe,
+    prepare: props && props.prepare,
+    capture: props && props.capture,
+  })
+}
+*/
+function computed<G, O extends IObserve = null>(
+  observe: O,
+  compute: <V = G | undefined>(value: V, observe: IObserveValues<O>) => G
+): ISignalComputed<G>
+function computed(observe: any, compute: any) {
   return new STORE(void 0, { compute, observe })
 }
 export { computed }
+//
+// computed
+//
+//
 
+// const $q = computed([1, 10], (_, [a, b]) => a + b + '')
+
+//
 //
 // effect
 //
-function effect<T, O extends IObserve = null, V = T | undefined>(
+function effect<G = undefined, O extends IObserve = null>(
   observe: O,
-  compute: (_: V, observe: IObserveValues<O>) => T,
-  onChange?: (value: T) => any
-): () => {} {
-  return new STORE(void 0, { compute, observe }).subscribe((onChange as any) || noop)
+  compute: <V = G | undefined>(value: V, observe: IObserveValues<O>) => G,
+  onChange?: (value: G) => any
+): () => void
+function effect(observe: any, compute: any, onChange: any) {
+  return new STORE(void 0, { compute, observe }).subscribe(onChange || noop)
 }
 export { effect }
+//
+// effect
+//
+//
 
 //
-// isSignal
+//
+// isSignal, isSignalStrict, isSignalComputed
 //
 function isSignal<T = any>(thing: any): thing is ISignal<T> | ISignalComputed<T> {
   return thing instanceof STORE

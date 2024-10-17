@@ -43,6 +43,7 @@ export function thenSafeAll<T extends readonly unknown[] | [], C = undefined>(
   cb: (this: C, a: { -readonly [P in keyof T]: IThened<T[P]> }) => any,
   thisArg?: C
 ) {
+  let uRes: typeof noop
   const l = a.length
   if (l > 0) {
     const vals: any[] = [],
@@ -50,12 +51,14 @@ export function thenSafeAll<T extends readonly unknown[] | [], C = undefined>(
     const u = _Array(l) as any[]
     for (let i = 0; i < l; i++)
       u[i] = thenSafe(a[i], __tsa1, [vals, i, true, cnt, cb, thisArg])
-    return function () {
+    uRes = function () {
       for (; u.length > 0; ) u.pop()!()
     }
   } else {
-    return cb.call(thisArg!, [] as any), noop
+    uRes = noop
+    cb.call(thisArg!, [] as any)
   }
+  return uRes
 }
 
 // interface PromiseLikeResolveOnly<T, C> {

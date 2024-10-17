@@ -57,11 +57,18 @@ let DOCUMENT = {} as Document
 //
 function textDataWatch(this: RText, data: any): void {
   this._data = data = data === void 0 ? '' : '' + data
-  this.node && (this.node.textContent = data)
+  const text = this.text
+  text && (text.data = data)
+  // node && (node.textContent = data)
+  // if (node) {
+  //   const textNode = node.childNodes[0] as Text
+  //   textNode ? (textNode.data = data) : (node.textContent = data)
+  // }
 }
 export class RText extends Rease {
   _data: string
   declare node: HTMLFontElement | null
+  text: Text | null
 
   constructor({ data: is }: { data: any }) {
     super()
@@ -73,9 +80,12 @@ export class RText extends Rease {
     const { p: parNode, b: befNode } = get_parent_and_before_node(this)
     if ((this.node = createText(this._data, parNode, befNode))) {
       insertNode(this.node, parNode, befNode)
+      this.text = this.node.childNodes[0] as Text
       this.onMove(movingNode, this)
       this.onDestroy(deleteNode)
       // this._isMoveAndDelete = true
+    } else {
+      this.text = null
     }
   }
 }
@@ -115,13 +125,13 @@ export class RElement extends Rease {
 
     switch ((this.name = type || (type = 'template'))) {
       case 'html':
-        this.node = (node as Element) || DOCUMENT.documentElement
+        this.node = (node as Element) || DOCUMENT.documentElement || null
         break
       case 'head':
-        this.node = (node as Element) || DOCUMENT.head
+        this.node = (node as Element) || DOCUMENT.head || null
         break
       case 'body':
-        this.node = (node as Element) || DOCUMENT.body
+        this.node = (node as Element) || DOCUMENT.body || null
         break
       default: {
         const { p: parNode, b: befNode } = get_parent_and_before_node(this)
@@ -182,7 +192,8 @@ if (typeof document !== 'undefined') {
     // return DOCUMENT.createTextNode(data)
     befNode = createElementNS('font', parNode)
     befNode.style.verticalAlign = 'inherit'
-    befNode.textContent = data
+    befNode.appendChild(DOCUMENT.createTextNode(data))
+    // befNode.textContent = data
     return befNode
   }
   createElem = function (tagName, parNode, befNode) {
