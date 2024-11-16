@@ -1,35 +1,39 @@
 import { Rease } from '../Rease';
-import type { ISubscriber, IThened } from '../types';
-export declare class RAwait<T = unknown, C = undefined> extends Rease {
-    constructor({}: {
-        is: T;
+import type { IThened } from '../types';
+declare class _RAwaitThenCatch_ extends Rease {
+    _is: any;
+}
+export declare class RAwait<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
+    constructor(props: {
+        is?: T;
         context?: C;
-        children?: ISubscriber<T, C>;
+        children?: (this: C, value: T) => any;
     });
-    constructor({}: {
-        is: any;
+    constructor(props: {
+        is?: any;
         children?: any;
     });
 }
-export declare class RThen<T = unknown, C = undefined> extends Rease {
-    constructor({}: {
-        is: T;
+export declare class RThen<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
+    constructor(props: {
+        is?: T;
         context?: C;
-        children?: ISubscriber<IThened<T>, C>;
+        children?: (this: C, value: IThened<T>) => any;
     });
-    constructor({}: {
-        is: any;
+    constructor(props: {
+        is?: any;
         children?: any;
     });
 }
-export declare class RCatch<T = unknown, C = undefined> extends Rease {
-    constructor({}: {
-        is: T;
+export declare class RCatch<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
+    constructor(props: {
+        is?: T;
         context?: C;
-        children?: ISubscriber<Error, C>;
+        children?: (this: C, value: Error) => any;
     });
-    constructor({}: {
-        is: any;
+    constructor(props: {
+        is?: any;
         children?: any;
     });
 }
+export {};

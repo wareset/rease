@@ -12,16 +12,16 @@ function watch(this: any, a: any[]) {
 }
 
 export class RMove extends Rease {
-  constructor({
-    to,
-    index,
-    children,
-  }: {
+  constructor(props: {
     to: ISubscribableOrThenableDeep<Rease>
     index?: ISubscribableOrThenableDeep<number>
     children?: any
   }) {
     super()
-    this.watchDeepAll([to, index], watch, { r: this, p: this.parent, c: children })
+    this.watchDeepAll([props.to, props.index], watch, {
+      r: this,
+      p: this.parent,
+      c: props.children,
+    })
   }
 }

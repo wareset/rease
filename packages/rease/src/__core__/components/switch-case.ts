@@ -3,17 +3,17 @@ import { noop } from '../utils/noop'
 import { isFunction } from '../utils/is'
 import { is as objectIs } from '../utils/object'
 
-import type { ISubscriber, ISubscribedOrThenedDeep } from '../types'
+import type { ISubscribedOrThenedDeep } from '../types'
 
 //
 // RSwitch
 //
 export class RSwitch extends Rease {
   _is: any
-  constructor({ is, children }: { is: any; children?: any }) {
+  constructor(props: { is: any; children?: any }) {
     super()
-    this._is = is
-    this.insert(children)
+    this._is = props.is
+    this.insert(props.children)
   }
 }
 
@@ -44,17 +44,16 @@ export class RCase<T = unknown, C = undefined> extends Rease {
   _ctx: { r: RCase; t: any; b: boolean; c: any; i?: any; u: typeof noop }
   _switch?: RSwitch | undefined
 
-  constructor({}: {
+  constructor(props: {
     is: T
     context?: C
-    children?: ISubscriber<ISubscribedOrThenedDeep<T>, C>
+    children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any
   })
-  constructor({}: { is: any; children?: any })
-  constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
-    // @ts-ignore
+  constructor(props: { is: any; children?: any })
+  constructor(props: { is: any; context?: any; children?: any }) {
     super()
-    this._is = is
-    this._ctx = { r: this, t: context, b: false, c: children, i: false, u: noop }
+    this._is = props.is
+    this._ctx = { r: this, t: props.context, b: false, c: props.children, i: false, u: noop }
     this.onMove(move, this), move.call(this)
   }
 }

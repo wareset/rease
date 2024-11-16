@@ -1,7 +1,7 @@
 import { Rease } from '../Rease'
 import { isFunction } from '../utils/is'
 
-import type { ISubscriber, ISubscribedOrThenedDeep } from '../types'
+import type { ISubscribedOrThenedDeep } from '../types'
 
 //
 // RIf RElseIf RElse
@@ -36,36 +36,36 @@ class _RIfElseIf_ extends Rease {
 }
 
 export class RIf<T = unknown, C = undefined> extends _RIfElseIf_ {
-  constructor({}: {
+  constructor(props: {
     is: T
     context?: C
-    children?: ISubscriber<ISubscribedOrThenedDeep<T>, C>
+    children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any
   })
-  constructor({}: { is: any; children?: any })
-  constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
+  constructor(props: { is: any; children?: any })
+  constructor(props: { is: any; context?: any; children?: any }) {
     super()
-    ifelseif(this, context, children, (this._is = [is]))
+    ifelseif(this, props.context, props.children, (this._is = [props.is]))
   }
 }
 
 export class RElseIf<T = unknown, C = undefined> extends _RIfElseIf_ {
-  constructor({}: {
+  constructor(props: {
     is: T
     context?: C
-    children?: ISubscriber<ISubscribedOrThenedDeep<T>, C>
+    children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any
   })
-  constructor({}: { is: any; children?: any })
-  constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
+  constructor(props: { is: any; children?: any })
+  constructor(props: { is: any; context?: any; children?: any }) {
     super()
-    for_else(this, is, context, children)
+    for_else(this, props.is, props.context, props.children)
   }
 }
 
 export class RElse<C = undefined> extends _RIfElseIf_ {
-  constructor({}: { context?: C; children?: (this: C, value: true) => any })
-  constructor({}: { children?: any })
-  constructor({ context, children }: { context?: any; children?: any }) {
+  constructor(props: { context?: C; children?: (this: C, value: true) => any })
+  constructor(props: { children?: any })
+  constructor(props: { context?: any; children?: any }) {
     super()
-    for_else(this, true, context, children)
+    for_else(this, true, props.context, props.children)
   }
 }

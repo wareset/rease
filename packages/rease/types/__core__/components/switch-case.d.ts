@@ -1,9 +1,9 @@
 import { Rease } from '../Rease';
 import { noop } from '../utils/noop';
-import type { ISubscriber, ISubscribedOrThenedDeep } from '../types';
+import type { ISubscribedOrThenedDeep } from '../types';
 export declare class RSwitch extends Rease {
     _is: any;
-    constructor({ is, children }: {
+    constructor(props: {
         is: any;
         children?: any;
     });
@@ -19,12 +19,12 @@ export declare class RCase<T = unknown, C = undefined> extends Rease {
         u: typeof noop;
     };
     _switch?: RSwitch | undefined;
-    constructor({}: {
+    constructor(props: {
         is: T;
         context?: C;
-        children?: ISubscriber<ISubscribedOrThenedDeep<T>, C>;
+        children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any;
     });
-    constructor({}: {
+    constructor(props: {
         is: any;
         children?: any;
     });

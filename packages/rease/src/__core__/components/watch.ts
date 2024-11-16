@@ -2,7 +2,7 @@ import { Rease } from '../Rease'
 import { isArray } from '../utils/array'
 import { isFunction } from '../utils/is'
 
-import type { ISubscriber, ISubscribedOrThenedDeep } from '../types'
+import type { ISubscribedOrThenedDeep } from '../types'
 
 //
 // RWatch
@@ -18,8 +18,8 @@ export class RWatch<T = unknown, C = undefined> extends Rease {
     is: T
     context?: C
     children?: T extends readonly unknown[] | []
-      ? ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }, C>
-      : ISubscriber<ISubscribedOrThenedDeep<T>, C>
+      ? (this: C, value: { -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }) => any
+      : (this: C, value: ISubscribedOrThenedDeep<T>) => any
   })
   constructor({}: { is: any; children?: any })
   constructor({ is, context, children }: { is: any; context?: any; children?: any }) {

@@ -50,7 +50,7 @@ const is_childless_tag_name = (function (REG_CHILDLESS_TAGS) {
 export function toHTMLString(rease: Rease) {
   const res: any[] = []
   if (rease instanceof RText) {
-    res.push(escapeHTML(rease._data))
+    res.push(escapeHTML(rease._is))
   } else if (rease instanceof RElement) {
     const localName = rease.name
     if (localName && !INCLUDE_HTML_TAGS.hasOwnProperty(localName)) {

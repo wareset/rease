@@ -56,7 +56,7 @@ let DOCUMENT = {} as Document
 // RText
 //
 function textDataWatch(this: RText, data: any): void {
-  this._data = data = data === void 0 ? '' : '' + data
+  this._is = data = data === void 0 ? '' : '' + data
   const text = this.text
   text && (text.data = data)
   // node && (node.textContent = data)
@@ -66,19 +66,19 @@ function textDataWatch(this: RText, data: any): void {
   // }
 }
 export class RText extends Rease {
-  _data: string
+  _is: string
   declare node: HTMLFontElement | null
   text: Text | null
 
-  constructor({ data: is }: { data: any }) {
+  constructor({ is }: { is: any }) {
     super()
 
     if (is && (is.subscribe || is.then))
-      (this._data = ''), this.watchDeep(is, textDataWatch, this)
-    else this._data = is === void 0 ? '' : '' + is
+      (this._is = ''), this.watchDeep(is, textDataWatch, this)
+    else this._is = is === void 0 ? '' : '' + is
 
     const { p: parNode, b: befNode } = get_parent_and_before_node(this)
-    if ((this.node = createText(this._data, parNode, befNode))) {
+    if ((this.node = createText(this._is, parNode, befNode))) {
       insertNode(this.node, parNode, befNode)
       this.text = this.node.childNodes[0] as Text
       this.onMove(movingNode, this)
@@ -108,34 +108,26 @@ export class RElement extends Rease {
   _style?: { [key: string]: any }
   _unevt?: (() => void)[]
 
-  constructor({
-    children,
-    node,
-    ...props
-  }: {
-    node: string | Element | null
-    [k: string]: any
-  }) {
+  constructor({ children, is, ...props }: { is: string | Element | null; [k: string]: any }) {
     // constructor({ children, node, ...props }: IRElementProps & { children?: any }) {
     super()
     let type: string
     let afterInsert = noop as typeof initedNode
-    if (isString(node)) (type = node), (node = null as any)
-    else type = node ? node.localName : ''
+    isString(is) ? ((type = is), (is = null)) : (type = is ? is.localName : '')
 
     switch ((this.name = type || (type = 'template'))) {
       case 'html':
-        this.node = (node as Element) || DOCUMENT.documentElement || null
+        this.node = (is as Element) || DOCUMENT.documentElement || null
         break
       case 'head':
-        this.node = (node as Element) || DOCUMENT.head || null
+        this.node = (is as Element) || DOCUMENT.head || null
         break
       case 'body':
-        this.node = (node as Element) || DOCUMENT.body || null
+        this.node = (is as Element) || DOCUMENT.body || null
         break
       default: {
         const { p: parNode, b: befNode } = get_parent_and_before_node(this)
-        if ((this.node = (node as any) || createElem(type, parNode, befNode))) {
+        if ((this.node = (is as any) || createElem(type, parNode, befNode))) {
           insertNode(this.node, parNode, befNode)
           this.onMove(movingNode, this)
           this.onDestroy(deleteNode)

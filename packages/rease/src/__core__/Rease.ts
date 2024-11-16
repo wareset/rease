@@ -246,8 +246,7 @@ function runDestroyHooks(iam: Rease, head: IDblList) {
   for (let n = head; (n = n.n) !== head; ) n.f.call(n.c, iam)
 }
 function runEmitHooks(head: IDblList | undefined, iam: Rease, detail: any) {
-  if (head)
-    for (let n = head, _ = iam._; (n = n.n) !== head && _.a0; ) n.f.call(n.c, detail)
+  if (head) for (let n = head, _ = iam._; (n = n.n) !== head && _.a0; ) n.f.call(n.c, detail)
 }
 
 function runFuncComponentThen(this: Rease, jsx: any) {
@@ -258,7 +257,7 @@ function create_rease(jsx: any, parent: Rease | null, idx?: number) {
   let c: any, p: any
   if (jsx instanceof JSX) ({ c, p } = jsx)
   else if (isFunction(jsx)) (c = jsx), (p = {})
-  else (c = RText), (p = { data: jsx })
+  else (c = RText), (p = { is: jsx })
   // jsx instanceof JSX || (jsx = { c: RText, p: { 'r-is': jsx } })
 
   // const _props = jsx.p
@@ -846,13 +845,13 @@ class Rease {
   //
 }
 function _find<T extends Rease, C extends Function>(
-  isArray: boolean,
+  isList: boolean,
   rease: T,
   ctor: C | C[]
 ): boolean
-function _find(isArray: any, rease: any, ctor: any) {
-  if (isArray) {
-    for (let j = ctor.length; j--; )
+function _find(isList: any, rease: any, ctor: any) {
+  if (isList) {
+    for (let j = ctor.length; j-- > 0; )
       if (rease._ctor === ctor || rease instanceof ctor[j]) return true
     return false
   } else {
@@ -935,7 +934,7 @@ function createElement(component: any, props: any, ...children: any[]) {
         component = RMove
         break
       default:
-        props.node = component
+        props.is = component
         component = RElement
     }
   }
@@ -958,7 +957,7 @@ export function render(node: HTMLElement | SVGElement | null, jsx: any) {
   //       : { children }
   //   )
   // )
-  const root = new RElement({ node })
+  const root = new RElement({ is: node })
   root.insert(jsx)
   root.init()
   return root

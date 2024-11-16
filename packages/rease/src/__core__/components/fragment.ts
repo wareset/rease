@@ -4,8 +4,8 @@ import { Rease } from '../Rease'
 // RFragment
 //
 export class RFragment extends Rease {
-  constructor({ children }: { children?: any }) {
+  constructor(props: { children?: any }) {
     super()
-    this.insert(children)
+    this.insert(props.children)
   }
 }
