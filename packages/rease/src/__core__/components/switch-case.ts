@@ -10,9 +10,9 @@ import type { ISubscribedOrThenedDeep } from '../types'
 //
 export class RSwitch extends Rease {
   _is: any
-  constructor(props: { is: any; children?: any }) {
+  constructor(props: { this: any; children?: any }) {
     super()
-    this._is = props.is
+    this._is = props.this
     this.insert(props.children)
   }
 }
@@ -42,17 +42,17 @@ function move(this: RCase) {
 export class RCase<T = unknown, C = undefined> extends Rease {
   _is: any
   _ctx: { r: RCase; t: any; b: boolean; c: any; i?: any; u: typeof noop }
-  _switch?: RSwitch | undefined
+  _switch?: RSwitch | null
 
   constructor(props: {
-    is: T
+    this: T
     context?: C
     children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any
   })
-  constructor(props: { is: any; children?: any })
-  constructor(props: { is: any; context?: any; children?: any }) {
+  constructor(props: { this: any; children?: any })
+  constructor(props: { this: any; context?: any; children?: any }) {
     super()
-    this._is = props.is
+    this._is = props.this
     this._ctx = { r: this, t: props.context, b: false, c: props.children, i: false, u: noop }
     this.onMove(move, this), move.call(this)
   }

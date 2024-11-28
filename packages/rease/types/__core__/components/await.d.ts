@@ -5,34 +5,34 @@ declare class _RAwaitThenCatch_ extends Rease {
 }
 export declare class RAwait<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
     constructor(props: {
-        is?: T;
+        this?: T;
         context?: C;
         children?: (this: C, value: T) => any;
     });
     constructor(props: {
-        is?: any;
+        this?: any;
         children?: any;
     });
 }
 export declare class RThen<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
     constructor(props: {
-        is?: T;
+        this?: T;
         context?: C;
         children?: (this: C, value: IThened<T>) => any;
     });
     constructor(props: {
-        is?: any;
+        this?: any;
         children?: any;
     });
 }
 export declare class RCatch<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
     constructor(props: {
-        is?: T;
+        this?: T;
         context?: C;
         children?: (this: C, value: Error) => any;
     });
     constructor(props: {
-        is?: any;
+        this?: any;
         children?: any;
     });
 }

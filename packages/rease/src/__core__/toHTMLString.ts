@@ -2,9 +2,25 @@ import type { Rease } from './Rease'
 import { escapeHTML } from './utils/shared'
 import { RElement, RText } from './components'
 
+// https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 const INCLUDE_HTML_TAGS = {
+  // Main root
+  html: 1,
+
+  // Document metadata
+  // base: 1,
+  head: 1,
+  // link:1,
+  // meta: 1,
+  // style: 1,
+  // title: 1,
+
+  // Sectioning root
+  body: 1,
+
   // Embedded content
   embed: 1,
+  fencedframe: 1,
   iframe: 1,
   object: 1,
   // 'picture': 1,
@@ -41,16 +57,30 @@ const INCLUDE_HTML_TAGS = {
   template: 1,
 } as const
 
-const is_childless_tag_name = (function (REG_CHILDLESS_TAGS) {
-  return function (s: string) {
-    return REG_CHILDLESS_TAGS.test(s)
-  }
-})(/^(?:area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)$/)
+const CHILDLESS_HTML_TAGS = {
+  area: 1,
+  base: 1,
+  br: 1,
+  col: 1,
+  embed: 1,
+  frame: 1,
+  hr: 1,
+  img: 1,
+  input: 1,
+  isindex: 1,
+  keygen: 1,
+  link: 1,
+  meta: 1,
+  param: 1,
+  source: 1,
+  track: 1,
+  wbr: 1,
+} as const
 
 export function toHTMLString(rease: Rease) {
   const res: any[] = []
   if (rease instanceof RText) {
-    res.push(escapeHTML(rease._is))
+    res.push(escapeHTML(rease.data))
   } else if (rease instanceof RElement) {
     const localName = rease.name
     if (localName && !INCLUDE_HTML_TAGS.hasOwnProperty(localName)) {
@@ -83,7 +113,7 @@ export function toHTMLString(rease: Rease) {
       if (arrStyle.length) arrAttrs.push(' style=', JSON.stringify(arrStyle.join('')))
       res.push('<', localName, arrAttrs.join(''))
 
-      if (is_childless_tag_name(localName)) {
+      if (CHILDLESS_HTML_TAGS.hasOwnProperty(localName)) {
         res.push('/>')
       } else {
         res.push('>')
@@ -94,58 +124,6 @@ export function toHTMLString(rease: Rease) {
   } else {
     for (let a = rease.children, i = 0; i < a.length; i++) res.push(toHTMLString(a[i]))
   }
-
-  // switch (rease.component) {
-  //   case RText:
-  //     res.push(rease.shared.is)
-  //     break
-  //   case RElement: {
-  //     const shared = rease.shared as any
-  //     const tagName = shared.is
-
-  //     if (INCLUDE_HTML_TAGS.indexOf(tagName) > -1) break
-
-  //     const classes = shared.classes
-  //     const styles = shared.styles
-  //     const attrs = shared.attrs
-
-  //     const arrClass = [] as any[]
-  //     const arrStyle = [] as any[]
-  //     const arrAttrs = [] as any[]
-
-  //     let k: any, v: any
-  //     if (classes) for (k in classes) if (classes[k]) arrClass.push(k)
-  //     if (styles) for (k in styles) if ((v = styles[k])) arrStyle.push(k, ':', v, ';')
-  //     if (attrs)
-  //       for (k in attrs)
-  //         if ((v = attrs[k]))
-  //           switch (k) {
-  //             case 'class':
-  //               arrClass.push(v)
-  //               break
-  //             case 'style':
-  //               arrStyle.push(v)
-  //               break
-  //             default:
-  //               arrAttrs.push(' ', k, '=', JSON.stringify('' + v))
-  //           }
-
-  //     if (arrClass.length) arrAttrs.push(' class=', JSON.stringify(arrClass.join(' ')))
-  //     if (arrStyle.length) arrAttrs.push(' style=', JSON.stringify(arrStyle.join('')))
-  //     res.push('<', tagName, arrAttrs.join(''))
-
-  //     if (is_childless_tag_name(tagName)) {
-  //       res.push('/>')
-  //     } else {
-  //       res.push('>')
-  //       for (let a = rease.children, i = 0; i < a.length; i++) res.push(toHTMLString(a[i]))
-  //       res.push('</', tagName, '>')
-  //     }
-  //     break
-  //   }
-  //   default:
-  //     for (let a = rease.children, i = 0; i < a.length; i++) res.push(toHTMLString(a[i]))
-  // }
 
   return res.join('')
 }

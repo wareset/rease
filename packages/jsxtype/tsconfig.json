@@ -4,6 +4,7 @@
     // "allowUnreachableCode": false,
     "declaration": true,
     "emitDeclarationOnly": true,
+    "skipLibCheck": true,
     // "experimentalDecorators": true,
     "lib": [
       "dom",

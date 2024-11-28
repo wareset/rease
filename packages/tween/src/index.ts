@@ -220,7 +220,7 @@ function calc(dbl: IDBTaskCont, t: number) {
   }
 }
 
-export class ReaseTween<T extends ITweenValue> {
+class ReaseTween<T extends ITweenValue> {
   readonly _: {
     tasks: [DeepPartial<T>, ITweenOptions | undefined][]
 
@@ -321,6 +321,8 @@ export class ReaseTween<T extends ITweenValue> {
     return addInDblList(this._.of || (this._.of = createDblList()), cb, thisArg)
   }
 }
+
+export type { ReaseTween as ITween }
 
 export function tween<T extends ITweenValue>(value: T, options?: ITweenOptions) {
   return new ReaseTween(value, options)

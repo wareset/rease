@@ -10,7 +10,9 @@ function insertChildren(iam: Rease, children: any, context: any, v: any) {
 
 function getIs(iam: _RAwaitThenCatch_, props: any): any {
   return (iam._is =
-    'is' in props ? props.is : (props = iam.findPrevSibling(_RAwaitThenCatch_)) && props._is)
+    'this' in props
+      ? props.this
+      : (props = iam.findPrevSibling(_RAwaitThenCatch_)) && props.this)
 }
 
 class _RAwaitThenCatch_ extends Rease {
@@ -18,9 +20,9 @@ class _RAwaitThenCatch_ extends Rease {
 }
 
 export class RAwait<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
-  constructor(props: { is?: T; context?: C; children?: (this: C, value: T) => any })
-  constructor(props: { is?: any; children?: any })
-  constructor(props: { is?: any; context?: any; children?: any }) {
+  constructor(props: { this?: T; context?: C; children?: (this: C, value: T) => any })
+  constructor(props: { this?: any; children?: any })
+  constructor(props: { this?: any; context?: any; children?: any }) {
     super()
     const iam = this
     let is = getIs(iam, props)
@@ -36,9 +38,9 @@ export class RAwait<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
 }
 
 export class RThen<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
-  constructor(props: { is?: T; context?: C; children?: (this: C, value: IThened<T>) => any })
-  constructor(props: { is?: any; children?: any })
-  constructor(props: { is?: any; context?: any; children?: any }) {
+  constructor(props: { this?: T; context?: C; children?: (this: C, value: IThened<T>) => any })
+  constructor(props: { this?: any; children?: any })
+  constructor(props: { this?: any; context?: any; children?: any }) {
     super()
     const iam = this
     let is = getIs(iam, props)
@@ -50,9 +52,9 @@ export class RThen<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
 }
 
 export class RCatch<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
-  constructor(props: { is?: T; context?: C; children?: (this: C, value: Error) => any })
-  constructor(props: { is?: any; children?: any })
-  constructor(props: { is?: any; context?: any; children?: any }) {
+  constructor(props: { this?: T; context?: C; children?: (this: C, value: Error) => any })
+  constructor(props: { this?: any; children?: any })
+  constructor(props: { this?: any; context?: any; children?: any }) {
     super()
     const iam = this
     const is = getIs(iam, props)

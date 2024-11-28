@@ -59,44 +59,44 @@ declare global {
         }
         interface IntrinsicElements extends Intristics {
             'r-text': {
-                data: any;
+                this: any;
             } & Children;
             'r-element': {
-                node: string | Element | null;
+                this: string | Element | null;
                 [k: string]: any;
             } & Children;
             'r-fragment': {} & Children;
             'r-for-in': {
-                is: any;
+                this: any;
                 watch?: any;
                 children: (v: any, k: string, a: any) => any;
             };
             'r-for-of': {
-                is: any;
+                this: any;
                 watch?: any;
                 children: (v: any, k: string | number, a: any) => any;
             };
             'r-if': {
-                is: any;
+                this: any;
                 context?: any;
             } & Children;
             'r-else-if': {
-                is: any;
+                this: any;
                 context?: any;
             } & Children;
             'r-else': {
                 context?: any;
             } & Children;
             'r-await': {
-                is: any;
+                this: any;
                 context?: any;
             } & Children;
             'r-then': {
-                is: any;
+                this: any;
                 context?: any;
             } & Children;
             'r-catch': {
-                is: any;
+                this: any;
                 context?: any;
             } & Children;
             'r-move': {
@@ -104,14 +104,14 @@ declare global {
                 index?: ISubscribableOrThenableDeep<number>;
             } & Children;
             'r-switch': {
-                is: any;
+                this: any;
             } & Children;
             'r-case': {
-                is: any;
+                this: any;
                 context?: any;
             } & Children;
             'r-watch': {
-                is: any;
+                this: any;
                 context?: any;
             } & Children;
         }

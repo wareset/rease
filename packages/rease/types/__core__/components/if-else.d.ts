@@ -6,23 +6,23 @@ declare class _RIfElseIf_ extends Rease {
 }
 export declare class RIf<T = unknown, C = undefined> extends _RIfElseIf_ {
     constructor(props: {
-        is: T;
+        this: T;
         context?: C;
         children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any;
     });
     constructor(props: {
-        is: any;
+        this: any;
         children?: any;
     });
 }
 export declare class RElseIf<T = unknown, C = undefined> extends _RIfElseIf_ {
     constructor(props: {
-        is: T;
+        this: T;
         context?: C;
         children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any;
     });
     constructor(props: {
-        is: any;
+        this: any;
         children?: any;
     });
 }

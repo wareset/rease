@@ -33,11 +33,11 @@ function forIn(this: [iam: RForIn, children: any, old: any], is: any) {
 }
 export class RForIn extends Rease {
   constructor({
-    is,
+    this: is,
     watch,
     children,
   }: {
-    is: any
+    this: any
     watch?: any
     children: (v: any, k: string, a: any) => any
   }) {
@@ -86,11 +86,11 @@ function forOf(this: [iam: RForOf, children: any, oldV: any[], oldR: any[]], is:
 export class RForOf extends Rease {
   _is: any
   constructor({
-    is,
+    this: is,
     watch,
     children,
   }: {
-    is: any
+    this: any
     watch?: any
     children: (v: any, k: string | number, a: any) => any
   }) {

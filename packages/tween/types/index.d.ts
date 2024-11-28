@@ -34,7 +34,7 @@ export type ITweenTask<T extends ITweenValue = any> = {
     started: boolean;
     skipped: boolean;
 } & Required<ITweenOptions>;
-export declare class ReaseTween<T extends ITweenValue> {
+declare class ReaseTween<T extends ITweenValue> {
     readonly _: {
         tasks: [DeepPartial<T>, ITweenOptions | undefined][];
         op?: IDblList;
@@ -65,4 +65,5 @@ export declare class ReaseTween<T extends ITweenValue> {
         task: ITweenTask<T>;
     }) => any, thisArg?: C): () => void;
 }
+export type { ReaseTween as ITween };
 export declare function tween<T extends ITweenValue>(value: T, options?: ITweenOptions): ReaseTween<T>;

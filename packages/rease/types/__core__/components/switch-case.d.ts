@@ -4,7 +4,7 @@ import type { ISubscribedOrThenedDeep } from '../types';
 export declare class RSwitch extends Rease {
     _is: any;
     constructor(props: {
-        is: any;
+        this: any;
         children?: any;
     });
 }
@@ -18,14 +18,14 @@ export declare class RCase<T = unknown, C = undefined> extends Rease {
         i?: any;
         u: typeof noop;
     };
-    _switch?: RSwitch | undefined;
+    _switch?: RSwitch | null;
     constructor(props: {
-        is: T;
+        this: T;
         context?: C;
         children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any;
     });
     constructor(props: {
-        is: any;
+        this: any;
         children?: any;
     });
 }

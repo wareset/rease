@@ -12,11 +12,11 @@ const win = typeof window !== 'undefined' ? window : ({} as any)
 
 let cAF: typeof cancelAnimationFrame
 let rAF: typeof requestAnimationFrame =
-  ((cAF = win.cancelAnimationFrame), win.requestAnimationFrame) ||
-  ((cAF = win.oCancelAnimationFrame), win.oRequestAnimationFrame) ||
-  ((cAF = win.msCancelAnimationFrame), win.msRequestAnimationFrame) ||
-  ((cAF = win.mozCancelAnimationFrame), win.mozRequestAnimationFrame) ||
-  ((cAF = win.webkitCancelAnimationFrame), win.webkitRequestAnimationFrame) ||
+  ((cAF = win.cancelAnimationFrame) && win.requestAnimationFrame) ||
+  ((cAF = win.oCancelAnimationFrame) && win.oRequestAnimationFrame) ||
+  ((cAF = win.msCancelAnimationFrame) && win.msRequestAnimationFrame) ||
+  ((cAF = win.mozCancelAnimationFrame) && win.mozRequestAnimationFrame) ||
+  ((cAF = win.webkitCancelAnimationFrame) && win.webkitRequestAnimationFrame) ||
   ((cAF = clearTimeout),
   (_perf = typeof performance === 'object' ? performance : Date),
   function (callback: (t: number) => any) {

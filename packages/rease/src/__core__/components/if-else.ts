@@ -37,27 +37,27 @@ class _RIfElseIf_ extends Rease {
 
 export class RIf<T = unknown, C = undefined> extends _RIfElseIf_ {
   constructor(props: {
-    is: T
+    this: T
     context?: C
     children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any
   })
-  constructor(props: { is: any; children?: any })
-  constructor(props: { is: any; context?: any; children?: any }) {
+  constructor(props: { this: any; children?: any })
+  constructor(props: { this: any; context?: any; children?: any }) {
     super()
-    ifelseif(this, props.context, props.children, (this._is = [props.is]))
+    ifelseif(this, props.context, props.children, (this._is = [props.this]))
   }
 }
 
 export class RElseIf<T = unknown, C = undefined> extends _RIfElseIf_ {
   constructor(props: {
-    is: T
+    this: T
     context?: C
     children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any
   })
-  constructor(props: { is: any; children?: any })
-  constructor(props: { is: any; context?: any; children?: any }) {
+  constructor(props: { this: any; children?: any })
+  constructor(props: { this: any; context?: any; children?: any }) {
     super()
-    for_else(this, props.is, props.context, props.children)
+    for_else(this, props.this, props.context, props.children)
   }
 }
 

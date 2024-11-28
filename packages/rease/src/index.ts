@@ -2,7 +2,6 @@ export * from '@rease/css'
 export * from '@rease/listen'
 export * from '@rease/signal'
 export * from '@rease/tween'
-export type { ReaseTween as ITween } from '@rease/tween'
 
 export type {
   //
@@ -44,6 +43,7 @@ export {
 } from './__core__/utils/then'
 
 export { watch, watchDeep, watchAll, watchDeepAll } from './__core__/utils/watch'
+export { watcher, watcherDeep, watcherAll, watcherDeepAll } from './__core__/utils/watch'
 
 export {
   // r-text r-element

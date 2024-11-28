@@ -257,7 +257,7 @@ function create_rease(jsx: any, parent: Rease | null, idx?: number) {
   let c: any, p: any
   if (jsx instanceof JSX) ({ c, p } = jsx)
   else if (isFunction(jsx)) (c = jsx), (p = {})
-  else (c = RText), (p = { is: jsx })
+  else (c = RText), (p = { this: jsx })
   // jsx instanceof JSX || (jsx = { c: RText, p: { 'r-is': jsx } })
 
   // const _props = jsx.p
@@ -717,6 +717,7 @@ class Rease {
     const isAp = isArray(parentCtor)
     for (let p: Rease | null = this; (p = p.parent); )
       if (_find(isAp, p, parentCtor)) return p as FindsRes<P>
+    return null
   }
 
   findFirstChild<C extends Function>(
@@ -735,6 +736,7 @@ class Rease {
       )
         return child as FindsRes<C>
     }
+    return null
   }
   findLastChild<C extends Function>(
     childCtor: FindsArg<C>,
@@ -752,6 +754,7 @@ class Rease {
       )
         return child as FindsRes<C>
     }
+    return null
   }
 
   findPrevSibling<S extends Function>(
@@ -770,6 +773,7 @@ class Rease {
       )
         return sibling as FindsRes<S>
     }
+    return null
   }
   findNextSibling<S extends Function>(
     nextCtor: FindsArg<S>,
@@ -787,6 +791,7 @@ class Rease {
       )
         return sibling as FindsRes<S>
     }
+    return null
   }
 
   findParentOrPrev<P extends Function, S extends Function>(
@@ -794,7 +799,7 @@ class Rease {
     prevCtor: FindsArg<S>
   ) {
     let prev = this.findPrevSibling(prevCtor, true, parentCtor)
-    if (prev) return { prev }
+    if (prev) return { prev, parent: null }
     const isAp = isArray(parentCtor)
     const isAc = isArray(prevCtor)
     for (
@@ -808,18 +813,18 @@ class Rease {
           (!_find(isAp, prev, parentCtor) &&
             (prev = prev.findLastChild(prevCtor, true, parentCtor)))
         )
-          return { prev }
+          return { prev, parent: null }
       }
-      if (_find(isAp, parent, parentCtor)) return { parent: parent as FindsRes<P> }
+      if (_find(isAp, parent, parentCtor)) return { prev: null, parent: parent as FindsRes<P> }
     }
-    return {}
+    return { prev: null, parent: null }
   }
   findParentOrNext<P extends Function, S extends Function>(
     parentCtor: FindsArg<P>,
     nextCtor: FindsArg<S>
   ) {
     let next = this.findNextSibling(nextCtor, true, parentCtor)
-    if (next) return { next }
+    if (next) return { next, parent: null }
     const isAp = isArray(parentCtor)
     const isAc = isArray(nextCtor)
     for (
@@ -833,11 +838,11 @@ class Rease {
           (!_find(isAp, next, parentCtor) &&
             (next = next.findFirstChild(nextCtor, true, parentCtor)))
         )
-          return { next }
+          return { next, parent: null }
       }
-      if (_find(isAp, parent, parentCtor)) return { parent: parent as FindsRes<P> }
+      if (_find(isAp, parent, parentCtor)) return { next: null, parent: parent as FindsRes<P> }
     }
-    return {}
+    return { next: null, parent: null }
   }
   //
   // FIND
@@ -934,7 +939,7 @@ function createElement(component: any, props: any, ...children: any[]) {
         component = RMove
         break
       default:
-        props.is = component
+        props.this = component
         component = RElement
     }
   }
@@ -957,8 +962,7 @@ export function render(node: HTMLElement | SVGElement | null, jsx: any) {
   //       : { children }
   //   )
   // )
-  const root = new RElement({ is: node })
-  root.insert(jsx)
+  const root = new RElement({ this: node, children: jsx })
   root.init()
   return root
 }

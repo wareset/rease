@@ -38,3 +38,7 @@ export { watch } from "../types/jsx-runtime";
 export { watchAll } from "../types/jsx-runtime";
 export { watchDeep } from "../types/jsx-runtime";
 export { watchDeepAll } from "../types/jsx-runtime";
+export { watcher } from "../types/jsx-runtime";
+export { watcherAll } from "../types/jsx-runtime";
+export { watcherDeep } from "../types/jsx-runtime";
+export { watcherDeepAll } from "../types/jsx-runtime";

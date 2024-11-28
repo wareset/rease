@@ -18,7 +18,9 @@ let STORE = function (value: any, props: any) {
   }
 
   interface IService {
+    // last value
     v: any
+    // allow for queue
     r: boolean
     n: ReaseSignal | null
     // i: number
@@ -44,7 +46,7 @@ let STORE = function (value: any, props: any) {
     // need t
     t: boolean
     // computed
-    c: (value: any, observed: any[] | null) => any
+    c: (observed: any[] | null, value: any) => any
     // is changing
     l: number
     // watch
@@ -101,7 +103,7 @@ let STORE = function (value: any, props: any) {
         if ((needUpdate = !object_is(cache[i].v, ii._value))) break
       }
       if (needUpdate) {
-        value = cmp.c(cmp.s._value, cmp.o ? peek(cmp.o) : ((COMPUTED = cmp), null))
+        value = cmp.c(cmp.o ? peek(cmp.o) : ((COMPUTED = cmp), null), cmp.s._value)
         COMPUTED = null
         for (let i = cache.length, ci; i-- > 0; ) {
           if ((ci = cache[i]).g === cmp.g || cmp.o) ci.v = items[i]._value
@@ -240,7 +242,8 @@ let STORE = function (value: any, props: any) {
       iam.set(v)
     }
     function uns() {
-      u.unsubscribe ? u.unsubscribe() : u(), (u = noop)
+      const uns = u
+      ;(u = noop), uns.unsubscribe ? uns.unsubscribe() : uns()
     }
     const iam = new STORE(void 0, {
       prepare() {
@@ -282,32 +285,25 @@ let STORE = function (value: any, props: any) {
   class ReaseSignal<T = unknown> {
     _: IService
     _value: T
+    readonly computed?: boolean
+    readonly prepared?: boolean
+    readonly captured?: boolean
 
     constructor(
       value: T,
       props?: {
         prepare?: (iam: ReaseSignal<T>) => void | ((iam: ReaseSignal<T>) => void)
         capture?: (newValue: T, oldValue: T) => T
-        compute?: (value: T) => T
+        compute?: (observe: any[] | null, value: T) => T
         observe?: any[]
       }
     ) {
       const _: IService = (this._ = {
-        v: value,
-        h: { n: null, p: null } as unknown as ISubscriber,
-        p: null as unknown as ISubscriber,
-        r: true,
-        n: null,
-        // fst lst
-        f: (props && props.prepare) || null,
-        l: null,
-        // pre ps
-        o: (props && props.capture) || null,
-        // computed
-        w: null,
+        v: (this._value = value),
         c:
           props && props.compute
-            ? {
+            ? ((this.computed = true),
+              {
                 // d: 0,
                 s: this,
                 g: null,
@@ -317,10 +313,20 @@ let STORE = function (value: any, props: any) {
                 i: [],
                 x: [],
                 o: props!.observe,
-              }
+              })
             : null,
+        h: { n: null, p: null } as unknown as ISubscriber,
+        p: null as unknown as ISubscriber,
+        r: true,
+        n: null,
+        // fst lst
+        f: props && props.prepare ? ((this.prepared = true), props.prepare) : null,
+        l: null,
+        // pre ps
+        o: props && props.capture ? ((this.captured = true), props.capture) : null,
+        // computed list
+        w: null,
       })
-      this._value = value
       _.p = _.h.n = _.h.p = _.h
       if (_.c && _.c.o) setObserve(_.c)
       if (_.o) batch(setWithCaptureFirstBatch, this, [value])
@@ -415,10 +421,10 @@ let STORE = function (value: any, props: any) {
   run_queue = function (iam: ReaseSignal) {
     let _ = iam._
     if (_.r) {
+      if (++queue_count > 4e4) THROW('looping')
       _.n = null
       _.r = false
       if (LAST) {
-        if (++queue_count > 4e4) THROW('looping')
         LAST = LAST._.n = iam
       } else {
         LAST = iam
@@ -443,30 +449,40 @@ let STORE = function (value: any, props: any) {
 
 //
 //
-// ISignal, ISignalComputed, IObserve, IObserveValues
+// ISignalManually, ISignalComputed, IObserve, IObserveValues
 //
-export declare class ISignal<G, S = G> {
-  readonly _value: G
-  // @ts-ignore
+declare class _ISignal<G> {
+  // readonly computed?: true | undefined
+  readonly prepared?: true
+  readonly captured?: true
+  private readonly _value: G
+  subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void
+  toString(
+    ...a: G extends { toString(...a: any): any } ? Parameters<G['toString']> : any
+  ): G extends { toString(...a: any): infer I } ? I : string
+  valueOf(
+    ...a: G extends { valueOf(...a: any): any } ? Parameters<G['valueOf']> : any
+  ): G extends { valueOf(...a: any): infer I } ? I : G
+  toJSON(
+    ...a: G extends { toJSON(...a: any): any } ? Parameters<G['toJSON']> : any
+  ): G extends { toJSON(...a: any): infer I } ? I : G
+}
+
+export declare class ISignalComputed<G> extends _ISignal<G> {
+  readonly computed: true
   get $(): G
-  // @ts-ignore
-  set $(v: S)
   get(): G
+}
+
+export declare class ISignalManually<G, S = G> extends _ISignal<G> {
+  readonly computed?: undefined
+  get $(): G
+  get(): G
+  set $(v: G)
   set(v: S): this
-  subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void
-  toString(...a: any): G extends { toString(...a: any): infer I } ? I : string
-  valueOf(...a: any): G extends { valueOf(...a: any): infer I } ? I : G
-  toJSON(...a: any): G extends { toJSON(...a: any): infer I } ? I : G
 }
-export declare class ISignalComputed<G> {
-  readonly _value: G
-  get $(): G
-  get(): G
-  subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void
-  toString(...a: any): G extends { toString(...a: any): infer I } ? I : string
-  valueOf(...a: any): G extends { valueOf(...a: any): infer I } ? I : G
-  toJSON(...a: any): G extends { toJSON(...a: any): infer I } ? I : G
-}
+
+export type ISignal<G, S = G> = ISignalComputed<G> | ISignalManually<G, S>
 
 type IObserve = readonly unknown[] | [] | null
 // prettier-ignore
@@ -481,7 +497,7 @@ type IObserveValues<O extends IObserve> = O extends null | undefined
   ? O
   : { -readonly [P in keyof O]: _ISubscribed<O[P]> }
 //
-// ISignal, ISignalComputed, IObserve, IObserveValues
+// ISignalManually, ISignalComputed, IObserve, IObserveValues
 //
 //
 
@@ -531,7 +547,7 @@ function signal<G, S = G, O extends IObserve = null>(
   value: S,
   props: {
     prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
-    compute: <V = G>(value: V, observe: IObserveValues<O>) => S
+    compute: <V = G>(observe: IObserveValues<O>, value: V) => S
     observe?: O
     capture: (newValue: S, oldValue: G) => G
   }
@@ -540,25 +556,25 @@ function signal<G, O extends IObserve = null>(
   value: G,
   props: {
     prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
-    compute: <V = G>(value: V, observe: IObserveValues<O>) => G
+    compute: <V = G>(observe: IObserveValues<O>, value: V) => G
     observe?: O
   }
 ): ISignalComputed<G>
 function signal<G, S = G>(
   value: S,
   props: {
-    prepare?: (iam: ISignal<G, S>) => void | ((iam: ISignal<G, S>) => void)
+    prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void)
     capture: (newValue: S, oldValue: G) => G
   }
-): ISignal<G, S>
+): ISignalManually<G, S>
 function signal<G>(
   value?: G,
   props?: {
-    prepare?: (iam: ISignal<G>) => void | ((iam: ISignal<G>) => void)
+    prepare?: (iam: ISignalManually<G>) => void | ((iam: ISignalManually<G>) => void)
   }
-): ISignal<G>
+): ISignalManually<G>
 
-function signal(value: any, props: any) {
+function signal(value?: any, props?: any) {
   return new STORE(value, props)
 }
 export { signal }
@@ -568,7 +584,7 @@ export { signal }
 //
 
 // const $q = signal('', {
-//   compute: (_, [a, b]) => a + b,
+//   compute: ([a, b]) => a + b,
 //   observe: [1, 10],
 //   capture(v: number | string) {
 //     return +v * 2
@@ -606,10 +622,11 @@ function computed(observe: any, compute: any, props: any) {
 */
 function computed<G, O extends IObserve = null>(
   observe: O,
-  compute: <V = G | undefined>(value: V, observe: IObserveValues<O>) => G
+  compute: <V = G | undefined>(observe: IObserveValues<O>, value: V) => G,
+  initValue?: G
 ): ISignalComputed<G>
-function computed(observe: any, compute: any) {
-  return new STORE(void 0, { compute, observe })
+function computed(observe: any, compute: any, initValue?: any) {
+  return new STORE(initValue, { compute, observe })
 }
 export { computed }
 //
@@ -641,13 +658,52 @@ export { effect }
 //
 // isSignal, isSignalStrict, isSignalComputed
 //
-function isSignal<T = any>(thing: any): thing is ISignal<T> | ISignalComputed<T> {
+function isSignal<T = any>(thing: any): thing is ISignal<T> {
   return thing instanceof STORE
 }
-function isSignalStrict<T = any>(thing: any): thing is ISignal<T> {
+function isSignalManually<T = any>(thing: any): thing is ISignalManually<T> {
   return thing instanceof STORE && !thing._.c
 }
 function isSignalComputed<T = any>(thing: any): thing is ISignalComputed<T> {
   return thing instanceof STORE && !!thing._.c
 }
-export { isSignal, isSignalStrict, isSignalComputed }
+export { isSignal, isSignalManually, isSignalComputed }
+
+// Computed
+// Computable
+
+// useable
+// managed
+// availed
+// variable
+// installable
+// available
+// manuality
+// manualable
+// assignable
+// Accessible
+// Changeable
+// Recordable
+// Rewritable
+// Modifiable
+// enhanced
+// Modified
+// Manually
+// Manualed
+// mutated
+// Accessed
+// controlled
+// recorded
+// variable
+// adjusted
+// manually
+// Writable
+// Readable
+// Standard
+// Recorded
+// Readonly
+// Entirely
+// totally
+// mutable
+// immutable
+// changed

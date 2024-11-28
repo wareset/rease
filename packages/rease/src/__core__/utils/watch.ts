@@ -12,7 +12,7 @@ import { then } from './then'
 import { _Array } from './array'
 import { isSubscribable, isThenable } from './is'
 
-import type { ISignal } from '@rease/signal'
+import type { ISignalManually } from '@rease/signal'
 import { isSignal, signal, batch } from '@rease/signal'
 
 function observablefyThenable<T>(promise: IThenable<T>) {
@@ -23,7 +23,10 @@ function observablefyThenable<T>(promise: IThenable<T>) {
   }
 }
 
-function _s1<T, C>(this: { f: ISubscriber<T, C>; c: C; s: ISignal<any>; u: any }, v: T) {
+function _s1<T, C>(
+  this: { f: ISubscriber<T, C>; c: C; s: ISignalManually<any>; u: any },
+  v: T
+) {
   // if (v !== this) this.f.call(this.c, v)
   if (v !== this) {
     // FIX
@@ -36,10 +39,11 @@ function _s1<T, C>(this: { f: ISubscriber<T, C>; c: C; s: ISignal<any>; u: any }
   }
 }
 
-function _s2(v: ISubscribable<any>, data: { f: any; c: any; s: ISignal<any> }) {
+function _s2(v: ISubscribable<any>, data: { f: any; c: any; s: ISignalManually<any> }) {
   let u0 = noop
   let u1: any = v.subscribe(function (v) {
-    u0(), (u0 = noop)
+    const uns0 = u0
+    ;(u0 = noop), uns0()
     if (isSubscribable(v) || (isThenable(v) && ((v = observablefyThenable(v)), true))) {
       u0 = _s2(v as any, data)
     } else {
@@ -47,7 +51,9 @@ function _s2(v: ISubscribable<any>, data: { f: any; c: any; s: ISignal<any> }) {
     }
   })
   return function () {
-    u0(), u1.unsubscribe ? u1.unsubscribe() : u1(), (u0 = u1 = noop)
+    const uns0 = u0
+    const uns1 = u1
+    ;(u0 = u1 = noop), uns0(), uns1.unsubscribe ? uns1.unsubscribe() : uns1()
   }
 }
 
@@ -71,7 +77,9 @@ export function watch<T, C = undefined>(
     })
     let u0 = data.s.subscribe(_s1, data)
     uRes = function () {
-      u0(), u1.unsubscribe ? u1.unsubscribe() : u1(), (u0 = u1 = noop)
+      const uns0 = u0
+      const uns1 = u1
+      ;(u0 = u1 = noop), uns0(), uns1.unsubscribe ? uns1.unsubscribe() : uns1()
     }
   } else if (isThenable(v)) {
     uRes = then(v, _o1, { f: cb, c: thisArg })
@@ -93,7 +101,9 @@ export function watchDeep<T, C = undefined>(
     let u1 = _s2(v as any, data)
     let u0 = data.s.subscribe(_s1, data)
     uRes = function () {
-      u0(), u1(), (u0 = u1 = noop)
+      const uns0 = u0
+      const uns1 = u1
+      ;(u0 = u1 = noop), uns0(), uns1()
     }
   } else {
     uRes = noop
@@ -104,7 +114,7 @@ export function watchDeep<T, C = undefined>(
 
 function _s3(
   this: {
-    d: { l: number; v: any[]; u: any[]; s: ISignal<any>; f: any; c: any }
+    d: { l: number; v: any[]; u: any[]; s: ISignalManually<any>; f: any; c: any }
     i: number
     f: boolean
   },
@@ -123,7 +133,7 @@ function _s3(
     // batch(data.f, data.c, [data.v.slice()])
   }
 }
-function _w0(watchFn: typeof watchDeep | typeof watch) {
+function _w0(watchFn: typeof watch | typeof watchDeep) {
   return function (a: any, cb: any, thisArg: any): IUnsubscriber {
     let uRes: IUnsubscriber
     const l = a.length
@@ -145,7 +155,7 @@ function _w0(watchFn: typeof watchDeep | typeof watch) {
 export const watchAll = _w0(watch) as <T extends readonly unknown[] | [], C = undefined>(
   a: T,
   cb: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThened<T[P]> }, C>,
-  ctx?: C
+  thisArg?: C
 ) => IUnsubscriber
 
 export const watchDeepAll = _w0(watchDeep) as <
@@ -154,7 +164,7 @@ export const watchDeepAll = _w0(watchDeep) as <
 >(
   a: T,
   cb: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }, C>,
-  ctx?: C
+  thisArg?: C
 ) => IUnsubscriber
 
 // const $q = signal(1)
@@ -168,3 +178,118 @@ export const watchDeepAll = _w0(watchDeep) as <
 //   $q.$ *= 2
 //   $w.$ *= 2
 // })
+
+function _W2(this: any, v: any) {
+  v === this._ || this.f.call(this.c, v)
+}
+
+function _W1(this: { s: ISignalManually<any> | null }, v: any) {
+  this.s!.set(v)
+}
+
+// function _W0(
+//   watchFn: typeof watch | typeof watchDeep | typeof watchAll | typeof watchDeepAll
+// ) {
+//   let _Watcher: any
+//   return function (v: any) {
+//     _Watcher ||
+//       (_Watcher = class Watcher<T> {
+//         private _: { v: T; s: ISignalManually<any> | null }
+//         constructor(v: T) {
+//           this._ = { v, s: null }
+//         }
+//         subscribe(cb: any, thisArg?: any) {
+//           const _ = this._
+//           _.s ||
+//             (_.s = signal(_, {
+//               prepare(iam) {
+//                 return (_.s = iam), iam.set(_), (watchFn as any)(_.v, _W1, _)
+//               },
+//             }))
+//           return _.s.subscribe(_W2, { _, f: cb, c: thisArg })
+//         }
+//       })
+//     return new _Watcher(v)
+//   }
+// }
+
+// export const _watcher = _W0(watch) as <T>(v: T) => {
+//   subscribe<C = undefined>(
+//     cb: ISubscriber<ISubscribedOrThened<T>, C>,
+//     thisArg?: C
+//   ): IUnsubscriber
+// }
+
+// export const _watcherDeep = _W0(watchDeep) as <T>(v: T) => {
+//   subscribe<C = undefined>(
+//     cb: ISubscriber<ISubscribedOrThenedDeep<T>, C>,
+//     thisArg?: C
+//   ): IUnsubscriber
+// }
+
+// export const _watcherAll = _W0(watchAll) as <T extends readonly unknown[] | []>(
+//   v: T
+// ) => {
+//   subscribe<C = undefined>(
+//     cb: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThened<T[P]> }, C>,
+//     thisArg?: C
+//   ): IUnsubscriber
+// }
+
+// export const _watcherDeepAll = _W0(watchDeepAll) as <T extends readonly unknown[] | []>(
+//   v: T
+// ) => {
+//   subscribe<C = undefined>(
+//     cb: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }, C>,
+//     thisArg?: C
+//   ): IUnsubscriber
+// }
+
+class ReaseWatcher<T, S> {
+  private _: {
+    v: T
+    s: ISignalManually<any> | null
+    w: typeof watch | typeof watchDeep | typeof watchAll | typeof watchDeepAll
+  }
+  readonly deep: boolean
+  readonly all: boolean
+  constructor(v: T, w: ReaseWatcher<T, S>['_']['w'], deep: boolean, all: boolean) {
+    this.deep = deep
+    this.all = all
+    this._ = { v, s: null, w }
+  }
+  subscribe<C = undefined>(cb: ISubscriber<S, C>, thisArg?: C) {
+    const _ = this._
+    _.s ||
+      (_.s = signal(_, {
+        prepare(iam) {
+          return (_.s = iam), iam.set(_), (_.w as any)(_.v, _W1, _)
+        },
+      }))
+    return _.s.subscribe(_W2, { _, f: cb, c: thisArg })
+  }
+  toJSON() {}
+}
+
+export function watcher<T>(v: T) {
+  return new ReaseWatcher<T, ISubscribedOrThened<T>>(v, watch, false, false)
+}
+export function watcherDeep<T>(v: T) {
+  return new ReaseWatcher<T, ISubscribedOrThenedDeep<T>>(v, watchDeep, true, false)
+}
+export function watcherAll<T extends readonly unknown[] | []>(v: T) {
+  return new ReaseWatcher<T, { -readonly [P in keyof T]: ISubscribedOrThened<T[P]> }>(
+    v,
+    watchAll,
+    false,
+    true
+  )
+}
+export function watcherDeepAll<T extends readonly unknown[] | []>(v: T) {
+  return new ReaseWatcher<T, { -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }>(
+    v,
+    watchDeepAll,
+    true,
+    true
+  )
+}

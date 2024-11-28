@@ -1,5 +1,4 @@
 export * from "./types";
-export { ReaseTween } from "./types";
 export { TWEEN_DEFAULTS } from "./types";
 export { cancelAnimationFrame } from "./types";
 export { easeBackIn } from "./types";

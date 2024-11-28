@@ -35,3 +35,7 @@ export { watch } from "./types";
 export { watchAll } from "./types";
 export { watchDeep } from "./types";
 export { watchDeepAll } from "./types";
+export { watcher } from "./types";
+export { watcherAll } from "./types";
+export { watcherDeep } from "./types";
+export { watcherDeepAll } from "./types";

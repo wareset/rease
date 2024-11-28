@@ -14,20 +14,20 @@ function watch(this: { r: Rease; t: any; c: any }, v: any) {
 }
 
 export class RWatch<T = unknown, C = undefined> extends Rease {
-  constructor({}: {
-    is: T
+  constructor(props: {
+    this: T
     context?: C
     children?: T extends readonly unknown[] | []
       ? (this: C, value: { -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }) => any
       : (this: C, value: ISubscribedOrThenedDeep<T>) => any
   })
-  constructor({}: { is: any; children?: any })
-  constructor({ is, context, children }: { is: any; context?: any; children?: any }) {
+  constructor(props: { this: any; children?: any })
+  constructor(props: { this: any; context?: any; children?: any }) {
     super()
-    ;(this as any)[isArray(is) ? 'watchDeepAll' : 'watchDeep'](is, watch, {
+    ;(this as any)[isArray(props.this) ? 'watchDeepAll' : 'watchDeep'](props.this, watch, {
       r: this,
-      t: context,
-      c: children,
+      t: props.context,
+      c: props.children,
     })
   }
 }

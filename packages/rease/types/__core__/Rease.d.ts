@@ -85,23 +85,17 @@ declare class Rease {
     findNextSibling<S extends Function>(nextCtor: FindsArg<S>, isDeep?: boolean, skipCtor?: FindsArg<Function>): FindsRes<S>;
     findParentOrPrev<P extends Function, S extends Function>(parentCtor: FindsArg<P>, prevCtor: FindsArg<S>): {
         prev: FindsRes<S>;
-        parent?: undefined;
+        parent: any;
     } | {
+        prev: any;
         parent: FindsRes<P>;
-        prev?: undefined;
-    } | {
-        prev?: undefined;
-        parent?: undefined;
     };
     findParentOrNext<P extends Function, S extends Function>(parentCtor: FindsArg<P>, nextCtor: FindsArg<S>): {
         next: FindsRes<S>;
-        parent?: undefined;
+        parent: any;
     } | {
+        next: any;
         parent: FindsRes<P>;
-        next?: undefined;
-    } | {
-        next?: undefined;
-        parent?: undefined;
     };
 }
 type FindsArg<T> = T | T[];
