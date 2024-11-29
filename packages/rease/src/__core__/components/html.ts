@@ -33,7 +33,8 @@ let createElem = noopNull as unknown as (
 let insertNode = noop as unknown as (
   node: Node,
   parNode: Node | null | undefined,
-  befNode: Node | null | undefined | Node
+  befNode: Node | null | undefined | Node,
+  needRemove: boolean
 ) => void
 let deleteNode = noop as unknown as (iam: RText | RElement) => void
 let initedNode = noop as unknown as (iam: RText | RElement) => void
@@ -68,7 +69,7 @@ export class RText extends Rease {
 
     const { p: pNode, b: bNode } = get_parent_and_before_node(this)
     if ((this.node = createText(this.data, pNode, bNode))) {
-      insertNode(this.node, pNode, bNode)
+      insertNode(this.node, pNode, bNode, false)
       this.onMove(movingNode, this)
       this.onDestroy(deleteNode)
     }
@@ -118,20 +119,17 @@ export class RElement extends Rease {
         this.node = (is as any) || DOCUMENT.body
         break
       default: {
-        if (!(this.node = is as any)) {
-          const { p: pNode, b: bNode } = get_parent_and_before_node(this)
-          if ((this.node = createElem(type, pNode, bNode))) {
-            insertNode(this.node, pNode, bNode)
-            this.onMove(movingNode, this)
-            this.onDestroy(deleteNode)
-          }
+        const { p: pNode, b: bNode } = get_parent_and_before_node(this)
+        if ((this.node = (is as any) || createElem(type, pNode, bNode))) {
+          insertNode(this.node, pNode, bNode, false)
+          this.onMove(movingNode, this)
+          this.onDestroy(deleteNode)
+          afterInsert = initedNode
         }
-        afterInsert = initedNode
       }
     }
 
     this._attrs = {}
-    // @ts-ignore
     for (const k in props) {
       if (this.destroyed) break
       get_attrs_parser(this, (props as any)[k], k)
@@ -228,7 +226,7 @@ if (typeof document !== 'undefined') {
     // console.log('create: ' + tagName)
     return createElementNS(tagName, pNode)
   }
-  insertNode = function (node, pNode, bNode) {
+  insertNode = function (node, pNode, bNode, needRemove) {
     // node.setAttribute('rease', '')
     // @ts-ignore
     node[REASE_NODE_MARK] = true
@@ -241,7 +239,7 @@ if (typeof document !== 'undefined') {
             // ? null
             pNode.firstChild) || null
       )
-    } else {
+    } else if (needRemove) {
       removeNode(node)
     }
   }
@@ -253,7 +251,7 @@ if (typeof document !== 'undefined') {
       }
     }
     const { p: pNode, b: bNode } = get_parent_and_before_node(this)
-    insertNode(this.node!, pNode, bNode)
+    insertNode(this.node!, pNode, bNode, true)
   }
   deleteNode = function (iam) {
     removeNode(iam.node!)

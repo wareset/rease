@@ -7,22 +7,45 @@
 //                                || window[vendors[x]+'CancelRequestAnimationFrame'];
 // }
 
-let _perf: typeof performance | typeof Date
 const win = typeof window !== 'undefined' ? window : ({} as any)
 
-let cAF: typeof cancelAnimationFrame
-let rAF: typeof requestAnimationFrame =
-  ((cAF = win.cancelAnimationFrame) && win.requestAnimationFrame) ||
-  ((cAF = win.oCancelAnimationFrame) && win.oRequestAnimationFrame) ||
-  ((cAF = win.msCancelAnimationFrame) && win.msRequestAnimationFrame) ||
-  ((cAF = win.mozCancelAnimationFrame) && win.mozRequestAnimationFrame) ||
-  ((cAF = win.webkitCancelAnimationFrame) && win.webkitRequestAnimationFrame) ||
-  ((cAF = clearTimeout),
-  (_perf = typeof performance === 'object' ? performance : Date),
-  function (callback: (t: number) => any) {
-    return setTimeout(function () {
-      callback(_perf.now())
-    }, 16)
-  })
+// let _perf = typeof performance === 'object' ? performance : Date
+// let cAF: typeof cancelAnimationFrame
+// let rAF: typeof requestAnimationFrame =
+//   ((cAF = win.cancelAnimationFrame) && win.requestAnimationFrame) ||
+//   ((cAF = win.oCancelAnimationFrame) && win.oRequestAnimationFrame) ||
+//   ((cAF = win.msCancelAnimationFrame) && win.msRequestAnimationFrame) ||
+//   ((cAF = win.mozCancelAnimationFrame) && win.mozRequestAnimationFrame) ||
+//   ((cAF = win.webkitCancelAnimationFrame) && win.webkitRequestAnimationFrame) ||
+//   ((cAF = clearTimeout),
+//   (_perf = typeof performance === 'object' ? performance : Date),
+//   function (callback: (t: number) => any) {
+//     return setTimeout(function () {
+//       callback(_perf.now())
+//     }, 16)
+//   })
+
+const cAF: typeof cancelAnimationFrame =
+  win.cancelAnimationFrame ||
+  win.oCancelAnimationFrame ||
+  win.msCancelAnimationFrame ||
+  win.mozCancelAnimationFrame ||
+  win.webkitCancelAnimationFrame ||
+  clearTimeout
+
+const rAF: typeof requestAnimationFrame =
+  win.requestAnimationFrame ||
+  win.oRequestAnimationFrame ||
+  win.msRequestAnimationFrame ||
+  win.mozRequestAnimationFrame ||
+  win.webkitRequestAnimationFrame ||
+  (function () {
+    const _perf = typeof performance === 'object' ? performance : Date
+    return function (callback: (t: number) => any) {
+      return setTimeout(function () {
+        callback(_perf.now())
+      }, 16.6667)
+    } as any
+  })()
 
 export { rAF as requestAnimationFrame, cAF as cancelAnimationFrame }
