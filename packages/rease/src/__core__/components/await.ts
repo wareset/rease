@@ -5,7 +5,6 @@ import { isFunction, isThenable, isCatchable } from '../utils/is'
 import type { IThened } from '../types'
 
 function insertChildren(iam: Rease, children: any, context: any, v: any) {
-  console.log(111111111, iam)
   iam.destroyed || iam.insert(isFunction(children) ? children.call(context, v) : children)
 }
 
