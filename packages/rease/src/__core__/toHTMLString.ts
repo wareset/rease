@@ -62,6 +62,7 @@ const CHILDLESS_HTML_TAGS = {
   base: 1,
   br: 1,
   col: 1,
+  command: 1,
   embed: 1,
   frame: 1,
   hr: 1,

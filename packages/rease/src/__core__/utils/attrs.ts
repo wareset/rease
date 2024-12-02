@@ -74,11 +74,7 @@ export const get_attrs_parser = (function () {
 
   function is(v: any) {
     // (typeof v === 'string' && v !== '') || typeof v === 'number' || typeof v === 'boolean'
-    return (
-      v === v &&
-      // v !== '' &&
-      ((v = typeof v), v === 'string' || v === 'number' || v === 'boolean')
-    )
+    return (v = typeof v), v === 'string' || v === 'number' || v === 'boolean'
   }
 
   function toggle_class(E: Element, className: string, is: any) {

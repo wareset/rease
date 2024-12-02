@@ -46,23 +46,6 @@ export { watch, watchDeep, watchAll, watchDeepAll } from './__core__/utils/watch
 export { watcher, watcherDeep, watcherAll, watcherDeepAll } from './__core__/utils/watch'
 
 export {
-  // r-text r-element
-  RText,
-  RElement,
-  // r-fragment
-  RFragment,
-  // r-watch r-watch-deep r-watch-all r-watch-deep-all
-  RWatch,
-  // RWatchDeep,
-  // RWatchAll,
-  // RWatchDeepAll,
-  // r-if r-else-if r-else
-  RIf,
-  RElseIf,
-  RElse,
-  // r-switch r-case
-  RSwitch,
-  RCase,
   // r-await t-then r-catch
   RAwait,
   RThen,
@@ -70,8 +53,25 @@ export {
   // r-for-in r-for-of
   RForIn,
   RForOf,
+  // r-fragment
+  RFragment,
+  // r-text r-element
+  RText,
+  RElement,
+  // r-if r-else-if r-else
+  RIf,
+  RElseIf,
+  RElse,
   // r-move
   RMove,
+  // r-switch r-case
+  RSwitch,
+  RCase,
+  // r-watch r-watch-deep r-watch-all r-watch-deep-all
+  RWatch,
+  // RWatchDeep,
+  // RWatchAll,
+  // RWatchDeepAll,
 } from './__core__/components'
 
 export { Rease } from './__core__/Rease'
