@@ -12,6 +12,7 @@ import { isArray } from './utils/array'
 import { getPrototypeOf } from './utils/object'
 import { isString, isFunction, isThenable } from './utils/is'
 import { watch, watchDeep, watchAll, watchDeepAll } from './utils/watch'
+import type { ISubscribedOrThenedAll, ISubscribedOrThenedDeepAll } from './utils/watch'
 
 import {
   // r-await t-then r-catch
@@ -682,14 +683,14 @@ class Rease {
   }
   watchAll<T extends readonly unknown[] | [], C = undefined>(
     $values$: T,
-    cb?: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThened<T[P]> }, C>,
+    cb?: ISubscriber<ISubscribedOrThenedAll<T>, C>,
     thisArg?: C
   ) {
     return addWatch(this, watchAll, $values$, cb, thisArg)
   }
   watchDeepAll<T extends readonly unknown[] | [], C = undefined>(
     $values$: T,
-    cb?: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }, C>,
+    cb?: ISubscriber<ISubscribedOrThenedDeepAll<T>, C>,
     thisArg?: C
   ) {
     return addWatch(this, watchDeepAll, $values$, cb, thisArg)

@@ -1,7 +1,9 @@
 function noop() {}
-let LAST = 1 as any
+let LAST_ = 1 as any
 let run_queue: any
-let $batcher: any // ISignal<{ f: (v?: any) => any; c: any; a: any }>
+let $batcher_: any // ISignal<{ f: (v?: any) => any; c: any; a: any }>
+const SECURE = {}
+// export { SECURE as _signalSecureKey }
 
 let STORE = function (value: any, props: any) {
   interface ISubscriber {
@@ -18,11 +20,16 @@ let STORE = function (value: any, props: any) {
   }
 
   interface IService {
-    // last value
+    s: ReaseSignal
+    // defense
+    d: null | ((sec: any) => any)
+    // value
     v: any
+    // last value
+    q: any
     // allow for queue
     r: boolean
-    n: ReaseSignal | null
+    n: IService | null
     // i: number
     // subscribers items
     h: ISubscriber
@@ -39,8 +46,8 @@ let STORE = function (value: any, props: any) {
   }
 
   interface IComputed {
-    // d: number
-    s: ReaseSignal
+    // s: ReaseSignal
+    _: IService
     // GVERSION
     g: any
     // need t
@@ -50,10 +57,8 @@ let STORE = function (value: any, props: any) {
     // is changing
     l: number
     // watch
-    i: ReaseSignal[]
+    i: IService[]
     x: { g: any; v: any; u: typeof noop }[]
-    // count
-    // d: number
     // observe
     o: { v: any; b: boolean }[] | undefined | null
   }
@@ -84,10 +89,10 @@ let STORE = function (value: any, props: any) {
 
   // let i = 0
   // let j = 0
-  function computedTest(this: IComputed) {
+  function computedTestBase(this: IComputed) {
     // console.log(111, ++i, j)
     const cmp = this
-    if (cmp.l === 0 && cmp.g !== GVERSION && (cmp.t || cmp.s._.h === cmp.s._.h.n)) {
+    if (cmp.g !== GVERSION && cmp.l === 0 && (cmp.t || cmp._.h === cmp._.h.n)) {
       // console.log(222, i, ++j)
       let value: any
 
@@ -98,15 +103,15 @@ let STORE = function (value: any, props: any) {
       const COMPUTED_PREV = COMPUTED
       COMPUTED = null
       cmp.l++
-      for (let i = 0, ii, c; i < cache.length; i++) {
-        if ((c = (ii = items[i])._.c)) computedTest.call(c)
-        if ((needUpdate = !object_is(cache[i].v, ii._value))) break
+      for (let i = 0, i_; i < cache.length; i++) {
+        if ((i_ = items[i]).c) computedTestBase.call(i_.c)
+        if ((needUpdate = !object_is(cache[i].v, i_.v))) break
       }
       if (needUpdate) {
-        value = cmp.c(cmp.o ? peek(cmp.o) : ((COMPUTED = cmp), null), cmp.s._value)
+        value = cmp.c(cmp.o ? peek(cmp.o) : ((COMPUTED = cmp), null), cmp._.v)
         COMPUTED = null
         for (let i = cache.length, ci; i-- > 0; ) {
-          if ((ci = cache[i]).g === cmp.g || cmp.o) ci.v = items[i]._value
+          if ((ci = cache[i]).g === cmp.g || cmp.o) ci.v = items[i].v
           else items.splice(i, 1), cache.splice(i, 1)[0].u()
         }
       }
@@ -115,17 +120,16 @@ let STORE = function (value: any, props: any) {
       cmp.l--
       COMPUTED = COMPUTED_PREV
       if (needUpdate) {
-        const iam = cmp.s
-        const capture = iam._.o
-        setValue(iam, capture ? capture(value, iam._value) : value)
-        // cmp.s.set(value, security)
+        const _ = cmp._
+        const capture = _.o
+        setValue(_, capture ? capture(value, _.v) : value)
       }
     }
   }
   function computedTestFast(cmp: IComputed) {
-    if (cmp.l === 0 && cmp.g !== GVERSION && cmp.t) {
+    if (cmp.g !== GVERSION && cmp.l === 0 && cmp.t) {
       // batch(computedTest, null, [cmp])
-      batch(computedTest, cmp)
+      batch(computedTestBase, cmp)
     }
   }
 
@@ -137,12 +141,12 @@ let STORE = function (value: any, props: any) {
   //   cmp.l++
   //   if (!cmp.g && !cmp.o) {
   //     COMPUTED = cmp
-  //     cmp.c(cmp.s._value, null)
+  //     cmp.c(cmp.s._.v, null)
   //     COMPUTED = null
   //   }
   //   for (let i = 0, ii; i < cache.length; i++) {
-  //     if ((ii = items[i])._.c) computedTest(ii._.c!)
-  //     cache[i].v = ii._value
+  //     if ((ii = items[i])._.c) computedTestBase(ii._.c!)
+  //     cache[i].v = ii._.v
   //   }
   //   cmp.g = GVERSION
   //   cmp.t = false
@@ -164,18 +168,18 @@ let STORE = function (value: any, props: any) {
   //       const cache = this.x
   //       this.d = 0
   //       for (let i = 0, ii, c; i < cache.length; i++) {
-  //         if ((c = (ii = items[i])._.c)) computedTest(c)
-  //         objectIs(cache[i].v, ii._value) || this.d++
+  //         if ((c = (ii = items[i])._.c)) computedTestBase(c)
+  //         objectIs(cache[i].v, ii._.v) || this.d++
   //       }
   //     }
-  //     if (--this.d === 0) computedTest(this)
+  //     if (--this.d === 0) computedTestBase(this)
   //   }
-  //   // computedTest(this)
+  //   // computedTestBase(this)
   // }
-  function computedItemSubscribe(cmp: IComputed, item: ReaseSignal) {
+  function computedItemSubscribe(cmp: IComputed, item_: IService) {
     cmp.l++
-    const w = item._.w || (item._.w = [])
-    const u = item.subscribe(computedTest, cmp)
+    const w = item_.w || (item_.w = [])
+    const u = item_.s.subscribe(computedTestBase, cmp)
     cmp.l--
     w.push(cmp)
     return function () {
@@ -186,28 +190,28 @@ let STORE = function (value: any, props: any) {
   function computedFirstSub(cmp: IComputed) {
     const items = cmp.i
     const cache = cmp.x
-    for (let i = 0, h = cmp.s._.h, ci; i < cache.length && h !== h.n; i++) {
+    for (let i = 0, h = cmp._.h, ci; i < cache.length && h !== h.n; i++) {
       if ((ci = cache[i]).u === noop) ci.u = computedItemSubscribe(cmp, items[i])
     }
     cmp.t = true
-    computedTest.call(cmp)
+    computedTestBase.call(cmp)
   }
   function computedLastSub(cmp: IComputed) {
     const cache = cmp.x
-    for (let u, i = cache.length, h = cmp.s._.h, ci; i-- > 0 && h === h.n; ) {
+    for (let u, i = cache.length, h = cmp._.h, ci; i-- > 0 && h === h.n; ) {
       ;(u = (ci = cache[i]).u), (ci.u = noop), u()
     }
   }
 
-  function computedItemCheck(cmp: IComputed, item: ReaseSignal) {
-    if (cmp.s !== item) {
-      const i = cmp.i.indexOf(item) as any
+  function computedItemCheck(cmp: IComputed, item_: IService) {
+    if (cmp._ !== item_) {
+      const i = cmp.i.indexOf(item_) as any
       if (i < 0) {
-        cmp.i.push(item)
+        cmp.i.push(item_)
         cmp.x.push({
           g: cmp.g,
           v: computedItemCheck,
-          u: cmp.s._.h === cmp.s._.h.n ? noop : computedItemSubscribe(cmp, item),
+          u: cmp._.h === cmp._.h.n ? noop : computedItemSubscribe(cmp, item_),
         })
       } else {
         cmp.x[i].g = cmp.g
@@ -218,22 +222,20 @@ let STORE = function (value: any, props: any) {
   function computedNeedTest(a: IComputed[] | null) {
     if (a)
       for (let i = a.length, ai; i-- > 0; )
-        (ai = a[i]).t || ((ai.t = true), computedNeedTest(ai.s._.w))
+        (ai = a[i]).t || ((ai.t = true), computedNeedTest(ai._.w))
   }
 
-  function runsub(this: ReaseSignal, sub: any) {
-    sub.v === runsub && sub.f.call(sub.c, (sub.v = this._value))
+  function runsub(this: IService, sub: any) {
+    sub.v === runsub && sub.f.call(sub.c, (sub.v = this.v))
   }
-  function subFirst(this: ReaseSignal, sub: any) {
-    const _ = this._
-    if (_.c) computedFirstSub(_.c)
-    if (_.f) _.l = _.f(this)
+  function subFirst(this: IService, sub: any) {
+    if (this.c) computedFirstSub(this.c)
+    if (this.f) this.l = this.f(this.s)
     runsub.call(this, sub)
   }
-  function subLast(this: ReaseSignal) {
-    const _ = this._
-    if (_.l) _.l(this)
-    if (_.c) computedLastSub(_.c)
+  function subLast(this: IService) {
+    if (this.l) this.l(this.s)
+    if (this.c) computedLastSub(this.c)
   }
 
   function _signalify($value$: any) {
@@ -260,34 +262,40 @@ let STORE = function (value: any, props: any) {
     const iam_o = _Array(l) as { v: any; b: boolean }[]
     for (let i = 0, v: any, b: boolean; i < l; i++) {
       if ((b = (v = a[i]) != null && typeof v.subscribe === 'function')) {
-        isSignal(v) || (v = _signalify(v)), computedItemCheck(cmp, v)
+        isSignal(v) || (v = _signalify(v)), computedItemCheck(cmp, v._(SECURE))
       }
       iam_o[i] = { v, b }
     }
     cmp.o = iam_o
   }
 
-  function setWithCaptureFirstBatch(this: ReaseSignal, value: any) {
-    this._value = this._.o!(value, this._value)
+  function setWithCaptureFirstBatch(this: IService, value: any) {
+    this.s._value = this.v = this.o!(value, this.v)
   }
-  function setWithCaptureBatch(this: ReaseSignal, value: any) {
-    setValue(this, this._.o!(value, this._value))
+  function setWithCaptureBatch(this: IService, value: any) {
+    setValue(this, this.o!(value, this.v))
   }
-  function setValue(iam: ReaseSignal, value: any) {
+  function setValue(_: IService, value: any) {
     // if (_.c) computedCheckBeforeSet(_.c)
-    if (!object_is(iam._value, value)) {
-      ;(iam._value = value), (GVERSION = {})
+    if (!object_is(_.v, value)) {
+      ;(_.s._value = _.v = value), (GVERSION = {})
       // iam._.c && (iam._.c.g = GVERSION)
-      computedNeedTest(iam._.w), run_queue(iam)
+      computedNeedTest(_.w), run_queue(_)
+    }
+  }
+  function createDefence(defense: any) {
+    return function (sec: any) {
+      object_is(sec, defense) || THROW('defense')
     }
   }
 
   class ReaseSignal<T = unknown> {
-    _: IService
+    private _: (sec: any) => IService
     _value: T
     readonly computed?: boolean
     readonly prepared?: boolean
     readonly captured?: boolean
+    readonly defensed?: boolean
 
     constructor(
       value: T,
@@ -296,16 +304,23 @@ let STORE = function (value: any, props: any) {
         capture?: (newValue: T, oldValue: T) => T
         compute?: (observe: any[] | null, value: T) => T
         observe?: any[]
+        defense?: any
       }
     ) {
-      const _: IService = (this._ = {
+      const _: IService = {
+        s: this,
         v: (this._value = value),
+        q: value,
+        d:
+          props && !props.compute && props.defense !== void 0
+            ? ((this.defensed = true), createDefence(props.defense))
+            : null,
         c:
           props && props.compute
             ? ((this.computed = true),
               {
-                // d: 0,
-                s: this,
+                // s: this,
+                _: null as unknown as IService,
                 g: null,
                 t: true,
                 l: 0,
@@ -326,30 +341,32 @@ let STORE = function (value: any, props: any) {
         o: props && props.capture ? ((this.captured = true), props.capture) : null,
         // computed list
         w: null,
-      })
+      }
+      this._ = function (sec) {
+        return sec === SECURE ? _ : (THROW('secure') as unknown as IService)
+      }
       _.p = _.h.n = _.h.p = _.h
-      if (_.c && _.c.o) setObserve(_.c)
-      if (_.o) batch(setWithCaptureFirstBatch, this, [value])
+      _.c && ((_.c._ = _), _.c.o && setObserve(_.c))
+      _.o && batch(setWithCaptureFirstBatch, _, [value])
     }
 
     get() {
+      const _ = this._(SECURE)
       const COMPUTED_PREV = COMPUTED
       COMPUTED = null
-      if (COMPUTED_PREV) computedItemCheck(COMPUTED_PREV, this)
-      const _ = this._
+      if (COMPUTED_PREV) computedItemCheck(COMPUTED_PREV, _)
       const u =
         _.h === _.h.n && (_.c || _.f) ? this.subscribe(noop) : _.c && computedTestFast(_.c)
-      const v = this._value
+      const v = _.v
       if (u) u()
       COMPUTED = COMPUTED_PREV
       return v
     }
 
-    set(value: T) {
-      const _ = this._
-      if (_.c) THROW('computed')
-      if (_.o) batch(setWithCaptureBatch, this, [value])
-      else setValue(this, value)
+    set(value: T, sec?: any) {
+      const _ = this._(SECURE)
+      _.c ? THROW('computed') : _.d && _.d(sec)
+      _.o ? batch(setWithCaptureBatch, _, [value]) : setValue(_, value)
       return this
     }
 
@@ -361,8 +378,7 @@ let STORE = function (value: any, props: any) {
     // }
 
     subscribe<C>(callback: (this: C, value: T) => any, thisArg?: C) {
-      const iam = this,
-        _ = iam._
+      const _ = this._(SECURE)
       let sub: ISubscriber | null = {
         n: null as any,
         p: null as any,
@@ -371,12 +387,12 @@ let STORE = function (value: any, props: any) {
         c: thisArg,
       }
       _.p = (sub.p = (sub.n = _.p.n).p).n = sub.n.p = sub
-      batch(sub.n === sub.p && (_.c || _.f) ? subFirst : runsub, iam, [sub])
+      batch(sub.n === sub.p && (_.c || _.f) ? subFirst : runsub, _, [sub])
       return function () {
         if (sub) {
           ;(sub.p.n = sub.n), (sub.n.p = sub.p)
           ;(sub.f = noop), (sub = null)
-          if (_.h === _.h.n && (_.c || _.l)) batch(subLast, iam)
+          if (_.h === _.h.n && (_.c || _.l)) batch(subLast, _)
         }
       }
     }
@@ -411,34 +427,33 @@ let STORE = function (value: any, props: any) {
   const proto = STORE.prototype
   _Object.defineProperty(proto, '$', { get: proto.get, set: proto.set })
 
-  $batcher = new STORE({ f: noop })
-  $batcher.subscribe(function (v: any) {
+  $batcher_ = new STORE({ f: noop })._(SECURE)
+  $batcher_.s.subscribe(function (v: any) {
     v.f.apply(v.c, v.a)
   })
 
-  LAST = null
+  LAST_ = null
   let queue_count = 0
-  run_queue = function (iam: ReaseSignal) {
-    let _ = iam._
+  run_queue = function (_: IService) {
     if (_.r) {
       if (++queue_count > 4e4) THROW('looping')
       _.n = null
       _.r = false
-      if (LAST) {
-        LAST = LAST._.n = iam
+      if (LAST_) {
+        LAST_ = LAST_.n = _
       } else {
-        LAST = iam
-        for (let v: any; iam; iam = iam._.n!) {
-          if (!object_is((_ = iam._).v, (_.v = v = iam._value)))
+        LAST_ = _
+        for (let v: any; _; _ = _.n!) {
+          if (!object_is(_.q, (_.q = v = _.v)))
             for (let _h = _.h, _p = (_.p = _h); (_p = _.p.n) !== _h; ) {
-              _.c && computedTest.call(_.c)
-              object_is(v, iam._value)
+              _.c && computedTestBase.call(_.c)
+              object_is(v, _.v)
                 ? object_is((_.p = _p).v, v) || _p.f.call(_p.c, (_p.v = v))
-                : ((_.v = v = iam._value), (_.p = _h))
+                : ((_.q = v = _.v), (_.p = _h))
             }
           _.r = true
         }
-        LAST = null
+        LAST_ = null
         queue_count = 0
       }
     }
@@ -453,8 +468,8 @@ let STORE = function (value: any, props: any) {
 //
 declare class _ISignal<G> {
   // readonly computed?: true | undefined
-  readonly prepared?: true
-  readonly captured?: true
+  readonly prepared?: true | undefined
+  readonly captured?: true | undefined
   private readonly _value: G
   subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void
   toString(
@@ -470,19 +485,30 @@ declare class _ISignal<G> {
 
 export declare class ISignalComputed<G> extends _ISignal<G> {
   readonly computed: true
+  readonly defensed?: undefined
   get $(): G
   get(): G
 }
-
+export declare class ISignalDefensed<G, S = G> extends _ISignal<G> {
+  readonly computed?: undefined
+  readonly defensed: true
+  get $(): G
+  get(): G
+  set(v: S, pass: any): this
+}
 export declare class ISignalManually<G, S = G> extends _ISignal<G> {
   readonly computed?: undefined
+  readonly defensed?: undefined
   get $(): G
   get(): G
   set $(v: G)
   set(v: S): this
 }
 
-export type ISignal<G, S = G> = ISignalComputed<G> | ISignalManually<G, S>
+export type ISignal<G, S = G> =
+  | ISignalComputed<G>
+  | ISignalDefensed<G, S>
+  | ISignalManually<G, S>
 
 type IObserve = readonly unknown[] | [] | null
 // prettier-ignore
@@ -512,7 +538,7 @@ function batch<C, F extends (this: C, ...a: any[]) => any>(
   args: [...Parameters<F>]
 ): void
 function batch(f: any, c: any, a?: any) {
-  LAST ? f.apply(c, a) : (($batcher._value = { f, c, a }), run_queue($batcher))
+  LAST_ ? f.apply(c, a) : (($batcher_.v = { f, c, a }), run_queue($batcher_))
 }
 export { batch }
 //
@@ -550,6 +576,7 @@ function signal<G, S = G, O extends IObserve = null>(
     compute: <V = G>(observe: IObserveValues<O>, value: V) => S
     observe?: O
     capture: (newValue: S, oldValue: G) => G
+    defense?: undefined
   }
 ): ISignalComputed<G>
 function signal<G, O extends IObserve = null>(
@@ -558,21 +585,41 @@ function signal<G, O extends IObserve = null>(
     prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
     compute: <V = G>(observe: IObserveValues<O>, value: V) => G
     observe?: O
+    defense?: undefined
   }
 ): ISignalComputed<G>
+
 function signal<G, S = G>(
   value: S,
   props: {
     prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void)
     capture: (newValue: S, oldValue: G) => G
+    defense?: undefined
   }
 ): ISignalManually<G, S>
+function signal<G, S = G>(
+  value: S,
+  props: {
+    prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void)
+    capture: (newValue: S, oldValue: G) => G
+    defense: null | object | boolean | number | bigint | string | symbol
+  }
+): ISignalDefensed<G, S>
+
 function signal<G>(
   value?: G,
   props?: {
     prepare?: (iam: ISignalManually<G>) => void | ((iam: ISignalManually<G>) => void)
+    defense?: undefined
   }
 ): ISignalManually<G>
+function signal<G>(
+  value: G,
+  props: {
+    prepare?: (iam: ISignalManually<G>) => void | ((iam: ISignalManually<G>) => void)
+    defense: null | object | boolean | number | bigint | string | symbol
+  }
+): ISignalDefensed<G>
 
 function signal(value?: any, props?: any) {
   return new STORE(value, props)
@@ -622,9 +669,14 @@ function computed(observe: any, compute: any, props: any) {
 */
 function computed<G, O extends IObserve = null>(
   observe: O,
-  compute: <V = G | undefined>(observe: IObserveValues<O>, value: V) => G,
-  initValue?: G
+  compute: <V = G>(observe: IObserveValues<O>, value: V) => G,
+  initValue: G
 ): ISignalComputed<G>
+function computed<G, O extends IObserve = null>(
+  observe: O,
+  compute: <V = G | undefined>(observe: IObserveValues<O>, value: V) => G
+): ISignalComputed<G>
+
 function computed(observe: any, compute: any, initValue?: any) {
   return new STORE(initValue, { compute, observe })
 }
@@ -658,16 +710,19 @@ export { effect }
 //
 // isSignal, isSignalStrict, isSignalComputed
 //
-function isSignal<T = any>(thing: any): thing is ISignal<T> {
+function isSignal<T>(thing: any): thing is ISignal<T> {
   return thing instanceof STORE
 }
-function isSignalManually<T = any>(thing: any): thing is ISignalManually<T> {
-  return thing instanceof STORE && !thing._.c
+function isSignalComputed<G>(thing: any): thing is ISignalComputed<G> {
+  return thing instanceof STORE && !!thing._(SECURE).c
 }
-function isSignalComputed<T = any>(thing: any): thing is ISignalComputed<T> {
-  return thing instanceof STORE && !!thing._.c
+function isSignalDefensed<G, S = G>(thing: any): thing is ISignalDefensed<G, S> {
+  return thing instanceof STORE && !!thing._(SECURE).d
 }
-export { isSignal, isSignalManually, isSignalComputed }
+function isSignalManually<G, S = G>(thing: any): thing is ISignalManually<G, S> {
+  return thing instanceof STORE && ((thing = thing._(SECURE)), !thing.c && !thing.d)
+}
+export { isSignal, isSignalManually, isSignalComputed, isSignalDefensed }
 
 // Computed
 // Computable
@@ -688,6 +743,10 @@ export { isSignal, isSignalManually, isSignalComputed }
 // Modifiable
 // enhanced
 // Modified
+// Openness
+// Available
+// availing
+// availably
 // Manually
 // Manualed
 // mutated

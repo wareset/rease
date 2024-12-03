@@ -31,9 +31,9 @@ function _s1<T, C>(
   if (v !== this) {
     // FIX
     // @ts-ignore
-    const n = this.s._.p
-    if (n && n.c === this) (n.f = this.f), (n.c = this.c)
-    else console.error('rease: signal fix error')
+    // const n = this.s._(_signalSecureKey).p
+    // if (n && n.c === this) (n.f = this.f), (n.c = this.c)
+    // else console.error('rease: signal fix error')
 
     this.f.call(this.c, v)
   }
@@ -152,18 +152,24 @@ function _w0(watchFn: typeof watch | typeof watchDeep) {
     return uRes
   }
 }
+export type ISubscribedOrThenedAll<T extends readonly unknown[] | []> = {
+  -readonly [P in keyof T]: ISubscribedOrThened<T[P]>
+}
 export const watchAll = _w0(watch) as <T extends readonly unknown[] | [], C = undefined>(
   a: T,
-  cb: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThened<T[P]> }, C>,
+  cb: ISubscriber<ISubscribedOrThenedAll<T>, C>,
   thisArg?: C
 ) => IUnsubscriber
 
+export type ISubscribedOrThenedDeepAll<T extends readonly unknown[] | []> = {
+  -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]>
+}
 export const watchDeepAll = _w0(watchDeep) as <
   T extends readonly unknown[] | [],
   C = undefined
 >(
   a: T,
-  cb: ISubscriber<{ -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }, C>,
+  cb: ISubscriber<ISubscribedOrThenedDeepAll<T>, C>,
   thisArg?: C
 ) => IUnsubscriber
 
@@ -178,14 +184,6 @@ export const watchDeepAll = _w0(watchDeep) as <
 //   $q.$ *= 2
 //   $w.$ *= 2
 // })
-
-function _W2(this: any, v: any) {
-  v === this._ || this.f.call(this.c, v)
-}
-
-function _W1(this: { s: ISignalManually<any> | null }, v: any) {
-  this.s!.set(v)
-}
 
 // function _W0(
 //   watchFn: typeof watch | typeof watchDeep | typeof watchAll | typeof watchDeepAll
@@ -245,18 +243,35 @@ function _W1(this: { s: ISignalManually<any> | null }, v: any) {
 //   ): IUnsubscriber
 // }
 
-class ReaseWatcher<T, S> {
+function _W2(this: any, v: any) {
+  v === this._ || this.f.call(this.c, v)
+}
+
+function _W1(this: ReaseWatcher['_'], v: any) {
+  this.s!.set(this.m ? this.m.call(this.t, v) : v)
+}
+
+export class ReaseWatcher<T = any, S = any> {
   private _: {
     v: T
+    m: undefined | ((v: any) => any)
+    t: any
     s: ISignalManually<any> | null
     w: typeof watch | typeof watchDeep | typeof watchAll | typeof watchDeepAll
   }
   readonly deep: boolean
   readonly all: boolean
-  constructor(v: T, w: ReaseWatcher<T, S>['_']['w'], deep: boolean, all: boolean) {
-    this.deep = deep
-    this.all = all
-    this._ = { v, s: null, w }
+  constructor(
+    value: T,
+    mapFunc: ReaseWatcher<T, S>['_']['m'],
+    thisArg: ReaseWatcher<T, S>['_']['t'],
+    watchFn: ReaseWatcher<T, S>['_']['w'],
+    isDeep: boolean,
+    isAll: boolean
+  ) {
+    this.deep = isDeep
+    this.all = isAll
+    this._ = { v: value, m: mapFunc, t: thisArg, s: null, w: watchFn }
   }
   subscribe<C = undefined>(cb: ISubscriber<S, C>, thisArg?: C) {
     const _ = this._
@@ -271,25 +286,81 @@ class ReaseWatcher<T, S> {
   toJSON() {}
 }
 
-export function watcher<T>(v: T) {
-  return new ReaseWatcher<T, ISubscribedOrThened<T>>(v, watch, false, false)
+function watcher<T>(value: T): ReaseWatcher<T, ISubscribedOrThened<T>>
+function watcher<T, R = ISubscribedOrThened<T>, C = undefined>(
+  value: T,
+  mapFunc: (this: C, value: ISubscribedOrThened<T>) => R,
+  thisArg?: C
+): ReaseWatcher<T, R>
+function watcher(value: any, mapFunc?: any, thisArg?: any) {
+  return new ReaseWatcher(value, mapFunc, thisArg, watch, false, false)
 }
-export function watcherDeep<T>(v: T) {
-  return new ReaseWatcher<T, ISubscribedOrThenedDeep<T>>(v, watchDeep, true, false)
+export { watcher }
+
+function watcherDeep<T>(value: T): ReaseWatcher<T, ISubscribedOrThenedDeep<T>>
+function watcherDeep<T, R = ISubscribedOrThenedDeep<T>, C = undefined>(
+  value: T,
+  mapFunc: (this: C, value: ISubscribedOrThenedDeep<T>) => R,
+  thisArg?: C
+): ReaseWatcher<T, R>
+function watcherDeep(value: any, mapFunc?: any, thisArg?: any) {
+  return new ReaseWatcher(value, mapFunc, thisArg, watchDeep, true, false)
 }
-export function watcherAll<T extends readonly unknown[] | []>(v: T) {
-  return new ReaseWatcher<T, { -readonly [P in keyof T]: ISubscribedOrThened<T[P]> }>(
-    v,
-    watchAll,
-    false,
-    true
-  )
+export { watcherDeep }
+
+function watcherAll<T extends readonly unknown[] | []>(
+  value: T
+): ReaseWatcher<T, ISubscribedOrThenedAll<T>>
+function watcherAll<
+  T extends readonly unknown[] | [],
+  R = ISubscribedOrThenedAll<T>,
+  C = undefined
+>(
+  value: T,
+  mapFunc: (this: C, value: ISubscribedOrThenedAll<T>) => R,
+  thisArg?: C
+): ReaseWatcher<T, R>
+function watcherAll(value: any, mapFunc?: any, thisArg?: any) {
+  return new ReaseWatcher(value, mapFunc, thisArg, watchAll, false, true)
 }
-export function watcherDeepAll<T extends readonly unknown[] | []>(v: T) {
-  return new ReaseWatcher<T, { -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }>(
-    v,
-    watchDeepAll,
-    true,
-    true
-  )
+export { watcherAll }
+
+function watcherDeepAll<T extends readonly unknown[] | []>(
+  value: T
+): ReaseWatcher<T, ISubscribedOrThenedDeepAll<T>>
+function watcherDeepAll<
+  T extends readonly unknown[] | [],
+  R = ISubscribedOrThenedDeepAll<T>,
+  C = undefined
+>(
+  value: T,
+  mapFunc: (this: C, value: ISubscribedOrThenedDeepAll<T>) => R,
+  thisArg?: C
+): ReaseWatcher<T, R>
+function watcherDeepAll(value: any, mapFunc?: any, thisArg?: any) {
+  return new ReaseWatcher(value, mapFunc, thisArg, watchDeepAll, true, true)
 }
+export { watcherDeepAll }
+
+// export function watcher<T>(v: T) {
+//   return new ReaseWatcher<T, ISubscribedOrThened<T>>(v, watch, false, false)
+// }
+// export function watcherDeep<T>(v: T) {
+//   return new ReaseWatcher<T, ISubscribedOrThenedDeep<T>>(v, watchDeep, true, false)
+// }
+// export function watcherAll<T extends readonly unknown[] | []>(v: T) {
+//   return new ReaseWatcher<T, { -readonly [P in keyof T]: ISubscribedOrThened<T[P]> }>(
+//     v,
+//     watchAll,
+//     false,
+//     true
+//   )
+// }
+// export function watcherDeepAll<T extends readonly unknown[] | []>(v: T) {
+//   return new ReaseWatcher<T, { -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]> }>(
+//     v,
+//     watchDeepAll,
+//     true,
+//     true
+//   )
+// }

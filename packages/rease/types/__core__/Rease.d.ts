@@ -1,5 +1,6 @@
 import type { ISubscribedOrThened, ISubscribedOrThenedDeep, ISubscriber, IThened } from './types';
 import { noop } from './utils/noop';
+import type { ISubscribedOrThenedAll, ISubscribedOrThenedDeepAll } from './utils/watch';
 import { RElement } from './components';
 type IComponent<P extends {
     [key: string]: any;
@@ -72,12 +73,8 @@ declare class Rease {
     }) => any, thisArg?: C): typeof noop;
     watch<T, C = undefined>($value$: T, cb?: ISubscriber<ISubscribedOrThened<T>, C>, thisArg?: C): typeof noop;
     watchDeep<T, C = undefined>($value$: T, cb?: ISubscriber<ISubscribedOrThenedDeep<T>, C>, thisArg?: C): typeof noop;
-    watchAll<T extends readonly unknown[] | [], C = undefined>($values$: T, cb?: ISubscriber<{
-        -readonly [P in keyof T]: ISubscribedOrThened<T[P]>;
-    }, C>, thisArg?: C): typeof noop;
-    watchDeepAll<T extends readonly unknown[] | [], C = undefined>($values$: T, cb?: ISubscriber<{
-        -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]>;
-    }, C>, thisArg?: C): typeof noop;
+    watchAll<T extends readonly unknown[] | [], C = undefined>($values$: T, cb?: ISubscriber<ISubscribedOrThenedAll<T>, C>, thisArg?: C): typeof noop;
+    watchDeepAll<T extends readonly unknown[] | [], C = undefined>($values$: T, cb?: ISubscriber<ISubscribedOrThenedDeepAll<T>, C>, thisArg?: C): typeof noop;
     findParent<P extends Function>(parentCtor: FindsArg<P>): FindsRes<P>;
     findFirstChild<C extends Function>(childCtor: FindsArg<C>, isDeep?: boolean, skipCtor?: FindsArg<Function>): FindsRes<C>;
     findLastChild<C extends Function>(childCtor: FindsArg<C>, isDeep?: boolean, skipCtor?: FindsArg<Function>): FindsRes<C>;
