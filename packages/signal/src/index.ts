@@ -600,7 +600,7 @@ function signal<G, S = G>(
 function signal<G, S = G>(
   value: S,
   props: {
-    prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void)
+    prepare?: (iam: ISignalDefensed<G, S>) => void | ((iam: ISignalDefensed<G, S>) => void)
     capture: (newValue: S, oldValue: G) => G
     defense: null | object | boolean | number | bigint | string | symbol
   }
@@ -616,7 +616,7 @@ function signal<G>(
 function signal<G>(
   value: G,
   props: {
-    prepare?: (iam: ISignalManually<G>) => void | ((iam: ISignalManually<G>) => void)
+    prepare?: (iam: ISignalDefensed<G>) => void | ((iam: ISignalDefensed<G>) => void)
     defense: null | object | boolean | number | bigint | string | symbol
   }
 ): ISignalDefensed<G>
