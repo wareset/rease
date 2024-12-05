@@ -3,7 +3,7 @@ type Element = HTMLElement | SVGElement;
 export declare class RText extends Rease {
     data: string;
     readonly node: HTMLFontElement | null;
-    constructor({ this: is }: {
+    constructor(props: {
         this: any;
     });
 }
@@ -20,8 +20,9 @@ export declare class RElement extends Rease {
         [key: string]: any;
     };
     _unevt?: (() => void)[];
-    constructor({ children, this: is, ...props }: {
+    constructor(props: {
         this: string | Element | null;
+        children?: any;
         [k: string]: any;
     });
 }

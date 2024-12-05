@@ -55,38 +55,61 @@ declare function batchify<T extends (...a: any[]) => any>(fn: T): T;
 export { batchify };
 declare function signal<G, S = G, O extends IObserve = null>(value: S, props: {
     prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void);
-    compute: <V = G>(observe: IObserveValues<O>, value: V) => S;
+    compute: (observe: IObserveValues<O>, oldValue: G) => S;
+    observe?: O;
+    capture: (newValue: S, oldValue: G | S) => G;
+    captureInitial: true;
+    defense?: undefined;
+}): ISignalComputed<G>;
+declare function signal<G, S = G, O extends IObserve = null>(value: G, props: {
+    prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void);
+    compute: (observe: IObserveValues<O>, oldValue: G) => S;
     observe?: O;
     capture: (newValue: S, oldValue: G) => G;
+    captureInitial?: false;
     defense?: undefined;
 }): ISignalComputed<G>;
 declare function signal<G, O extends IObserve = null>(value: G, props: {
     prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void);
-    compute: <V = G>(observe: IObserveValues<O>, value: V) => G;
+    compute: (observe: IObserveValues<O>, oldValue: G) => G;
     observe?: O;
     defense?: undefined;
 }): ISignalComputed<G>;
-declare function signal<G, S = G>(value: S, props: {
+declare function signal<G, S = G>(value: G | S, props: {
     prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void);
-    capture: (newValue: S, oldValue: G) => G;
+    capture: (newValue: G | S, oldValue: G | S) => G;
+    captureInitial: true;
+    defense?: undefined;
+}): ISignalManually<G, S>;
+declare function signal<G, S = G>(value: G, props: {
+    prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void);
+    capture: (newValue: G | S, oldValue: G) => G;
+    captureInitial?: false;
     defense?: undefined;
 }): ISignalManually<G, S>;
 declare function signal<G, S = G>(value: S, props: {
     prepare?: (iam: ISignalDefensed<G, S>) => void | ((iam: ISignalDefensed<G, S>) => void);
-    capture: (newValue: S, oldValue: G) => G;
+    capture: (newValue: G | S, oldValue: G | S) => G;
+    captureInitial: true;
     defense: null | object | boolean | number | bigint | string | symbol;
 }): ISignalDefensed<G, S>;
-declare function signal<G>(value?: G, props?: {
-    prepare?: (iam: ISignalManually<G>) => void | ((iam: ISignalManually<G>) => void);
-    defense?: undefined;
-}): ISignalManually<G>;
+declare function signal<G, S = G>(value: G, props: {
+    prepare?: (iam: ISignalDefensed<G, S>) => void | ((iam: ISignalDefensed<G, S>) => void);
+    capture: (newValue: S, oldValue: G) => G;
+    captureInitial?: false;
+    defense: null | object | boolean | number | bigint | string | symbol;
+}): ISignalDefensed<G, S>;
 declare function signal<G>(value: G, props: {
     prepare?: (iam: ISignalDefensed<G>) => void | ((iam: ISignalDefensed<G>) => void);
     defense: null | object | boolean | number | bigint | string | symbol;
 }): ISignalDefensed<G>;
+declare function signal<G>(value?: G, props?: {
+    prepare?: (iam: ISignalManually<G>) => void | ((iam: ISignalManually<G>) => void);
+    defense?: undefined;
+}): ISignalManually<G>;
 export { signal };
-declare function computed<G, O extends IObserve = null>(observe: O, compute: <V = G>(observe: IObserveValues<O>, value: V) => G, initValue: G): ISignalComputed<G>;
-declare function computed<G, O extends IObserve = null>(observe: O, compute: <V = G | undefined>(observe: IObserveValues<O>, value: V) => G): ISignalComputed<G>;
+declare function computed<G, O extends IObserve = null>(observe: O, compute: (observe: IObserveValues<O>, value: G) => G, initValue: G): ISignalComputed<G>;
+declare function computed<G, O extends IObserve = null>(observe: O, compute: (observe: IObserveValues<O>, value: G | undefined) => G): ISignalComputed<G>;
 export { computed };
 declare function effect<G = undefined, O extends IObserve = null>(observe: O, compute: <V = G | undefined>(value: V, observe: IObserveValues<O>) => G, onChange?: (value: G) => any): () => void;
 export { effect };

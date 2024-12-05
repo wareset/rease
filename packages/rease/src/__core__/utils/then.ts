@@ -136,16 +136,20 @@ export function thenable<T, C = unknown>(
 
 // интервал должен повтрять каллбеки
 function timeout_and_interval_factory(
-  _set: typeof setTimeout | typeof setInterval,
-  _clear: typeof clearTimeout | typeof clearTimeout
+  _setTimeoutOrInterval: typeof setTimeout | typeof setInterval,
+  _clearTimeoutOrInterval: typeof clearTimeout | typeof clearTimeout
 ) {
-  return function <T, C = undefined>(ms?: number, cb?: () => T, thisArg?: C) {
+  return function <T, C = undefined>(ms?: number, cb?: (this: C) => T, thisArg?: C) {
     cb || (cb = noop as any)
     let c: any
     // prettier-ignore
-    let t = thenable<T, C>(function (r) { c = _set(function () { r(cb!()) }, ms! | 0) }, thisArg!)
+    let t = thenable<T, C>(function (r) { 
+      c = _setTimeoutOrInterval(function () { r(cb!.call(thisArg!)) }, ms! | 0)
+    }, thisArg!)
     // prettier-ignore
-    const u = function () { t && (t(), _clear(c), (t = null as any)) }
+    const u = function () { 
+      t && (t(), _clearTimeoutOrInterval(c), (t = null as any))
+    }
     u.then = t.then
     return u // unknown as (() => void) & ReturnType<typeof thenable<T, C>>
   }

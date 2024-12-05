@@ -60,9 +60,9 @@ export class RText extends Rease {
   data: string
   declare readonly node: HTMLFontElement | null
 
-  constructor({ this: is }: { this: any }) {
+  constructor(props: { this: any }) {
     super()
-
+    const is = props.this
     if (is && (is.subscribe || is.then))
       (this.data = ''), this.watchDeep(is, textDataWatch, this)
     else this.data = is === void 0 ? '' : '' + is
@@ -94,17 +94,11 @@ export class RElement extends Rease {
   _style?: { [key: string]: any }
   _unevt?: (() => void)[]
 
-  constructor({
-    children,
-    this: is,
-    ...props
-  }: {
-    this: string | Element | null
-    [k: string]: any
-  }) {
+  constructor(props: { this: string | Element | null; children?: any; [k: string]: any }) {
     // constructor({ children, node, ...props }: IRElementProps & { children?: any }) {
     super()
     let type: string
+    let is = props.this
     let afterInsert = noop as typeof initedNode
     isString(is) ? ((type = is), (is = null)) : (type = is ? is.localName : '')
 
@@ -132,10 +126,10 @@ export class RElement extends Rease {
     this._attrs = {}
     for (const k in props) {
       if (this.destroyed) break
-      get_attrs_parser(this, (props as any)[k], k)
+      if (k !== 'this' && k !== 'children') get_attrs_parser(this, (props as any)[k], k)
     }
 
-    this.insert(children)
+    this.insert(props.children)
     afterInsert(this)
   }
 }

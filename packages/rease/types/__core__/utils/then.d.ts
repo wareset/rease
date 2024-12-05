@@ -39,7 +39,7 @@ export declare function thenable<T, C = unknown>(executor: (this: C, resolve: (v
         };
     };
 };
-export declare const timeout: <T, C = undefined>(ms?: number, cb?: () => T, thisArg?: C) => {
+export declare const timeout: <T, C = undefined>(ms?: number, cb?: (this: C) => T, thisArg?: C) => {
     (): void;
     then: <R = T>(onfulfilled: (this: C, value: T) => R | PromiseLike<R>) => {
         (): void;
@@ -76,7 +76,7 @@ export declare const timeout: <T, C = undefined>(ms?: number, cb?: () => T, this
         };
     };
 };
-export declare const interval: <T, C = undefined>(ms?: number, cb?: () => T, thisArg?: C) => {
+export declare const interval: <T, C = undefined>(ms?: number, cb?: (this: C) => T, thisArg?: C) => {
     (): void;
     then: <R = T>(onfulfilled: (this: C, value: T) => R | PromiseLike<R>) => {
         (): void;

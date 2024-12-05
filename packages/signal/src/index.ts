@@ -302,6 +302,7 @@ let STORE = function (value: any, props: any) {
       props?: {
         prepare?: (iam: ReaseSignal<T>) => void | ((iam: ReaseSignal<T>) => void)
         capture?: (newValue: T, oldValue: T) => T
+        captureInitial?: boolean
         compute?: (observe: any[] | null, value: T) => T
         observe?: any[]
         defense?: any
@@ -347,7 +348,7 @@ let STORE = function (value: any, props: any) {
       }
       _.p = _.h.n = _.h.p = _.h
       _.c && ((_.c._ = _), _.c.o && setObserve(_.c))
-      _.o && batch(setWithCaptureFirstBatch, _, [value])
+      _.o && props!.captureInitial && batch(setWithCaptureFirstBatch, _, [value])
     }
 
     get() {
@@ -569,13 +570,26 @@ export { batchify }
 //
 // signal
 //
+// ISignalComputed
 function signal<G, S = G, O extends IObserve = null>(
   value: S,
   props: {
     prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
-    compute: <V = G>(observe: IObserveValues<O>, value: V) => S
+    compute: (observe: IObserveValues<O>, oldValue: G) => S
+    observe?: O
+    capture: (newValue: S, oldValue: G | S) => G
+    captureInitial: true
+    defense?: undefined
+  }
+): ISignalComputed<G>
+function signal<G, S = G, O extends IObserve = null>(
+  value: G,
+  props: {
+    prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
+    compute: (observe: IObserveValues<O>, oldValue: G) => S
     observe?: O
     capture: (newValue: S, oldValue: G) => G
+    captureInitial?: false
     defense?: undefined
   }
 ): ISignalComputed<G>
@@ -583,36 +597,53 @@ function signal<G, O extends IObserve = null>(
   value: G,
   props: {
     prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
-    compute: <V = G>(observe: IObserveValues<O>, value: V) => G
+    compute: (observe: IObserveValues<O>, oldValue: G) => G
     observe?: O
     defense?: undefined
   }
 ): ISignalComputed<G>
 
+// ISignalManually
 function signal<G, S = G>(
-  value: S,
+  value: G | S,
   props: {
     prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void)
-    capture: (newValue: S, oldValue: G) => G
+    capture: (newValue: G | S, oldValue: G | S) => G
+    captureInitial: true
     defense?: undefined
   }
 ): ISignalManually<G, S>
 function signal<G, S = G>(
+  value: G,
+  props: {
+    prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void)
+    capture: (newValue: G | S, oldValue: G) => G
+    captureInitial?: false
+    defense?: undefined
+  }
+): ISignalManually<G, S>
+
+// ISignalDefensed
+function signal<G, S = G>(
   value: S,
   props: {
     prepare?: (iam: ISignalDefensed<G, S>) => void | ((iam: ISignalDefensed<G, S>) => void)
+    capture: (newValue: G | S, oldValue: G | S) => G
+    captureInitial: true
+    defense: null | object | boolean | number | bigint | string | symbol
+  }
+): ISignalDefensed<G, S>
+function signal<G, S = G>(
+  value: G,
+  props: {
+    prepare?: (iam: ISignalDefensed<G, S>) => void | ((iam: ISignalDefensed<G, S>) => void)
     capture: (newValue: S, oldValue: G) => G
+    captureInitial?: false
     defense: null | object | boolean | number | bigint | string | symbol
   }
 ): ISignalDefensed<G, S>
 
-function signal<G>(
-  value?: G,
-  props?: {
-    prepare?: (iam: ISignalManually<G>) => void | ((iam: ISignalManually<G>) => void)
-    defense?: undefined
-  }
-): ISignalManually<G>
+// ISignalDefensed
 function signal<G>(
   value: G,
   props: {
@@ -620,6 +651,15 @@ function signal<G>(
     defense: null | object | boolean | number | bigint | string | symbol
   }
 ): ISignalDefensed<G>
+
+// ISignalManually
+function signal<G>(
+  value?: G,
+  props?: {
+    prepare?: (iam: ISignalManually<G>) => void | ((iam: ISignalManually<G>) => void)
+    defense?: undefined
+  }
+): ISignalManually<G>
 
 function signal(value?: any, props?: any) {
   return new STORE(value, props)
@@ -630,13 +670,15 @@ export { signal }
 //
 //
 
-// const $q = signal('', {
-//   compute: ([a, b]) => a + b,
-//   observe: [1, 10],
-//   capture(v: number | string) {
-//     return +v * 2
-//   },
-// })
+const $q = signal<number>(12, {
+  // compute: ([a, b]) => a + b,
+  // observe: [1, 10],
+  captureInitial: true,
+  capture(v, _o) {
+    return v
+  },
+})
+// $q.$ = 1
 
 //
 //
@@ -669,12 +711,12 @@ function computed(observe: any, compute: any, props: any) {
 */
 function computed<G, O extends IObserve = null>(
   observe: O,
-  compute: <V = G>(observe: IObserveValues<O>, value: V) => G,
+  compute: (observe: IObserveValues<O>, value: G) => G,
   initValue: G
 ): ISignalComputed<G>
 function computed<G, O extends IObserve = null>(
   observe: O,
-  compute: <V = G | undefined>(observe: IObserveValues<O>, value: V) => G
+  compute: (observe: IObserveValues<O>, value: G | undefined) => G
 ): ISignalComputed<G>
 
 function computed(observe: any, compute: any, initValue?: any) {
@@ -747,8 +789,12 @@ export { isSignal, isSignalManually, isSignalComputed, isSignalDefensed }
 // Available
 // availing
 // availably
+// permitted
+// resolved
 // Manually
 // Manualed
+// Communal
+// freeware
 // mutated
 // Accessed
 // controlled
