@@ -1,5 +1,5 @@
 import { Rease } from '../Rease'
-import { noop } from '../utils/noop'
+// import { noop } from '../utils/noop'
 import { isFunction, isThenable, isCatchable } from '../utils/is'
 
 import type { IThened } from '../types'
@@ -28,10 +28,11 @@ export class RAwait<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
     let is = getIs(iam, props)
     let isPromise = isThenable(is)
     if (isPromise) {
-      function fn() {
-        ;(isPromise = false), iam.destroyChildren()
+      function fn(v: any) {
+        return (isPromise = false), iam.destroyChildren(), v
       }
-      isCatchable((is = is.then(fn))) && is.catch(fn)
+      // isCatchable((is = is.then(fn))) && is.catch(fn)
+      iam._is = is.then(fn)
       isPromise && insertChildren(iam, props.children, props.context, iam._is)
     }
   }
@@ -45,9 +46,10 @@ export class RThen<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
     const iam = this
     let is = getIs(iam, props)
     function fn(v: any) {
-      insertChildren(iam, props.children, props.context, v)
+      return insertChildren(iam, props.children, props.context, v), v
     }
-    isThenable(is) ? isCatchable((is = is.then(fn))) && is.catch(noop) : fn(is)
+    // isThenable(is) ? isCatchable((is = is.then(fn))) && is.catch(noop) : fn(is)
+    isThenable(is) ? (iam._is = is.then(fn)) : fn(is)
   }
 }
 
@@ -59,8 +61,8 @@ export class RCatch<T = unknown, C = undefined> extends _RAwaitThenCatch_ {
     const iam = this
     const is = getIs(iam, props)
     isCatchable(is) &&
-      is.catch(function fn(v: any) {
-        insertChildren(iam, props.children, props.context, v)
-      })
+      (iam._is = is.catch(function fn(v: any) {
+        return insertChildren(iam, props.children, props.context, v), v
+      }))
   }
 }
