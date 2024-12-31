@@ -4,7 +4,7 @@ import { hasOwn, is as objectIs, keys } from '../utils/object'
 //
 // RForIn
 //
-function forIn(this: [iam: RForIn, children: any, old: any], is: any) {
+function forIn(this: [iam: RForIn, callback: any, old: any], is: any) {
   const { 0: iam, 1: cb, 2: old } = this
   const now = {} as any
   this[2] = now
@@ -35,14 +35,14 @@ export class RForIn extends Rease {
   constructor({
     this: is,
     watch,
-    children,
+    callback,
   }: {
     this: any
     watch?: any
-    children: (v: any, k: string, a: any) => any
+    callback: (v: any, k: string, a: any) => any
   }) {
     super()
-    this.watchDeepAll([is, watch], forIn, [this, children, {}])
+    this.watchDeepAll([is, watch], forIn, [this, callback, {}])
   }
 }
 
@@ -53,7 +53,7 @@ function indexForOf(a: any[], v: any, from: number) {
   for (let i = from, l = a.length; i < l; i++) if (objectIs(a[i], v)) return i
   return -1
 }
-function forOf(this: [iam: RForOf, children: any, oldV: any[], oldR: any[]], is: any) {
+function forOf(this: [iam: RForOf, callback: any, oldV: any[], oldR: any[]], is: any) {
   const { 0: iam, 1: cb, 2: oldV, 3: oldR } = this
   const nowV = [] as any[]
   const nowR = [] as any[]
@@ -88,13 +88,13 @@ export class RForOf extends Rease {
   constructor({
     this: is,
     watch,
-    children,
+    callback,
   }: {
     this: any
     watch?: any
-    children: (v: any, k: string | number, a: any) => any
+    callback: (v: any, k: string | number, a: any) => any
   }) {
     super()
-    this.watchDeepAll([is, watch], forOf, [this, children, [], []])
+    this.watchDeepAll([is, watch], forOf, [this, callback, [], []])
   }
 }

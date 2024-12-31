@@ -14,7 +14,7 @@ function noopNull() {
   return null
 }
 
-let get_parent_and_before_node = function () {
+let getParentAndBeforeNode = function () {
   return {}
 } as unknown as (iam: Rease) => {
   p: Element | null | undefined
@@ -46,6 +46,30 @@ let DOCUMENT = {
 } as unknown as Document
 
 //
+// RInnerXML
+//
+// let xmlRemoveNodes = noop as unknown as (iam: RInnerXML) => void
+// let xmlMovingNodes = noop as unknown as (this: RInnerXML, rease: Rease) => void
+// function xmlDataWatch(this: RInnerXML, data: any) {
+//   xmlRemoveNodes(this), (this.data = data = data === void 0 ? '' : '' + data)
+// }
+// export class RInnerXML extends Rease {
+//   data: string
+//   readonly _nodes: (HTMLElement | SVGElement | Text)[]
+
+//   constructor(props: { this: any }) {
+//     super()
+//     this.data = ''
+//     this._nodes = []
+//     const is = props.this
+//     this.watchDeep(is, xmlDataWatch, this)
+
+//     this.onMove(xmlMovingNodes, this)
+//     this.onDestroy(xmlRemoveNodes)
+//   }
+// }
+
+//
 // RText
 //
 function textDataWatch(this: RText, data: any): void {
@@ -58,7 +82,7 @@ function textDataWatch(this: RText, data: any): void {
 }
 export class RText extends Rease {
   data: string
-  declare readonly node: HTMLFontElement | null
+  readonly node: HTMLFontElement | null
 
   constructor(props: { this: any }) {
     super()
@@ -67,7 +91,7 @@ export class RText extends Rease {
       (this.data = ''), this.watchDeep(is, textDataWatch, this)
     else this.data = is === void 0 ? '' : '' + is
 
-    const { p: pNode, b: bNode } = get_parent_and_before_node(this)
+    const { p: pNode, b: bNode } = getParentAndBeforeNode(this)
     if ((this.node = createText(this.data, pNode, bNode))) {
       insertNode(this.node, pNode, bNode, false)
       this.onMove(movingNode, this)
@@ -87,22 +111,21 @@ export class RText extends Rease {
 // import type { IRElementProps } from '@rease/jsxtype'
 
 export class RElement extends Rease {
-  readonly name: string
-  declare readonly node: Element | null
+  readonly type: string
+  readonly node: Element | null
   _attrs: { [key: string]: any }
   _class?: { [key: string]: any }
   _style?: { [key: string]: any }
   _unevt?: (() => void)[]
 
   constructor(props: { this: string | Element | null; children?: any; [k: string]: any }) {
-    // constructor({ children, node, ...props }: IRElementProps & { children?: any }) {
     super()
     let type: string
     let is = props.this
     let afterInsert = noop as typeof initedNode
     isString(is) ? ((type = is), (is = null)) : (type = is ? is.localName : '')
 
-    switch ((this.name = type || (type = 'template'))) {
+    switch ((this.type = type || (type = 'template'))) {
       case 'html':
         this.node = (is as any) || DOCUMENT.documentElement
         break
@@ -113,12 +136,15 @@ export class RElement extends Rease {
         this.node = (is as any) || DOCUMENT.body
         break
       default: {
-        const { p: pNode, b: bNode } = get_parent_and_before_node(this)
+        const { p: pNode, b: bNode } = getParentAndBeforeNode(this)
         if ((this.node = (is as any) || createElem(type, pNode, bNode))) {
           insertNode(this.node, pNode, bNode, false)
           this.onMove(movingNode, this)
           this.onDestroy(deleteNode)
           afterInsert = initedNode
+          // 'innerText' in props || 'innerHTML' in props
+          //   ? (this.node.innerHTML = '')
+          //   : (afterInsert = initedNode)
         }
       }
     }
@@ -126,7 +152,7 @@ export class RElement extends Rease {
     this._attrs = {}
     for (const k in props) {
       if (this.destroyed) break
-      if (k !== 'this' && k !== 'children') get_attrs_parser(this, (props as any)[k], k)
+      if (k !== 'this' && k !== 'children') get_attrs_parser(this, props[k], k)
     }
 
     this.insert(props.children)
@@ -145,15 +171,38 @@ if (typeof document !== 'undefined') {
     node.parentNode && node.parentNode.removeChild(node)
   }
 
+  // function needMovingNode(iam: Rease, rease: Rease) {
+  //   if (iam !== rease) {
+  //     for (; (iam = iam.parent!); ) {
+  //       if (iam instanceof RElement) return false
+  //       if (iam === rease) break
+  //     }
+  //   }
+  //   return true
+  // }
+  // xmlRemoveNodes = (iam) => {
+  //   for (let a = iam._nodes, i = a.length; i-- > 0; ) removeNode(a[i])
+  //   iam._nodes.length = 0
+  // }
+  // xmlMovingNodes = function (this, rease) {
+  //   if (this !== rease) {
+  //     for (let parent = this as Rease; (parent = parent.parent!); ) {
+  //       if (parent instanceof RElement) return
+  //       if (parent === rease) break
+  //     }
+  //   }
+  //   // TODO
+  // }
+
   const BEFORE_CLASSES = [RElement, RText]
-  get_parent_and_before_node = function (iam) {
+  getParentAndBeforeNode = function (iam) {
     let pNode: Element | undefined, bNode: Element | undefined
     let { parent, prev } = iam.findParentOrPrev(RElement, BEFORE_CLASSES)
 
     if (prev) {
       bNode = prev.node!
       if (PORTAL_TAG_NAMES.hasOwnProperty(bNode.localName)) {
-        return get_parent_and_before_node(prev)
+        return getParentAndBeforeNode(prev)
       }
       if ((parent = prev.findParent(RElement))) {
         pNode = parent.node!
@@ -161,7 +210,7 @@ if (typeof document !== 'undefined') {
           bNode = bNode.parentNode as Element
         }
         if (!bNode) {
-          return get_parent_and_before_node(prev)
+          return getParentAndBeforeNode(prev)
         }
       }
     } else if (parent) {
@@ -237,6 +286,7 @@ if (typeof document !== 'undefined') {
       removeNode(node)
     }
   }
+
   movingNode = function (this, rease) {
     if (this !== rease) {
       for (let parent = this as Rease; (parent = parent.parent!); ) {
@@ -244,7 +294,7 @@ if (typeof document !== 'undefined') {
         if (parent === rease) break
       }
     }
-    const { p: pNode, b: bNode } = get_parent_and_before_node(this)
+    const { p: pNode, b: bNode } = getParentAndBeforeNode(this)
     insertNode(this.node!, pNode, bNode, true)
   }
   deleteNode = function (iam) {

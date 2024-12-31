@@ -134,38 +134,38 @@ declare global {
     // interface IntrinsicClassAttributes extends IntrinsicAttributes {}
 
     interface IntrinsicElements extends Intristics {
-      'r-text': { this: any } & Children
-      'r-element': { this: string | Element | null; [k: string]: any } & Children
-      'r-fragment': {} & Children
+      // 'r-text': { this: any } & Children
+      // 'r-element': { this: string | Element | null; [k: string]: any } & Children
+      // 'r-fragment': {} & Children
 
-      'r-for-in': {
-        this: any
-        watch?: any
-        children: (v: any, k: string, a: any) => any
-      }
-      'r-for-of': {
-        this: any
-        watch?: any
-        children: (v: any, k: string | number, a: any) => any
-      }
+      // 'r-for-in': {
+      //   this: any
+      //   watch?: any
+      //   children: (v: any, k: string, a: any) => any
+      // }
+      // 'r-for-of': {
+      //   this: any
+      //   watch?: any
+      //   children: (v: any, k: string | number, a: any) => any
+      // }
 
-      'r-if': { this: any; context?: any } & Children
-      'r-else-if': { this: any; context?: any } & Children
-      'r-else': { context?: any } & Children
+      // 'r-if': { this: any; context?: any } & Children
+      // 'r-else-if': { this: any; context?: any } & Children
+      // 'r-else': { context?: any } & Children
 
-      'r-await': { this: any; context?: any } & Children
-      'r-then': { this: any; context?: any } & Children
-      'r-catch': { this: any; context?: any } & Children
+      // 'r-await': { this: any; context?: any } & Children
+      // 'r-then': { this: any; context?: any } & Children
+      // 'r-catch': { this: any; context?: any } & Children
 
-      'r-move': {
-        to: ISubscribableOrThenableDeep<Rease>
-        index?: ISubscribableOrThenableDeep<number>
-      } & Children
+      // 'r-move': {
+      //   to: ISubscribableOrThenableDeep<Rease>
+      //   index?: ISubscribableOrThenableDeep<number>
+      // } & Children
 
-      'r-switch': { this: any } & Children
-      'r-case': { this: any; context?: any } & Children
+      // 'r-switch': { this: any } & Children
+      // 'r-case': { this: any; context?: any } & Children
 
-      'r-watch': { this: any; context?: any } & Children
+      // 'r-watch': { this: any; context?: any } & Children
       // [key: string]: any
     }
   }

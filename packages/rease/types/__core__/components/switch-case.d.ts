@@ -8,11 +8,12 @@ export declare class RSwitch extends Rease {
         children?: any;
     });
 }
-export declare class RCase<T = unknown, C = undefined> extends Rease {
+export declare class RCase<T = unknown, C = RCase<T, any>> extends Rease {
     _is: any;
     _ctx: {
         r: RCase;
         t: any;
+        f: any;
         b: boolean;
         c: any;
         i?: any;
@@ -22,7 +23,7 @@ export declare class RCase<T = unknown, C = undefined> extends Rease {
     constructor(props: {
         this: T;
         context?: C;
-        children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any;
+        callback: (this: C, value: ISubscribedOrThenedDeep<T>) => any;
     });
     constructor(props: {
         this: any;

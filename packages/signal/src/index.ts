@@ -2,8 +2,12 @@ function noop() {}
 let LAST_ = 1 as any
 let run_queue: any
 let $batcher_: any // ISignal<{ f: (v?: any) => any; c: any; a: any }>
-const SECURE = {}
-// export { SECURE as _signalSecureKey }
+
+let SECURE: any
+const SECURE_CONST = {}
+function service(iam: any) {
+  return SECURE ? null : ((SECURE = SECURE_CONST), (iam = iam._()), (SECURE = null), iam)
+}
 
 let STORE = function (value: any, props: any) {
   interface ISubscriber {
@@ -262,7 +266,7 @@ let STORE = function (value: any, props: any) {
     const iam_o = _Array(l) as { v: any; b: boolean }[]
     for (let i = 0, v: any, b: boolean; i < l; i++) {
       if ((b = (v = a[i]) != null && typeof v.subscribe === 'function')) {
-        isSignal(v) || (v = _signalify(v)), computedItemCheck(cmp, v._(SECURE))
+        isSignal(v) || (v = _signalify(v)), computedItemCheck(cmp, service(v))
       }
       iam_o[i] = { v, b }
     }
@@ -290,7 +294,7 @@ let STORE = function (value: any, props: any) {
   }
 
   class ReaseSignal<T = unknown> {
-    private _: (sec: any) => IService
+    private _: () => any
     _value: T
     readonly computed?: boolean
     readonly prepared?: boolean
@@ -343,8 +347,8 @@ let STORE = function (value: any, props: any) {
         // computed list
         w: null,
       }
-      this._ = function (sec) {
-        return sec === SECURE ? _ : (THROW('secure') as unknown as IService)
+      this._ = function () {
+        return SECURE === SECURE_CONST && _
       }
       _.p = _.h.n = _.h.p = _.h
       _.c && ((_.c._ = _), _.c.o && setObserve(_.c))
@@ -352,7 +356,7 @@ let STORE = function (value: any, props: any) {
     }
 
     get() {
-      const _ = this._(SECURE)
+      const _ = service(this) as IService
       const COMPUTED_PREV = COMPUTED
       COMPUTED = null
       if (COMPUTED_PREV) computedItemCheck(COMPUTED_PREV, _)
@@ -365,7 +369,7 @@ let STORE = function (value: any, props: any) {
     }
 
     set(value: T, sec?: any) {
-      const _ = this._(SECURE)
+      const _ = service(this) as IService
       _.c ? THROW('computed') : _.d && _.d(sec)
       _.o ? batch(setWithCaptureBatch, _, [value]) : setValue(_, value)
       return this
@@ -379,7 +383,7 @@ let STORE = function (value: any, props: any) {
     // }
 
     subscribe<C>(callback: (this: C, value: T) => any, thisArg?: C) {
-      const _ = this._(SECURE)
+      const _ = service(this) as IService
       let sub: ISubscriber | null = {
         n: null as any,
         p: null as any,
@@ -428,7 +432,7 @@ let STORE = function (value: any, props: any) {
   const proto = STORE.prototype
   _Object.defineProperty(proto, '$', { get: proto.get, set: proto.set })
 
-  $batcher_ = new STORE({ f: noop })._(SECURE)
+  $batcher_ = service(new STORE({ f: noop })) as IService
   $batcher_.s.subscribe(function (v: any) {
     v.f.apply(v.c, v.a)
   })
@@ -756,13 +760,13 @@ function isSignal<T>(thing: any): thing is ISignal<T> {
   return thing instanceof STORE
 }
 function isSignalComputed<G>(thing: any): thing is ISignalComputed<G> {
-  return thing instanceof STORE && !!thing._(SECURE).c
+  return thing instanceof STORE && !!service(thing).c
 }
 function isSignalDefensed<G, S = G>(thing: any): thing is ISignalDefensed<G, S> {
-  return thing instanceof STORE && !!thing._(SECURE).d
+  return thing instanceof STORE && !!service(thing).d
 }
 function isSignalManually<G, S = G>(thing: any): thing is ISignalManually<G, S> {
-  return thing instanceof STORE && ((thing = thing._(SECURE)), !thing.c && !thing.d)
+  return thing instanceof STORE && ((thing = service(thing)), !thing.c && !thing.d)
 }
 export { isSignal, isSignalManually, isSignalComputed, isSignalDefensed }
 

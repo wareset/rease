@@ -15,28 +15,28 @@ import { watch, watchDeep, watchAll, watchDeepAll } from './utils/watch'
 import type { ISubscribedOrThenedAll, ISubscribedOrThenedDeepAll } from './utils/watch'
 
 import {
-  // r-await t-then r-catch
-  RAwait,
-  RThen,
-  RCatch,
+  // // r-await t-then r-catch
+  // RAwait,
+  // RThen,
+  // RCatch,
   // r-text r-element r-fragment
   RText,
   RElement,
-  RFragment,
-  // r-watch
-  RWatch,
-  // r-if r-else-if r-else
-  RIf,
-  RElseIf,
-  RElse,
-  // r-switch r-case
-  RSwitch,
-  RCase,
-  // r-for-in r-for-of
-  RForIn,
-  RForOf,
-  // r-move
-  RMove,
+  // RFragment,
+  // // r-watch
+  // RWatch,
+  // // r-if r-else-if r-else
+  // RIf,
+  // RElseIf,
+  // RElse,
+  // // r-switch r-case
+  // RSwitch,
+  // RCase,
+  // // r-for-in r-for-of
+  // RForIn,
+  // RForOf,
+  // // r-move
+  // RMove,
 } from './components'
 
 type IComponent<P extends { [key: string]: any } = any> =
@@ -883,66 +883,66 @@ function createElement(component: any, props: any, ...children: any[]) {
   // slice.call(arguments, 2)
 
   if (isString(component)) {
-    switch (component) {
-      // case 'html':
-      // case 'head':
-      // case 'body':
-      //   throw ctor
-      case 'r-text':
-        component = RText
-        break
-      case 'r-element':
-        component = RElement
-        break
-      case 'r-fragment':
-        component = RFragment
-        break
+    // switch (component) {
+    //   // case 'html':
+    //   // case 'head':
+    //   // case 'body':
+    //   //   throw ctor
+    //   case 'r-text':
+    //     component = RText
+    //     break
+    //   case 'r-element':
+    //     component = RElement
+    //     break
+    //   case 'r-fragment':
+    //     component = RFragment
+    //     break
 
-      case 'r-watch':
-        component = RWatch
-        break
+    //   case 'r-watch':
+    //     component = RWatch
+    //     break
 
-      case 'r-if':
-        component = RIf
-        break
-      case 'r-else-if':
-        component = RElseIf
-        break
-      case 'r-else':
-        component = RElse
-        break
+    //   case 'r-if':
+    //     component = RIf
+    //     break
+    //   case 'r-else-if':
+    //     component = RElseIf
+    //     break
+    //   case 'r-else':
+    //     component = RElse
+    //     break
 
-      case 'r-switch':
-        component = RSwitch
-        break
-      case 'r-case':
-        component = RCase
-        break
+    //   case 'r-switch':
+    //     component = RSwitch
+    //     break
+    //   case 'r-case':
+    //     component = RCase
+    //     break
 
-      case 'r-await':
-        component = RAwait
-        break
-      case 'r-then':
-        component = RThen
-        break
-      case 'r-catch':
-        component = RCatch
-        break
+    //   case 'r-await':
+    //     component = RAwait
+    //     break
+    //   case 'r-then':
+    //     component = RThen
+    //     break
+    //   case 'r-catch':
+    //     component = RCatch
+    //     break
 
-      case 'r-for-in':
-        component = RForIn
-        break
-      case 'r-for-of':
-        component = RForOf
-        break
+    //   case 'r-for-in':
+    //     component = RForIn
+    //     break
+    //   case 'r-for-of':
+    //     component = RForOf
+    //     break
 
-      case 'r-move':
-        component = RMove
-        break
-      default:
-        props.this = component
-        component = RElement
-    }
+    //   case 'r-move':
+    //     component = RMove
+    //     break
+    //   default:
+    props.this = component
+    component = RElement
+    // }
   }
 
   return new JSX(component, props)

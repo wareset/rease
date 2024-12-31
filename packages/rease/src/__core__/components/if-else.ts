@@ -6,7 +6,7 @@ import type { ISubscribedOrThenedDeep } from '../types'
 //
 // RIf RElseIf RElse
 //
-function watch(this: { r: Rease; t: any; b: boolean; c: any }, a: any[]) {
+function watch(this: { r: Rease; t: any; f: any; c: any; b: boolean }, a: any[]) {
   if (
     this.b !==
     (this.b = a.every(function (v: any, k: number): any {
@@ -14,18 +14,18 @@ function watch(this: { r: Rease; t: any; b: boolean; c: any }, a: any[]) {
     }))
   ) {
     this.b
-      ? this.r.insert(isFunction(this.c) ? this.c.call(this.t, a[0]) : this.c)
+      ? this.r.insert(this.f ? this.f.call(this.t !== void 0 ? this.t : this.r, a[0]) : this.c)
       : this.r.destroyChildren()
   }
 }
 
-function ifelseif(iam: Rease, context: any, children: any, a: any[]) {
-  iam.watchDeepAll(a, watch, { r: iam, t: context, b: false, c: children })
+function ifelseif(iam: Rease, context: any, callback: any, children: any, a: any[]) {
+  iam.watchDeepAll(a, watch, { r: iam, t: context, f: callback, c: children, b: false })
 }
 
-function for_else(iam: RElseIf | RElse, is: any, context: any, children: any) {
+function for_else(iam: RElseIf | RElse, is: any, context: any, callback: any, children: any) {
   const prev = iam.findPrevSibling(_RIfElseIf_)
-  ifelseif(iam, context, children, (iam._is = prev ? [is].concat(prev._is) : [is]))
+  ifelseif(iam, context, callback, children, (iam._is = prev ? [is].concat(prev._is) : [is]))
 }
 
 class _RIfElseIf_ extends Rease {
@@ -35,37 +35,37 @@ class _RIfElseIf_ extends Rease {
   }
 }
 
-export class RIf<T = unknown, C = undefined> extends _RIfElseIf_ {
+export class RIf<T = unknown, C = RIf<T, any>> extends _RIfElseIf_ {
   constructor(props: {
     this: T
     context?: C
-    children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any
+    callback: (this: C, value: ISubscribedOrThenedDeep<T>) => any
   })
   constructor(props: { this: any; children?: any })
-  constructor(props: { this: any; context?: any; children?: any }) {
+  constructor(props: { this: any; context?: any; callback?: any; children?: any }) {
     super()
-    ifelseif(this, props.context, props.children, (this._is = [props.this]))
+    ifelseif(this, props.context, props.callback, props.children, (this._is = [props.this]))
   }
 }
 
-export class RElseIf<T = unknown, C = undefined> extends _RIfElseIf_ {
+export class RElseIf<T = unknown, C = RElseIf<T, any>> extends _RIfElseIf_ {
   constructor(props: {
     this: T
     context?: C
-    children?: (this: C, value: ISubscribedOrThenedDeep<T>) => any
+    callback: (this: C, value: ISubscribedOrThenedDeep<T>) => any
   })
   constructor(props: { this: any; children?: any })
-  constructor(props: { this: any; context?: any; children?: any }) {
+  constructor(props: { this: any; context?: any; callback?: any; children?: any }) {
     super()
-    for_else(this, props.this, props.context, props.children)
+    for_else(this, props.this, props.context, props.callback, props.children)
   }
 }
 
-export class RElse<C = undefined> extends _RIfElseIf_ {
-  constructor(props: { context?: C; children?: (this: C, value: true) => any })
+export class RElse<C = RElse<any>> extends _RIfElseIf_ {
+  constructor(props: { context?: C; callback: (this: C, value: true) => any })
   constructor(props: { children?: any })
-  constructor(props: { context?: any; children?: any }) {
+  constructor(props: { context?: any; callback?: any; children?: any }) {
     super()
-    for_else(this, true, props.context, props.children)
+    for_else(this, true, props.context, props.callback, props.children)
   }
 }

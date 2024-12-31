@@ -8,7 +8,7 @@ export declare class RText extends Rease {
     });
 }
 export declare class RElement extends Rease {
-    readonly name: string;
+    readonly type: string;
     readonly node: Element | null;
     _attrs: {
         [key: string]: any;

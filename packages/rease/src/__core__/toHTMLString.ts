@@ -37,20 +37,20 @@ const INCLUDE_HTML_TAGS = {
   script: 1,
 
   // Forms
-  button: 1,
-  datalist: 1,
+  // button: 1,
+  // datalist: 1,
   // 'fieldset': 1,
   // 'form': 1,
-  input: 1,
+  // input: 1,
   // 'label': 1,
   // 'legend': 1,
-  meter: 1,
-  optgroup: 1,
-  option: 1,
+  // meter: 1,
+  // optgroup: 1,
+  // option: 1,
   // 'output': 1,
-  progress: 1,
-  select: 1,
-  textarea: 1,
+  // progress: 1,
+  // select: 1,
+  // textarea: 1,
 
   // Web Components
   slot: 1,
@@ -83,7 +83,7 @@ export function toHTMLString(rease: Rease) {
   if (rease instanceof RText) {
     res.push(escapeHTML(rease.data))
   } else if (rease instanceof RElement) {
-    const localName = rease.name
+    const localName = rease.type
     if (localName && !INCLUDE_HTML_TAGS.hasOwnProperty(localName)) {
       const _class = rease._class
       const _style = rease._style
