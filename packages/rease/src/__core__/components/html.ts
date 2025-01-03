@@ -160,16 +160,6 @@ function deleteNode(iam: RText | RElement) {
   removeNode(iam.node!)
 }
 
-function initedNode(iam: RElement) {
-  let node = iam.node! as any
-  for (let a = node.childNodes, i = a.length; i-- > 0; ) {
-    if (REASE_NODE_MARK in (node = a[i])) break
-    if (node.nodeType !== 1 || !RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
-      removeNode(node)
-    }
-  }
-}
-
 class _RNode_ extends Rease {}
 
 //
@@ -285,6 +275,15 @@ export class RText extends _RNode_ {
 
 // import type { IRElementProps } from '@rease/jsxtype'
 
+function initedNode(iam: RElement) {
+  let node = iam.node! as any
+  for (let a = node.childNodes, i = a.length; i-- > 0; ) {
+    if (REASE_NODE_MARK in (node = a[i])) break
+    if (node.nodeType !== 1 || !RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
+      removeNode(node)
+    }
+  }
+}
 export class RElement extends _RNode_ {
   readonly type: string
   readonly node: Element | null
