@@ -63,7 +63,7 @@ declare class Rease {
     notifyParents<Detail>(type: string, detail?: Detail): void;
     notifyChildren<Detail>(type: string, detail?: Detail): void;
     onMoveCapture<C = undefined>(hook: (this: C, rease: Rease, from: Rease | null, to: Rease | null) => any, thisArg?: C): typeof noop;
-    onMove<C = undefined>(hook: (this: C, rease: Rease, from: Rease | null, to: Rease | null) => any, thisArg?: C): typeof noop;
+    onMove<C = undefined>(hook: (this: C, rease: Rease, from: Rease | null, to: Rease | null, index: number) => any, thisArg?: C): typeof noop;
     onReady<C = undefined>(hook: (this: C, iam: this) => any, thisArg?: C): typeof noop;
     onDestroyCapture<C = undefined>(hook: (this: C, iam: this) => any, thisArg?: C): typeof noop;
     onDestroy<C = undefined>(hook: (this: C, iam: this) => any, thisArg?: C): typeof noop;

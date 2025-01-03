@@ -1,13 +1,22 @@
 import { Rease } from '../Rease';
 type Element = HTMLElement | SVGElement;
-export declare class RText extends Rease {
+declare class _RNode_ extends Rease {
+}
+export declare class RHtml extends _RNode_ {
+    data: string;
+    readonly nodes: Node[];
+    constructor(props: {
+        this: any;
+    });
+}
+export declare class RText extends _RNode_ {
     data: string;
     readonly node: HTMLFontElement | null;
     constructor(props: {
         this: any;
     });
 }
-export declare class RElement extends Rease {
+export declare class RElement extends _RNode_ {
     readonly type: string;
     readonly node: Element | null;
     _attrs: {

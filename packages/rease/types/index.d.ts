@@ -7,7 +7,7 @@ export { isString, isFunction, isThenable, isCatchable, isSubscribable, } from '
 export { then, thenSafe, thenSafeAll, thenable, timeout, interval, } from './__core__/utils/then';
 export { watch, watchDeep, watchAll, watchDeepAll } from './__core__/utils/watch';
 export { watcher, watcherDeep, watcherAll, watcherDeepAll } from './__core__/utils/watch';
-export { RAwait, RThen, RCatch, RForIn, RForOf, RFragment, RText, RElement, RIf, RElseIf, RElse, RMove, RSwitch, RCase, RWatch, } from './__core__/components';
+export { RAwait, RThen, RCatch, RForIn, RForOf, RFragment, RHtml, RText, RElement, RIf, RElseIf, RElse, RMove, RSwitch, RCase, RWatch, } from './__core__/components';
 export { Rease } from './__core__/Rease';
 export { createElement, createElement as h, render } from './__core__/Rease';
 export { hash } from './__core__/hash';

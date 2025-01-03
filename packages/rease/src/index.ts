@@ -55,7 +55,8 @@ export {
   RForOf,
   // r-fragment
   RFragment,
-  // r-text r-element
+  // r-xml r-text r-element
+  RHtml,
   RText,
   RElement,
   // r-if r-else-if r-else

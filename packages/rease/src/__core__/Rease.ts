@@ -229,18 +229,25 @@ function testRunOnReadyHead(iam: Rease) {
 // runOnBeforeReady
 //
 
-function runOnMoveHooks(iam: Rease, rease: Rease, from: Rease | null, to: Rease | null) {
+function runOnMoveHooks(
+  iam: Rease,
+  rease: Rease,
+  from: Rease | null,
+  to: Rease | null,
+  index: number
+) {
   const _ = iam._
   // _.a0 && iam.hookOnMove.call(iam, rease, from, to)
   for (let head: IDblList | undefined, a = [_.m2, _.m1], i = 2; i-- > 0; ) {
     if ((head = a[i]))
-      for (let n = head; (n = n.n) !== head && _.a0; ) n.f.call(n.c, rease, from, to)
+      for (let n = head; (n = n.n) !== head && _.a0; ) n.f.call(n.c, rease, from, to, index)
   }
 
   const ni = _.in
   const n = { i: 0 }
   ni.push(n)
-  for (let a = iam.children; n.i < a.length; n.i++) runOnMoveHooks(a[n.i], rease, from, to)
+  for (let a = iam.children; n.i < a.length; n.i++)
+    runOnMoveHooks(a[n.i], rease, from, to, index)
   ni.splice(ni.lastIndexOf(n), 1)
 }
 function runDestroyHooks(iam: Rease, head: IDblList) {
@@ -531,7 +538,7 @@ class Rease {
       this._.$1++
       const $2 = this._.$2
       // this.emitDeep('rease-move', this)
-      runOnMoveHooks(this, this, parent, to)
+      runOnMoveHooks(this, this, parent, to, index)
       this.init()
       testRunOnReadyHead(this)
       if (parent === to) {
@@ -604,7 +611,7 @@ class Rease {
     return _.a0 ? addHookInDblList(_.m1 || (_.m1 = createDblList()), hook, thisArg) : noop
   }
   onMove<C = undefined>(
-    hook: (this: C, rease: Rease, from: Rease | null, to: Rease | null) => any,
+    hook: (this: C, rease: Rease, from: Rease | null, to: Rease | null, index: number) => any,
     thisArg?: C
   ) {
     const _ = this._

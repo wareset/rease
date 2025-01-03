@@ -1,6 +1,6 @@
 import type { Rease } from './Rease'
 import { escapeHTML } from './utils/shared'
-import { RElement, RText } from './components'
+import { RElement, RText, RHtml } from './components'
 
 // https://developer.mozilla.org/en-US/docs/Web/HTML/Element
 const INCLUDE_HTML_TAGS = {
@@ -80,9 +80,7 @@ const CHILDLESS_HTML_TAGS = {
 
 export function toHTMLString(rease: Rease) {
   const res: any[] = []
-  if (rease instanceof RText) {
-    res.push(escapeHTML(rease.data))
-  } else if (rease instanceof RElement) {
+  if (rease instanceof RElement) {
     const localName = rease.type
     if (localName && !INCLUDE_HTML_TAGS.hasOwnProperty(localName)) {
       const _class = rease._class
@@ -122,6 +120,10 @@ export function toHTMLString(rease: Rease) {
         res.push('</', localName, '>')
       }
     }
+  } else if (rease instanceof RText) {
+    res.push(escapeHTML(rease.data))
+  } else if (rease instanceof RHtml) {
+    res.push(rease.data)
   } else {
     for (let a = rease.children, i = 0; i < a.length; i++) res.push(toHTMLString(a[i]))
   }

@@ -9,6 +9,7 @@ export { RElseIf } from "../types/jsx-runtime";
 export { RForIn } from "../types/jsx-runtime";
 export { RForOf } from "../types/jsx-runtime";
 export { RFragment } from "../types/jsx-runtime";
+export { RHtml } from "../types/jsx-runtime";
 export { RIf } from "../types/jsx-runtime";
 export { RMove } from "../types/jsx-runtime";
 export { RSwitch } from "../types/jsx-runtime";

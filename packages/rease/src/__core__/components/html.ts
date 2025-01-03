@@ -30,44 +30,132 @@ let createElem = noopNull as unknown as (
   parNode: Element | null | undefined,
   befNode: Element | null | undefined | Node
 ) => Element | null
-let insertNode = noop as unknown as (
-  node: Node,
-  parNode: Node | null | undefined,
-  befNode: Node | null | undefined | Node,
-  needRemove: boolean
-) => void
-let deleteNode = noop as unknown as (iam: RText | RElement) => void
-let initedNode = noop as unknown as (iam: RText | RElement) => void
-let movingNode = noop as unknown as (this: RText | RElement, rease: Rease) => void
 let DOCUMENT = {
   documentElement: null,
   head: null,
   body: null,
 } as unknown as Document
 
-//
-// RInnerXML
-//
-// let xmlRemoveNodes = noop as unknown as (iam: RInnerXML) => void
-// let xmlMovingNodes = noop as unknown as (this: RInnerXML, rease: Rease) => void
-// function xmlDataWatch(this: RInnerXML, data: any) {
-//   xmlRemoveNodes(this), (this.data = data = data === void 0 ? '' : '' + data)
-// }
-// export class RInnerXML extends Rease {
-//   data: string
-//   readonly _nodes: (HTMLElement | SVGElement | Text)[]
+const REASE_NODE_MARK = '_rease_relement_or_rtext'
+const RESERVED_LOCAL_NAMES = { style: 1, script: 1 }
 
-//   constructor(props: { this: any }) {
-//     super()
-//     this.data = ''
-//     this._nodes = []
-//     const is = props.this
-//     this.watchDeep(is, xmlDataWatch, this)
+function removeNode(node: Node) {
+  node.parentNode && node.parentNode.removeChild(node)
+}
 
-//     this.onMove(xmlMovingNodes, this)
-//     this.onDestroy(xmlRemoveNodes)
-//   }
-// }
+function needMovingNode(iam: Rease, rease: Rease) {
+  if (iam !== rease) {
+    for (; (iam = iam.parent!); ) {
+      if (iam instanceof RElement) return false
+      if (iam === rease) break
+    }
+  }
+  return true
+}
+
+function insertNode(
+  node: Node,
+  pNode: Node | null | undefined,
+  bNode: Node | null | undefined | Node,
+  needRemove: boolean
+) {
+  // node.setAttribute('rease', '')
+  // @ts-ignore
+  node[REASE_NODE_MARK] = true
+  if (pNode) {
+    pNode.insertBefore(
+      node,
+      (bNode
+        ? bNode.nextSibling
+        : // : PORTAL_TAG_NAMES.hasOwnProperty((pNode as Element).localName)
+          // ? null
+          pNode.firstChild) || null
+    )
+  } else if (needRemove) {
+    removeNode(node)
+  }
+}
+
+function movingNode(this: RText | RElement, rease: Rease) {
+  // if (this !== rease) {
+  //   for (let parent = this as Rease; (parent = parent.parent!); ) {
+  //     if (parent instanceof RElement) return
+  //     if (parent === rease) break
+  //   }
+  // }
+  if (needMovingNode(this, rease)) {
+    const { p: pNode, b: bNode } = getParentAndBeforeNode(this)
+    insertNode(this.node!, pNode, bNode, true)
+  }
+}
+
+function deleteNode(iam: RText | RElement) {
+  removeNode(iam.node!)
+}
+
+function initedNode(iam: RElement) {
+  let node = iam.node! as any
+  for (let a = node.childNodes, i = a.length; i-- > 0; ) {
+    if (REASE_NODE_MARK in (node = a[i])) break
+    else if (node.nodeType !== 1 || !RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
+      removeNode(node)
+    }
+  }
+}
+
+class _RNode_ extends Rease {}
+
+//
+// RHtml
+//
+function xmlDeleteNodes(iam: RHtml) {
+  for (let a = iam.nodes, i = a.length; i-- > 0; ) removeNode(a[i])
+  iam.nodes.length = 0
+}
+function xmlInsertNodes(iam: RHtml, needRecreate: boolean) {
+  let { p: pNode, b: bNode } = getParentAndBeforeNode(iam)
+  if (pNode) {
+    const nodes = iam.nodes
+    if (
+      needRecreate ||
+      !nodes.length ||
+      !nodes[0].parentElement ||
+      nodes[0].parentElement.namespaceURI !== pNode.namespaceURI
+    ) {
+      const clone = pNode.cloneNode(false) as Element
+      xmlDeleteNodes(iam)
+      clone.innerHTML = iam.data
+      nodes.push.apply(nodes, clone.childNodes as any)
+    }
+    bNode = (bNode ? bNode.nextSibling : pNode.firstChild) || null
+    for (let i = nodes.length; i-- > 0; ) {
+      // @ts-ignore
+      pNode.insertBefore(nodes[i], bNode), ((bNode = nodes[i])[REASE_NODE_MARK] = true)
+    }
+  } else {
+    xmlDeleteNodes(iam)
+  }
+}
+function xmlMovingNodes(this: RHtml, rease: Rease) {
+  if (needMovingNode(this, rease)) xmlInsertNodes(this, false)
+}
+function xmlDataWatch(this: RHtml, data: any) {
+  this.data = data = data === void 0 ? '' : '' + data
+  xmlInsertNodes(this, true)
+}
+export class RHtml extends _RNode_ {
+  data: string
+  readonly nodes: Node[]
+
+  constructor(props: { this: any }) {
+    super()
+    this.data = ''
+    this.nodes = []
+    this.watchDeep(props.this, xmlDataWatch, this)
+    this.onMove(xmlMovingNodes, this)
+    this.onDestroy(xmlDeleteNodes)
+  }
+}
 
 //
 // RText
@@ -80,7 +168,7 @@ function textDataWatch(this: RText, data: any): void {
     text && text.nodeType === 3 ? (text.data = data) : (node.textContent = data)
   }
 }
-export class RText extends Rease {
+export class RText extends _RNode_ {
   data: string
   readonly node: HTMLFontElement | null
 
@@ -110,7 +198,7 @@ export class RText extends Rease {
 
 // import type { IRElementProps } from '@rease/jsxtype'
 
-export class RElement extends Rease {
+export class RElement extends _RNode_ {
   readonly type: string
   readonly node: Element | null
   _attrs: { [key: string]: any }
@@ -163,45 +251,19 @@ export class RElement extends Rease {
 if (typeof document !== 'undefined') {
   DOCUMENT = document
 
-  const REASE_NODE_MARK = '_rease_relement_or_rtext'
-  const RESERVED_LOCAL_NAMES = { style: 1, script: 1 }
   const PORTAL_TAG_NAMES = { html: 1, head: 1, body: 1 }
 
-  function removeNode(node: Node) {
-    node.parentNode && node.parentNode.removeChild(node)
-  }
-
-  // function needMovingNode(iam: Rease, rease: Rease) {
-  //   if (iam !== rease) {
-  //     for (; (iam = iam.parent!); ) {
-  //       if (iam instanceof RElement) return false
-  //       if (iam === rease) break
-  //     }
-  //   }
-  //   return true
-  // }
-  // xmlRemoveNodes = (iam) => {
-  //   for (let a = iam._nodes, i = a.length; i-- > 0; ) removeNode(a[i])
-  //   iam._nodes.length = 0
-  // }
-  // xmlMovingNodes = function (this, rease) {
-  //   if (this !== rease) {
-  //     for (let parent = this as Rease; (parent = parent.parent!); ) {
-  //       if (parent instanceof RElement) return
-  //       if (parent === rease) break
-  //     }
-  //   }
-  //   // TODO
-  // }
-
-  const BEFORE_CLASSES = [RElement, RText]
+  // const BEFORE_CLASSES = [RElement, RText]
   getParentAndBeforeNode = function (iam) {
     let pNode: Element | undefined, bNode: Element | undefined
-    let { parent, prev } = iam.findParentOrPrev(RElement, BEFORE_CLASSES)
+    let { parent, prev } = iam.findParentOrPrev(
+      RElement,
+      _RNode_ as unknown as (typeof RElement | typeof RText | typeof RHtml)[]
+    )
 
     if (prev) {
-      bNode = prev.node!
-      if (PORTAL_TAG_NAMES.hasOwnProperty(bNode.localName)) {
+      bNode = 'node' in prev ? prev.node! : (prev.nodes[0] as Element)
+      if (!bNode || PORTAL_TAG_NAMES.hasOwnProperty(bNode.localName)) {
         return getParentAndBeforeNode(prev)
       }
       if ((parent = prev.findParent(RElement))) {
@@ -268,45 +330,5 @@ if (typeof document !== 'undefined') {
     }
     // console.log('create: ' + tagName)
     return createElementNS(tagName, pNode)
-  }
-  insertNode = function (node, pNode, bNode, needRemove) {
-    // node.setAttribute('rease', '')
-    // @ts-ignore
-    node[REASE_NODE_MARK] = true
-    if (pNode) {
-      pNode.insertBefore(
-        node,
-        (bNode
-          ? bNode.nextSibling
-          : // : PORTAL_TAG_NAMES.hasOwnProperty((pNode as Element).localName)
-            // ? null
-            pNode.firstChild) || null
-      )
-    } else if (needRemove) {
-      removeNode(node)
-    }
-  }
-
-  movingNode = function (this, rease) {
-    if (this !== rease) {
-      for (let parent = this as Rease; (parent = parent.parent!); ) {
-        if (parent instanceof RElement) return
-        if (parent === rease) break
-      }
-    }
-    const { p: pNode, b: bNode } = getParentAndBeforeNode(this)
-    insertNode(this.node!, pNode, bNode, true)
-  }
-  deleteNode = function (iam) {
-    removeNode(iam.node!)
-  }
-  initedNode = function (iam) {
-    let node = iam.node! as any
-    for (let a = node.childNodes, i = a.length; i-- > 0; ) {
-      if (REASE_NODE_MARK in (node = a[i])) break
-      else if (node.nodeType !== 1 || !RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
-        removeNode(node)
-      }
-    }
   }
 }

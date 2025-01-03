@@ -8,6 +8,7 @@ export { RElseIf } from "./types";
 export { RForIn } from "./types";
 export { RForOf } from "./types";
 export { RFragment } from "./types";
+export { RHtml } from "./types";
 export { RIf } from "./types";
 export { RMove } from "./types";
 export { RSwitch } from "./types";
