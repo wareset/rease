@@ -5,6 +5,8 @@ declare class _RNode_ extends Rease {
 export declare class RHtml extends _RNode_ {
     data: string;
     readonly nodes: Node[];
+    _pNode?: Element | null | undefined;
+    _bNode?: Element | null | undefined | Node;
     constructor(props: {
         this: any;
     });

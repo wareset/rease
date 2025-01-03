@@ -112,8 +112,16 @@ function xmlDeleteNodes(iam: RHtml) {
   for (let a = iam.nodes, i = a.length; i-- > 0; ) removeNode(a[i])
   iam.nodes.length = 0
 }
-function xmlInsertNodes(iam: RHtml, needRecreate: boolean) {
-  let { p: pNode, b: bNode } = getParentAndBeforeNode(iam)
+function xmlInsertNodes(iam: RHtml, needRecreate?: boolean) {
+  if (iam._pNode === void 0) {
+    const { p: pNode, b: bNode } = getParentAndBeforeNode(iam)
+    iam._pNode = pNode || null
+    iam._bNode = bNode
+  }
+  let pNode = iam._pNode
+  let bNode = iam._bNode
+
+  // let { p: pNode, b: bNode } = getParentAndBeforeNode(iam)
   if (pNode) {
     const nodes = iam.nodes
     if (
@@ -122,30 +130,44 @@ function xmlInsertNodes(iam: RHtml, needRecreate: boolean) {
       !nodes[0].parentElement ||
       nodes[0].parentElement.namespaceURI !== pNode.namespaceURI
     ) {
-      const clone = pNode.cloneNode(false) as Element
+      const pCloned = pNode.cloneNode(false) as Element
+      pCloned.innerHTML = iam.data
       xmlDeleteNodes(iam)
-      clone.innerHTML = iam.data
-      nodes.push.apply(nodes, clone.childNodes as any)
+      // nodes.push.apply(nodes, pCloned.childNodes as any)
+      for (let a = pCloned.childNodes, i = a.length; i-- > 0; ) {
+        nodes[i] =
+          a[i].nodeType === 3
+            ? createText((<Text>a[i]).data, pCloned, a[i].previousSibling)!
+            : a[i]
+      }
     }
-    bNode = (bNode ? bNode.nextSibling : pNode.firstChild) || null
-    for (let i = nodes.length; i-- > 0; ) {
-      // @ts-ignore
-      pNode.insertBefore(nodes[i], bNode), ((bNode = nodes[i])[REASE_NODE_MARK] = true)
+    if (nodes.length) {
+      bNode = (bNode ? bNode.nextSibling : pNode.firstChild) || null
+      for (let i = nodes.length; i-- > 0; ) {
+        pNode.insertBefore(nodes[i], bNode)
+        // @ts-ignore
+        ;(bNode = nodes[i])[REASE_NODE_MARK] = true
+      }
+    } else {
+      iam._pNode = void 0
     }
   } else {
     xmlDeleteNodes(iam)
   }
 }
 function xmlMovingNodes(this: RHtml, rease: Rease) {
-  if (needMovingNode(this, rease)) xmlInsertNodes(this, false)
+  if (needMovingNode(this, rease))
+    (this._pNode = void 0), this.nodes.length && xmlInsertNodes(this)
 }
 function xmlDataWatch(this: RHtml, data: any) {
-  this.data = data = data === void 0 ? '' : '' + data
+  this.data = data === void 0 ? '' : '' + data
   xmlInsertNodes(this, true)
 }
 export class RHtml extends _RNode_ {
   data: string
   readonly nodes: Node[]
+  _pNode?: Element | null | undefined
+  _bNode?: Element | null | undefined | Node
 
   constructor(props: { this: any }) {
     super()
@@ -262,7 +284,7 @@ if (typeof document !== 'undefined') {
     )
 
     if (prev) {
-      bNode = 'node' in prev ? prev.node! : (prev.nodes[0] as Element)
+      bNode = 'node' in prev ? prev.node! : (prev.nodes[prev.nodes.length - 1] as Element)
       if (!bNode || PORTAL_TAG_NAMES.hasOwnProperty(bNode.localName)) {
         return getParentAndBeforeNode(prev)
       }
