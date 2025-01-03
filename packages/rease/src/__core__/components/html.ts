@@ -30,6 +30,7 @@ let createElem = noopNull as unknown as (
   parNode: Element | null | undefined,
   befNode: Node | null
 ) => Element | null
+
 let DOCUMENT = {
   documentElement: null,
   head: null,
@@ -38,6 +39,79 @@ let DOCUMENT = {
 
 const REASE_NODE_MARK = '_rease_relement_or_rtext'
 const RESERVED_LOCAL_NAMES = { style: 1, script: 1 }
+
+if (typeof document !== 'undefined') {
+  DOCUMENT = document
+
+  const PORTAL_TAG_NAMES = { html: 1, head: 1, body: 1 }
+
+  // const BEFORE_CLASSES = [RElement, RText]
+  getParentAndBeforeNode = function (iam) {
+    let pNode: Element | undefined, bNode: Element | undefined
+    let { parent, prev } = iam.findParentOrPrev(
+      RElement,
+      _RNode_ as unknown as (typeof RElement | typeof RText | typeof RHtml)[]
+    )
+
+    if (prev) {
+      bNode = 'node' in prev ? prev.node! : (prev.nodes[prev.nodes.length - 1] as Element)
+      if (!bNode || PORTAL_TAG_NAMES.hasOwnProperty(bNode.localName)) {
+        return getParentAndBeforeNode(prev)
+      }
+      if ((parent = prev.findParent(RElement))) {
+        pNode = parent.node!
+        for (; bNode && bNode.parentNode !== pNode; ) {
+          bNode = bNode.parentNode as Element
+        }
+        if (!bNode) {
+          return getParentAndBeforeNode(prev)
+        }
+      }
+    } else if (parent) {
+      pNode = parent.node!
+    }
+    return { p: pNode, b: (bNode ? bNode.nextSibling : pNode && pNode.firstChild) || null }
+  }
+
+  function createElementNS(tagName: string, pNode: any) {
+    return DOCUMENT.createElementNS(
+      NAMESPACES_URI.hasOwnProperty(tagName)
+        ? NAMESPACES_URI[tagName as 'svg']
+        : (pNode && pNode.localName !== 'foreignObject' ? pNode : DOCUMENT.documentElement)
+            .namespaceURI,
+      tagName
+    ) as Element
+  }
+  createText = function (data, pNode, bNode) {
+    const font = createElementNS('font', pNode) as HTMLFontElement
+    font.style.verticalAlign = 'inherit'
+    font.appendChild(
+      bNode && bNode.nodeType === 3 && !(REASE_NODE_MARK in bNode)
+        ? (((bNode as Text).data = data), bNode)
+        : DOCUMENT.createTextNode(data)
+    )
+    return font
+  }
+  createElem = function (tagName, pNode, bNode: any) {
+    if (bNode) {
+      for (; bNode && !(REASE_NODE_MARK in bNode); ) {
+        if (bNode.localName === tagName) {
+          for (let a = bNode.attributes, i = a.length; i-- > 0; ) {
+            bNode.removeAttribute(a[i].name)
+          }
+          // node.setAttribute('rease-hydro', '')
+          return bNode
+        }
+        bNode = bNode.nextSibling
+        // else if (!RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
+        //   break
+        // }
+      }
+    }
+    // console.log('create: ' + tagName)
+    return createElementNS(tagName, pNode)
+  }
+}
 
 function removeNode(node: Node) {
   node.parentNode && node.parentNode.removeChild(node)
@@ -258,78 +332,5 @@ export class RElement extends _RNode_ {
 
     this.insert(props.children)
     afterInsert(this)
-  }
-}
-
-if (typeof document !== 'undefined') {
-  DOCUMENT = document
-
-  const PORTAL_TAG_NAMES = { html: 1, head: 1, body: 1 }
-
-  // const BEFORE_CLASSES = [RElement, RText]
-  getParentAndBeforeNode = function (iam) {
-    let pNode: Element | undefined, bNode: Element | undefined
-    let { parent, prev } = iam.findParentOrPrev(
-      RElement,
-      _RNode_ as unknown as (typeof RElement | typeof RText | typeof RHtml)[]
-    )
-
-    if (prev) {
-      bNode = 'node' in prev ? prev.node! : (prev.nodes[prev.nodes.length - 1] as Element)
-      if (!bNode || PORTAL_TAG_NAMES.hasOwnProperty(bNode.localName)) {
-        return getParentAndBeforeNode(prev)
-      }
-      if ((parent = prev.findParent(RElement))) {
-        pNode = parent.node!
-        for (; bNode && bNode.parentNode !== pNode; ) {
-          bNode = bNode.parentNode as Element
-        }
-        if (!bNode) {
-          return getParentAndBeforeNode(prev)
-        }
-      }
-    } else if (parent) {
-      pNode = parent.node!
-    }
-    return { p: pNode, b: (bNode ? bNode.nextSibling : pNode && pNode.firstChild) || null }
-  }
-
-  function createElementNS(tagName: string, pNode: any) {
-    return DOCUMENT.createElementNS(
-      NAMESPACES_URI.hasOwnProperty(tagName)
-        ? NAMESPACES_URI[tagName as 'svg']
-        : (pNode && pNode.localName !== 'foreignObject' ? pNode : DOCUMENT.documentElement)
-            .namespaceURI,
-      tagName
-    ) as Element
-  }
-  createText = function (data, pNode, bNode) {
-    const font = createElementNS('font', pNode) as HTMLFontElement
-    font.style.verticalAlign = 'inherit'
-    font.appendChild(
-      bNode && bNode.nodeType === 3 && !(REASE_NODE_MARK in bNode)
-        ? (((bNode as Text).data = data), bNode)
-        : DOCUMENT.createTextNode(data)
-    )
-    return font
-  }
-  createElem = function (tagName, pNode, bNode: any) {
-    if (bNode) {
-      for (; bNode && !(REASE_NODE_MARK in bNode); ) {
-        if (bNode.localName === tagName) {
-          for (let a = bNode.attributes, i = a.length; i-- > 0; ) {
-            bNode.removeAttribute(a[i].name)
-          }
-          // node.setAttribute('rease-hydro', '')
-          return bNode
-        }
-        bNode = bNode.nextSibling
-        // else if (!RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
-        //   break
-        // }
-      }
-    }
-    // console.log('create: ' + tagName)
-    return createElementNS(tagName, pNode)
   }
 }
