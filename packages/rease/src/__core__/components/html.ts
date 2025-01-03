@@ -18,17 +18,17 @@ let getParentAndBeforeNode = function () {
   return {}
 } as unknown as (iam: Rease) => {
   p: Element | null | undefined
-  b: Element | null | undefined | Node
+  b: Element | null | Node
 }
 let createText = noopNull as unknown as (
   data: any,
   parNode: Element | null | undefined,
-  befNode: Element | null | undefined | Node
+  befNode: Element | null | Node
 ) => HTMLFontElement | null
 let createElem = noopNull as unknown as (
   tagName: string,
   parNode: Element | null | undefined,
-  befNode: Element | null | undefined | Node
+  befNode: Element | null | Node
 ) => Element | null
 let DOCUMENT = {
   documentElement: null,
@@ -56,21 +56,14 @@ function needMovingNode(iam: Rease, rease: Rease) {
 function insertNode(
   node: Node,
   pNode: Node | null | undefined,
-  bNode: Node | null | undefined | Node,
+  bNode: Node | null | Node,
   needRemove: boolean
 ) {
   // node.setAttribute('rease', '')
   // @ts-ignore
   node[REASE_NODE_MARK] = true
   if (pNode) {
-    pNode.insertBefore(
-      node,
-      (bNode
-        ? bNode.nextSibling
-        : // : PORTAL_TAG_NAMES.hasOwnProperty((pNode as Element).localName)
-          // ? null
-          pNode.firstChild) || null
-    )
+    pNode.insertBefore(node, bNode)
   } else if (needRemove) {
     removeNode(node)
   }
@@ -135,14 +128,10 @@ function xmlInsertNodes(iam: RHtml, needRecreate?: boolean) {
       xmlDeleteNodes(iam)
       // nodes.push.apply(nodes, pCloned.childNodes as any)
       for (let a = pCloned.childNodes, i = a.length; i-- > 0; ) {
-        nodes[i] =
-          a[i].nodeType === 3
-            ? createText((<Text>a[i]).data, pCloned, a[i].previousSibling)!
-            : a[i]
+        nodes[i] = a[i].nodeType === 3 ? createText((<Text>a[i]).data, pCloned, a[i])! : a[i]
       }
     }
     if (nodes.length) {
-      bNode = (bNode ? bNode.nextSibling : pNode.firstChild) || null
       for (let i = nodes.length; i-- > 0; ) {
         pNode.insertBefore(nodes[i], bNode)
         // @ts-ignore
@@ -166,8 +155,8 @@ function xmlDataWatch(this: RHtml, data: any) {
 export class RHtml extends _RNode_ {
   data: string
   readonly nodes: Node[]
-  _pNode?: Element | null | undefined
-  _bNode?: Element | null | undefined | Node
+  declare _pNode: Element | null | undefined
+  declare _bNode: Element | null | Node
 
   constructor(props: { this: any }) {
     super()
@@ -300,7 +289,7 @@ if (typeof document !== 'undefined') {
     } else if (parent) {
       pNode = parent.node!
     }
-    return { p: pNode, b: bNode }
+    return { p: pNode, b: (bNode ? bNode.nextSibling : pNode && pNode.firstChild) || null }
   }
 
   function createElementNS(tagName: string, pNode: any) {
@@ -315,36 +304,24 @@ if (typeof document !== 'undefined') {
   createText = function (data, pNode, bNode) {
     const font = createElementNS('font', pNode) as HTMLFontElement
     font.style.verticalAlign = 'inherit'
-    // ;(bNode = bNode ? bNode.nextSibling : pNode && pNode.firstChild) &&
-    // bNode.nodeType === 3 &&
-    // !(REASE_NODE_MARK in bNode)
-    //   ? (((bNode as Text).data = data), font.appendChild(bNode))
-    //   : (font.textContent = data)
-
     font.appendChild(
-      (bNode = bNode ? bNode.nextSibling : pNode && pNode.firstChild) &&
-        bNode.nodeType === 3 &&
-        !(REASE_NODE_MARK in bNode)
+      bNode && bNode.nodeType === 3 && !(REASE_NODE_MARK in bNode)
         ? (((bNode as Text).data = data), bNode)
         : DOCUMENT.createTextNode(data)
     )
     return font
   }
-  createElem = function (tagName, pNode, bNode) {
-    if ((bNode = bNode ? bNode.nextSibling : pNode && pNode.firstChild)) {
-      let node: any
+  createElem = function (tagName, pNode, bNode: any) {
+    if (bNode) {
       for (; bNode && !(REASE_NODE_MARK in bNode); ) {
-        node = bNode
-        bNode = bNode.nextSibling
-        if (node.nodeType !== 1) {
-          removeNode(node)
-        } else if (node.localName === tagName) {
-          for (let a = node.attributes, i = a.length; i-- > 0; ) {
-            node.removeAttribute(a[i].name)
+        if (bNode.localName === tagName) {
+          for (let a = bNode.attributes, i = a.length; i-- > 0; ) {
+            bNode.removeAttribute(a[i].name)
           }
           // node.setAttribute('rease-hydro', '')
-          return node
+          return bNode
         }
+        bNode = bNode.nextSibling
         // else if (!RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
         //   break
         // }
