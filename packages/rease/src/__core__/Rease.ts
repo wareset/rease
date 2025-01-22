@@ -372,8 +372,8 @@ class Rease {
     readonly in: { i: number }[] // [number][]
     // readonly ou: { [key: string]: IDblList }
     // events on capture
-    readonly oc: { [key: string]: IDblList }
-    readonly on: { [key: string]: IDblList }
+    readonly e1: { [key: string]: IDblList }
+    readonly e2: { [key: string]: IDblList }
   }
 
   // protected readonly _name: string
@@ -419,8 +419,8 @@ class Rease {
       // cx: null,
       // cr: this.constructor,
       in: [],
-      oc: {},
-      on: {},
+      e1: {},
+      e2: {},
     }
 
     set_parent_prev_next(this)
@@ -565,7 +565,7 @@ class Rease {
     const _ = this._
     return _.a0
       ? addHookInDblList(
-          (isCapture = (isCapture ? _.oc : _.on) as any)[type] ||
+          (isCapture = (isCapture ? _.e1 : _.e2) as any)[type] ||
             ((isCapture as any)[type] = createDblList()),
           cb,
           thisArg
@@ -574,14 +574,14 @@ class Rease {
   }
   emit<Detail>(type: string, detail?: Detail, isCapture?: boolean | null) {
     const _ = this._
-    if (isCapture != null) runEmitHooks((isCapture ? _.oc : _.on)[type], this, detail)
-    else runEmitHooks(_.oc[type], this, detail), runEmitHooks(_.on[type], this, detail)
+    if (isCapture != null) runEmitHooks((isCapture ? _.e1 : _.e2)[type], this, detail)
+    else runEmitHooks(_.e1[type], this, detail), runEmitHooks(_.e2[type], this, detail)
   }
   emitDeep<Detail>(type: string, detail?: Detail) {
     const _ = this._
-    runEmitHooks(_.oc[type], this, detail)
+    runEmitHooks(_.e1[type], this, detail)
     this.notifyChildren(type, detail)
-    runEmitHooks(_.on[type], this, detail)
+    runEmitHooks(_.e2[type], this, detail)
   }
   notifyParents<Detail>(type: string, detail?: Detail) {
     for (let parent: Rease | null = this; (parent = parent.parent); ) parent.emit(type, detail)

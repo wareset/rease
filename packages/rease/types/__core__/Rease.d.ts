@@ -36,10 +36,10 @@ declare class Rease {
         readonly in: {
             i: number;
         }[];
-        readonly oc: {
+        readonly e1: {
             [key: string]: IDblList;
         };
-        readonly on: {
+        readonly e2: {
             [key: string]: IDblList;
         };
     };
