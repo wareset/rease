@@ -155,5 +155,5 @@ function timeout_and_interval_factory(
   }
 }
 
-export const timeout = timeout_and_interval_factory(setTimeout, clearTimeout)
-export const interval = timeout_and_interval_factory(setInterval, clearInterval)
+export const timeout = /*@__PURE__*/ timeout_and_interval_factory(setTimeout, clearTimeout)
+export const interval = /*@__PURE__*/ timeout_and_interval_factory(setInterval, clearInterval)

@@ -324,6 +324,7 @@ class ReaseTween<T extends ITweenValue> {
 
 export type { ReaseTween as ITween }
 
+/*@__NO_SIDE_EFFECTS__*/
 export function tween<T extends ITweenValue>(value: T, options?: ITweenOptions) {
   return new ReaseTween(value, options)
 }

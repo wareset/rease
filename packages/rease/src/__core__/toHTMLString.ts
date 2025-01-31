@@ -78,6 +78,7 @@ const CHILDLESS_HTML_TAGS = {
   wbr: 1,
 } as const
 
+/*@__NO_SIDE_EFFECTS__*/
 export function toHTMLString(rease: Rease) {
   const res: any[] = []
   if (rease instanceof RElement) {

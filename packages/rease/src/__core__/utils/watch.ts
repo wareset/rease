@@ -155,7 +155,10 @@ function _w0(watchFn: typeof watch | typeof watchDeep) {
 export type ISubscribedOrThenedAll<T extends readonly unknown[] | []> = {
   -readonly [P in keyof T]: ISubscribedOrThened<T[P]>
 }
-export const watchAll = _w0(watch) as <T extends readonly unknown[] | [], C = undefined>(
+export const watchAll = /*@__PURE__*/ _w0(watch) as <
+  T extends readonly unknown[] | [],
+  C = undefined,
+>(
   a: T,
   cb: ISubscriber<ISubscribedOrThenedAll<T>, C>,
   thisArg?: C
@@ -164,9 +167,9 @@ export const watchAll = _w0(watch) as <T extends readonly unknown[] | [], C = un
 export type ISubscribedOrThenedDeepAll<T extends readonly unknown[] | []> = {
   -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]>
 }
-export const watchDeepAll = _w0(watchDeep) as <
+export const watchDeepAll = /*@__PURE__*/ _w0(watchDeep) as <
   T extends readonly unknown[] | [],
-  C = undefined
+  C = undefined,
 >(
   a: T,
   cb: ISubscriber<ISubscribedOrThenedDeepAll<T>, C>,
@@ -292,6 +295,7 @@ function watcher<T, R = ISubscribedOrThened<T>, C = undefined>(
   mapFunc: (this: C, value: ISubscribedOrThened<T>) => R,
   thisArg?: C
 ): ReaseWatcher<T, R>
+/*@__NO_SIDE_EFFECTS__*/
 function watcher(value: any, mapFunc?: any, thisArg?: any) {
   return new ReaseWatcher(value, mapFunc, thisArg, watch, false, false)
 }
@@ -303,6 +307,7 @@ function watcherDeep<T, R = ISubscribedOrThenedDeep<T>, C = undefined>(
   mapFunc: (this: C, value: ISubscribedOrThenedDeep<T>) => R,
   thisArg?: C
 ): ReaseWatcher<T, R>
+/*@__NO_SIDE_EFFECTS__*/
 function watcherDeep(value: any, mapFunc?: any, thisArg?: any) {
   return new ReaseWatcher(value, mapFunc, thisArg, watchDeep, true, false)
 }
@@ -314,12 +319,13 @@ function watcherAll<T extends readonly unknown[] | []>(
 function watcherAll<
   T extends readonly unknown[] | [],
   R = ISubscribedOrThenedAll<T>,
-  C = undefined
+  C = undefined,
 >(
   value: T,
   mapFunc: (this: C, value: ISubscribedOrThenedAll<T>) => R,
   thisArg?: C
 ): ReaseWatcher<T, R>
+/*@__NO_SIDE_EFFECTS__*/
 function watcherAll(value: any, mapFunc?: any, thisArg?: any) {
   return new ReaseWatcher(value, mapFunc, thisArg, watchAll, false, true)
 }
@@ -331,12 +337,13 @@ function watcherDeepAll<T extends readonly unknown[] | []>(
 function watcherDeepAll<
   T extends readonly unknown[] | [],
   R = ISubscribedOrThenedDeepAll<T>,
-  C = undefined
+  C = undefined,
 >(
   value: T,
   mapFunc: (this: C, value: ISubscribedOrThenedDeepAll<T>) => R,
   thisArg?: C
 ): ReaseWatcher<T, R>
+/*@__NO_SIDE_EFFECTS__*/
 function watcherDeepAll(value: any, mapFunc?: any, thisArg?: any) {
   return new ReaseWatcher(value, mapFunc, thisArg, watchDeepAll, true, true)
 }

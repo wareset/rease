@@ -559,6 +559,7 @@ function _insideBatchify(this: any[]) {
   this[0] = this[0].apply(this[1], this[2])
 }
 function batchify<T extends (...a: any[]) => any>(fn: T): T
+/*@__NO_SIDE_EFFECTS__*/
 function batchify(fn: any) {
   return function (this: any, ...args: any[]) {
     return batch(_insideBatchify, (args = [fn, this, args])), args[0]
@@ -665,6 +666,7 @@ function signal<G>(
   }
 ): ISignalManually<G>
 
+/*@__NO_SIDE_EFFECTS__*/
 function signal(value?: any, props?: any) {
   return new STORE(value, props)
 }
@@ -674,14 +676,14 @@ export { signal }
 //
 //
 
-const $q = signal<number>(12, {
-  // compute: ([a, b]) => a + b,
-  // observe: [1, 10],
-  captureInitial: true,
-  capture(v, _o) {
-    return v
-  },
-})
+// const $q = signal<number>(12, {
+//   // compute: ([a, b]) => a + b,
+//   // observe: [1, 10],
+//   captureInitial: true,
+//   capture(v, _o) {
+//     return v
+//   },
+// })
 // $q.$ = 1
 
 //
@@ -722,7 +724,7 @@ function computed<G, O extends IObserve = null>(
   observe: O,
   compute: (observe: IObserveValues<O>, value: G | undefined) => G
 ): ISignalComputed<G>
-
+/*@__NO_SIDE_EFFECTS__*/
 function computed(observe: any, compute: any, initValue?: any) {
   return new STORE(initValue, { compute, observe })
 }
@@ -756,15 +758,19 @@ export { effect }
 //
 // isSignal, isSignalStrict, isSignalComputed
 //
+/*@__NO_SIDE_EFFECTS__*/
 function isSignal<T>(thing: any): thing is ISignal<T> {
   return thing instanceof STORE
 }
+/*@__NO_SIDE_EFFECTS__*/
 function isSignalComputed<G>(thing: any): thing is ISignalComputed<G> {
   return thing instanceof STORE && !!service(thing).c
 }
+/*@__NO_SIDE_EFFECTS__*/
 function isSignalDefensed<G, S = G>(thing: any): thing is ISignalDefensed<G, S> {
   return thing instanceof STORE && !!service(thing).d
 }
+/*@__NO_SIDE_EFFECTS__*/
 function isSignalManually<G, S = G>(thing: any): thing is ISignalManually<G, S> {
   return thing instanceof STORE && ((thing = service(thing)), !thing.c && !thing.d)
 }

@@ -565,23 +565,32 @@ class Rease {
     const _ = this._
     return _.a0
       ? addHookInDblList(
-          (isCapture = (isCapture ? _.e1 : _.e2) as any)[type] ||
+          (isCapture = (isCapture ? _.e1 : _.e2) as any)[(type += '~')] ||
             ((isCapture as any)[type] = createDblList()),
           cb,
           thisArg
         )
       : noop
   }
+  onCapture<Detail, C = undefined>(
+    type: string,
+    cb: (this: C, detail: Detail) => void,
+    thisArg?: C
+  ) {
+    return this.on(type, cb, thisArg, true)
+  }
   emit<Detail>(type: string, detail?: Detail, isCapture?: boolean | null) {
     const _ = this._
+    type += '~'
     if (isCapture != null) runEmitHooks((isCapture ? _.e1 : _.e2)[type], this, detail)
     else runEmitHooks(_.e1[type], this, detail), runEmitHooks(_.e2[type], this, detail)
   }
   emitDeep<Detail>(type: string, detail?: Detail) {
     const _ = this._
-    runEmitHooks(_.e1[type], this, detail)
+    const t = type + '~'
+    runEmitHooks(_.e1[t], this, detail)
     this.notifyChildren(type, detail)
-    runEmitHooks(_.e2[type], this, detail)
+    runEmitHooks(_.e2[t], this, detail)
   }
   notifyParents<Detail>(type: string, detail?: Detail) {
     for (let parent: Rease | null = this; (parent = parent.parent); ) parent.emit(type, detail)
@@ -884,6 +893,7 @@ function createElement<P extends { [key: string]: any }>(
   props: P | null,
   ...children: any[]
 ): JSX
+/*@__NO_SIDE_EFFECTS__*/
 function createElement(component: any, props: any, ...children: any[]) {
   props || (props = {})
   if (children.length) props.children = children.length > 1 ? children : children[0]

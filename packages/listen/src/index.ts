@@ -198,11 +198,11 @@ export const listen = (function () {
       //   }
     } else {
       const refresher =
-        (WINDOW.requestAnimationFrame as typeof setTimeout) || WINDOW.setTimeout
+        (WINDOW.requestAnimationFrame as typeof setTimeout) || WINDOW.setTimeout || noop
 
       let looping = false
       function runLoop() {
-        looping || ((looping = true), refresher(loop, 17))
+        looping || ((looping = true), refresher(loop, 16.6667))
       }
       // console.info(PACKAGE + 'setTimeout')
       const ELEMENTS: IElement[] = []
@@ -276,7 +276,7 @@ export const listen = (function () {
     }
 
     if (TYPE) {
-      if (TYPE === 'load' && !isWindow(E)) {
+      if (TYPE === 'load' && (!isWindow(E) || document.readyState === 'complete')) {
         callback.call(E, defineTargetForCustomEvent(E, createCustomEvent(TYPE)))
         return noop
       }

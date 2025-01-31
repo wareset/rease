@@ -1,3 +1,4 @@
+/*@__NO_SIDE_EFFECTS__*/
 export function hash(s?: string, isFast?: boolean) {
   let z1: number
   if (s == null) {
