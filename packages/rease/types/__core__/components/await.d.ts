@@ -2,6 +2,7 @@ import { Rease } from '../Rease';
 import type { IThened } from '../types';
 declare class _RAwaitThenCatch_ extends Rease {
     _is: any;
+    move(): never;
 }
 export declare class RAwait<T = unknown, C = RAwait<T, any>> extends _RAwaitThenCatch_ {
     constructor(props: {

@@ -17,6 +17,9 @@ function getIs(iam: _RAwaitThenCatch_, props: any): any {
 
 class _RAwaitThenCatch_ extends Rease {
   declare _is: any
+  override move(): never {
+    throw new Error('RAwait, RThen and RCatch is not move')
+  }
 }
 
 export class RAwait<T = unknown, C = RAwait<T, any>> extends _RAwaitThenCatch_ {
