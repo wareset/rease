@@ -6,7 +6,7 @@ export function hash(s?: string, isFast?: boolean) {
   } else {
     z1 = 0.9973
     for (
-      let r = 1 / z1, c: number, l = s.length, n = (isFast && (l / 99) >>> 1) || 1, i = 0;
+      let r = 1 / z1, c: number, l = s.length, n = (isFast && Math.floor(l / 99)) || 1, i = 0;
       i < l;
       i += n
     ) {
