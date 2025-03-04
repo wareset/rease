@@ -1,1 +1,1 @@
-export declare function hash(s?: string, isFast?: boolean): string;
+export declare function hash(s?: string, isDivideTheLengthByOneHundred?: boolean): string;
