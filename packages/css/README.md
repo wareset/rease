@@ -87,7 +87,7 @@ style ===
     destroy: () => {},
 
     // Will become true after calling the 'destroy' function
-    destroyed: false
+    destroyed: false,
 
     // ID for for style element and salt for scoped classes
     id: 'rcss_1',
