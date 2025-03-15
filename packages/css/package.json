@@ -4,7 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "wip: @rease/css",
+  "description": "css in js",
   "keywords": [
     "rease",
     "css"
