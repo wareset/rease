@@ -6,4 +6,4 @@ function n(){}var t,u,i,r=1,e={};function l(n){return i?null:(i=e,n=n._(),i=null
 /*@__NO_SIDE_EFFECTS__*/function p(n){return n instanceof c}
 /*@__NO_SIDE_EFFECTS__*/function g(n){return n instanceof c&&!!l(n).c}
 /*@__NO_SIDE_EFFECTS__*/function b(n){return n instanceof c&&!!l(n).d}
-/*@__NO_SIDE_EFFECTS__*/function d(n){return n instanceof c&&(!(n=l(n)).c&&!n.d)}export{o as batch,f as batchify,v as computed,h as effect,p as isSignal,g as isSignalComputed,b as isSignalDefensed,d as isSignalManually,a as signal};
+/*@__NO_SIDE_EFFECTS__*/function d(n){return n instanceof c&&(!(n=l(n)).c&&!n.d)}export{o as batch,f as batchify,v as computed,h as effect,p as isSignal,g as isSignalComputed,b as isSignalDefensed,d as isSignalStandard,a as signal};

@@ -32,7 +32,7 @@ export declare class ISignalDefensed<G, S = G> extends _ISignal<G> {
     get(): G;
     set(v: S, pass: any): this;
 }
-export declare class ISignalManually<G, S = G> extends _ISignal<G> {
+export declare class ISignalStandard<G, S = G> extends _ISignal<G> {
     readonly computed?: undefined;
     readonly defensed?: undefined;
     get $(): G;
@@ -40,7 +40,7 @@ export declare class ISignalManually<G, S = G> extends _ISignal<G> {
     set $(v: G);
     set(v: S): this;
 }
-export type ISignal<G, S = G> = ISignalComputed<G> | ISignalDefensed<G, S> | ISignalManually<G, S>;
+export type ISignal<G, S = G> = ISignalComputed<G> | ISignalDefensed<G, S> | ISignalStandard<G, S>;
 type IObserve = readonly unknown[] | [] | null;
 type _ISubscribed<T> = T extends null | undefined ? T : T extends {
     subscribe(callback: infer F): any;
@@ -76,17 +76,17 @@ declare function signal<G, O extends IObserve = null>(value: G, props: {
     defense?: undefined;
 }): ISignalComputed<G>;
 declare function signal<G, S = G>(value: G | S, props: {
-    prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void);
+    prepare?: (iam: ISignalStandard<G, S>) => void | ((iam: ISignalStandard<G, S>) => void);
     capture: (newValue: G | S, oldValue: G | S) => G;
     captureInitial: true;
     defense?: undefined;
-}): ISignalManually<G, S>;
+}): ISignalStandard<G, S>;
 declare function signal<G, S = G>(value: G, props: {
-    prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void);
+    prepare?: (iam: ISignalStandard<G, S>) => void | ((iam: ISignalStandard<G, S>) => void);
     capture: (newValue: G | S, oldValue: G) => G;
     captureInitial?: false;
     defense?: undefined;
-}): ISignalManually<G, S>;
+}): ISignalStandard<G, S>;
 declare function signal<G, S = G>(value: S, props: {
     prepare?: (iam: ISignalDefensed<G, S>) => void | ((iam: ISignalDefensed<G, S>) => void);
     capture: (newValue: G | S, oldValue: G | S) => G;
@@ -104,9 +104,9 @@ declare function signal<G>(value: G, props: {
     defense: null | object | boolean | number | bigint | string | symbol;
 }): ISignalDefensed<G>;
 declare function signal<G>(value?: G, props?: {
-    prepare?: (iam: ISignalManually<G>) => void | ((iam: ISignalManually<G>) => void);
+    prepare?: (iam: ISignalStandard<G>) => void | ((iam: ISignalStandard<G>) => void);
     defense?: undefined;
-}): ISignalManually<G>;
+}): ISignalStandard<G>;
 export { signal };
 declare function computed<G, O extends IObserve = null>(observe: O, compute: (observe: IObserveValues<O>, value: G) => G, initValue: G): ISignalComputed<G>;
 declare function computed<G, O extends IObserve = null>(observe: O, compute: (observe: IObserveValues<O>, value: G | undefined) => G): ISignalComputed<G>;
@@ -116,5 +116,5 @@ export { effect };
 declare function isSignal<T>(thing: any): thing is ISignal<T>;
 declare function isSignalComputed<G>(thing: any): thing is ISignalComputed<G>;
 declare function isSignalDefensed<G, S = G>(thing: any): thing is ISignalDefensed<G, S>;
-declare function isSignalManually<G, S = G>(thing: any): thing is ISignalManually<G, S>;
-export { isSignal, isSignalManually, isSignalComputed, isSignalDefensed };
+declare function isSignalStandard<G, S = G>(thing: any): thing is ISignalStandard<G, S>;
+export { isSignal, isSignalStandard, isSignalComputed, isSignalDefensed };

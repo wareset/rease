@@ -12,7 +12,7 @@ import { then } from './then'
 import { _Array } from './array'
 import { isSubscribable, isThenable } from './is'
 
-import type { ISignalManually } from '@rease/signal'
+import type { ISignalStandard } from '@rease/signal'
 import { isSignal, signal, batch } from '@rease/signal'
 
 function observablefyThenable<T>(promise: IThenable<T>) {
@@ -24,7 +24,7 @@ function observablefyThenable<T>(promise: IThenable<T>) {
 }
 
 function _s1<T, C>(
-  this: { f: ISubscriber<T, C>; c: C; s: ISignalManually<any>; u: any },
+  this: { f: ISubscriber<T, C>; c: C; s: ISignalStandard<any>; u: any },
   v: T
 ) {
   // if (v !== this) this.f.call(this.c, v)
@@ -39,7 +39,7 @@ function _s1<T, C>(
   }
 }
 
-function _s2(v: ISubscribable<any>, data: { f: any; c: any; s: ISignalManually<any> }) {
+function _s2(v: ISubscribable<any>, data: { f: any; c: any; s: ISignalStandard<any> }) {
   let u0 = noop
   let u1: any = v.subscribe(function (v) {
     const uns0 = u0
@@ -114,7 +114,7 @@ export function watchDeep<T, C = undefined>(
 
 function _s3(
   this: {
-    d: { l: number; v: any[]; u: any[]; s: ISignalManually<any>; f: any; c: any }
+    d: { l: number; v: any[]; u: any[]; s: ISignalStandard<any>; f: any; c: any }
     i: number
     f: boolean
   },
@@ -195,7 +195,7 @@ export const watchDeepAll = /*@__PURE__*/ _w0(watchDeep) as <
 //   return function (v: any) {
 //     _Watcher ||
 //       (_Watcher = class Watcher<T> {
-//         private _: { v: T; s: ISignalManually<any> | null }
+//         private _: { v: T; s: ISignalStandard<any> | null }
 //         constructor(v: T) {
 //           this._ = { v, s: null }
 //         }
@@ -259,7 +259,7 @@ export class ReaseWatcher<T = any, S = any> {
     v: T
     m: undefined | ((v: any) => any)
     t: any
-    s: ISignalManually<any> | null
+    s: ISignalStandard<any> | null
     w: typeof watch | typeof watchDeep | typeof watchAll | typeof watchDeepAll
   }
   readonly deep: boolean

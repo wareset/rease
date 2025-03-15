@@ -469,7 +469,7 @@ let STORE = function (value: any, props: any) {
 
 //
 //
-// ISignalManually, ISignalComputed, IObserve, IObserveValues
+// ISignalStandard, ISignalComputed, IObserve, IObserveValues
 //
 declare class _ISignal<G> {
   // readonly computed?: true | undefined
@@ -501,7 +501,7 @@ export declare class ISignalDefensed<G, S = G> extends _ISignal<G> {
   get(): G
   set(v: S, pass: any): this
 }
-export declare class ISignalManually<G, S = G> extends _ISignal<G> {
+export declare class ISignalStandard<G, S = G> extends _ISignal<G> {
   readonly computed?: undefined
   readonly defensed?: undefined
   get $(): G
@@ -513,7 +513,7 @@ export declare class ISignalManually<G, S = G> extends _ISignal<G> {
 export type ISignal<G, S = G> =
   | ISignalComputed<G>
   | ISignalDefensed<G, S>
-  | ISignalManually<G, S>
+  | ISignalStandard<G, S>
 
 type IObserve = readonly unknown[] | [] | null
 // prettier-ignore
@@ -528,7 +528,7 @@ type IObserveValues<O extends IObserve> = O extends null | undefined
   ? O
   : { -readonly [P in keyof O]: _ISubscribed<O[P]> }
 //
-// ISignalManually, ISignalComputed, IObserve, IObserveValues
+// ISignalStandard, ISignalComputed, IObserve, IObserveValues
 //
 //
 
@@ -608,25 +608,25 @@ function signal<G, O extends IObserve = null>(
   }
 ): ISignalComputed<G>
 
-// ISignalManually
+// ISignalStandard
 function signal<G, S = G>(
   value: G | S,
   props: {
-    prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void)
+    prepare?: (iam: ISignalStandard<G, S>) => void | ((iam: ISignalStandard<G, S>) => void)
     capture: (newValue: G | S, oldValue: G | S) => G
     captureInitial: true
     defense?: undefined
   }
-): ISignalManually<G, S>
+): ISignalStandard<G, S>
 function signal<G, S = G>(
   value: G,
   props: {
-    prepare?: (iam: ISignalManually<G, S>) => void | ((iam: ISignalManually<G, S>) => void)
+    prepare?: (iam: ISignalStandard<G, S>) => void | ((iam: ISignalStandard<G, S>) => void)
     capture: (newValue: G | S, oldValue: G) => G
     captureInitial?: false
     defense?: undefined
   }
-): ISignalManually<G, S>
+): ISignalStandard<G, S>
 
 // ISignalDefensed
 function signal<G, S = G>(
@@ -657,14 +657,14 @@ function signal<G>(
   }
 ): ISignalDefensed<G>
 
-// ISignalManually
+// ISignalStandard
 function signal<G>(
   value?: G,
   props?: {
-    prepare?: (iam: ISignalManually<G>) => void | ((iam: ISignalManually<G>) => void)
+    prepare?: (iam: ISignalStandard<G>) => void | ((iam: ISignalStandard<G>) => void)
     defense?: undefined
   }
-): ISignalManually<G>
+): ISignalStandard<G>
 
 /*@__NO_SIDE_EFFECTS__*/
 function signal(value?: any, props?: any) {
@@ -771,10 +771,10 @@ function isSignalDefensed<G, S = G>(thing: any): thing is ISignalDefensed<G, S> 
   return thing instanceof STORE && !!service(thing).d
 }
 /*@__NO_SIDE_EFFECTS__*/
-function isSignalManually<G, S = G>(thing: any): thing is ISignalManually<G, S> {
+function isSignalStandard<G, S = G>(thing: any): thing is ISignalStandard<G, S> {
   return thing instanceof STORE && ((thing = service(thing)), !thing.c && !thing.d)
 }
-export { isSignal, isSignalManually, isSignalComputed, isSignalDefensed }
+export { isSignal, isSignalStandard, isSignalComputed, isSignalDefensed }
 
 // Computed
 // Computable
