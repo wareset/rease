@@ -143,7 +143,7 @@ listen(el, 'resize', fn)
 listen(window, 'load', fn)
 // If the load has already occurred, the 'fn' will be called immediately.
 
-listen(el, 'load', fn2)
+listen(el, 'load', fn)
 // The function is always called immediately.
 // This is necessary to get the element, if there is no other way.
 // There will be no listening and the "destroy" does not have to be called.
