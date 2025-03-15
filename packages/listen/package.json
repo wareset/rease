@@ -4,7 +4,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "description": "wip: @rease/listen",
+  "description": "A more functional event listening system",
   "keywords": [
     "rease",
     "listen"
