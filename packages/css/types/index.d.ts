@@ -4,6 +4,7 @@ type CSSObj = {
     readonly [key: `_${string}`]: string;
     readonly id: string;
     readonly css: string;
+    readonly destroyed: boolean;
     readonly destroy: () => void;
 };
 export declare function css(template: TemplateStringsArray | string[], ...values: any[]): CSSObj;

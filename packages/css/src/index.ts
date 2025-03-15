@@ -14,6 +14,7 @@ type CSSObj = {
   readonly [key: `_${string}`]: string
   readonly id: string
   readonly css: string
+  readonly destroyed: boolean
   readonly destroy: () => void
 }
 
@@ -57,7 +58,9 @@ export function css(template: TemplateStringsArray | string[], ...values: any[])
   const now = cache_source[1] as any
   cache_source[0]++
   for (const k in now) iam[k] = now[k]
+  iam.destroyed = false
   iam.destroy = function () {
+    iam.destroyed = true
     if (active) {
       active = false
       if (CSS_CACHE_DIRTY.hasOwnProperty(source) && --cache_source[0] < 1) {
