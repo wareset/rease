@@ -12,7 +12,7 @@ import { listen } from '@rease/listen'
 const el = document.querySelector('.some_div')
 const fn = (e) => console.log(e)
 
-const destroy = listen(element, 'click', fn)
+const destroy = listen(el, 'click', fn)
 // Like el.addEventListener('click', fn, { capture: false, passive: false })
 
 destroy()
