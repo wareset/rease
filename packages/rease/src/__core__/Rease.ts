@@ -329,13 +329,7 @@ function create_rease(jsx: any, parent: Rease | null, idx?: number) {
 }
 
 function normalize_idx(i: number | undefined, l: number) {
-  return typeof i === 'number' && i <= l
-    ? (i |= 0) < 0
-      ? (i = l + i - 1) < 0
-        ? 0
-        : i
-      : i
-    : l
+  return typeof i === 'number' && i <= l ? ((i |= 0) < 0 ? ((i = l + i) < 0 ? 0 : i) : i) : l
 }
 
 class Rease {
@@ -517,15 +511,12 @@ class Rease {
     if (this._.a0 && (to ? to._.a0 : this.parent)) {
       // prettier-ignore
       const parent = this.parent, prev = this.prev, next = this.next
+      const isInside = parent === to
+      let i: number | undefined
       index = to ? normalize_idx(index, to.children.length) : 0
       if (parent) {
-        const i = parent.children.indexOf(this)
-        if (parent === to) {
-          const l = parent.children.length
-          // index > i && index--
-          index < l || (index = l - 1)
-          if (index === i) return false
-        }
+        i = parent.children.indexOf(this)
+        if (isInside && index > i) index--
         splice_child_from_parent(parent, i)
       }
       // @ts-ignore
@@ -535,19 +526,21 @@ class Rease {
       PARENT = to
       PINDEX = index
       set_parent_prev_next(this)
-      this._.$1++
-      const $2 = this._.$2
-      // this.emitDeep('rease-move', this)
-      runOnMoveHooks(this, this, parent, to, index)
-      this.init()
-      testRunOnReadyHead(this)
-      if (parent === to) {
-        to && testRunOnReadyHead(to)
-      } else {
-        $2 && parent && testRunOnReadyHead(parent)
-        $2 || (to && testRunOnReadyHead(to))
+      if (!isInside || index !== i) {
+        this._.$1++
+        const $2 = this._.$2
+        // this.emitDeep('rease-move', this)
+        runOnMoveHooks(this, this, parent, to, index)
+        this.init()
+        testRunOnReadyHead(this)
+        if (isInside) {
+          to && testRunOnReadyHead(to)
+        } else {
+          $2 && parent && testRunOnReadyHead(parent)
+          $2 || (to && testRunOnReadyHead(to))
+        }
+        return true
       }
-      return true
     }
     return false
   }
