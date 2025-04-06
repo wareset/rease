@@ -94,7 +94,8 @@ export function toHTMLString(rease: Rease) {
 
       let k: any, v: any
       if (_class) for (k in _class) if (_class[k]) arrClass.push(k)
-      if (_style) for (k in _style) if ((v = _style[k])) arrStyle.push(k, ':', v, ';')
+      if (_style)
+        for (k in _style) if ((v = _style[k])) arrStyle.push(k, ':', v, ';')
       if (_attrs)
         for (k in _attrs)
           if ((v = _attrs[k]))
@@ -109,15 +110,18 @@ export function toHTMLString(rease: Rease) {
                 arrAttrs.push(' ', k, '=', JSON.stringify('' + v))
             }
 
-      if (arrClass.length) arrAttrs.push(' class=', JSON.stringify(arrClass.join(' ')))
-      if (arrStyle.length) arrAttrs.push(' style=', JSON.stringify(arrStyle.join('')))
+      if (arrClass.length)
+        arrAttrs.push(' class=', JSON.stringify(arrClass.join(' ')))
+      if (arrStyle.length)
+        arrAttrs.push(' style=', JSON.stringify(arrStyle.join('')))
       res.push('<', localName, arrAttrs.join(''))
 
       if (CHILDLESS_HTML_TAGS.hasOwnProperty(localName)) {
         res.push('/>')
       } else {
         res.push('>')
-        for (let a = rease.children, i = 0; i < a.length; i++) res.push(toHTMLString(a[i]))
+        for (let a = rease.children, i = 0; i < a.length; i++)
+          res.push(toHTMLString(a[i]))
         res.push('</', localName, '>')
       }
     }
@@ -126,7 +130,8 @@ export function toHTMLString(rease: Rease) {
   } else if (rease instanceof RHtml) {
     res.push(rease.data)
   } else {
-    for (let a = rease.children, i = 0; i < a.length; i++) res.push(toHTMLString(a[i]))
+    for (let a = rease.children, i = 0; i < a.length; i++)
+      res.push(toHTMLString(a[i]))
   }
 
   return res.join('')

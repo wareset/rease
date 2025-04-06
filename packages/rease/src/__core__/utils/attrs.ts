@@ -39,13 +39,13 @@ export const get_attrs_parser = (function () {
         return v[0] === '-'
           ? v
           : hasOwn(
-              _cssProperties,
-              (v = hasOwn(_C2D, v)
-                ? _C2D[v]
-                : (_C2D[v] = v.replace(REG_DASH, '-$1').toLowerCase()))
-            )
-          ? _cssProperties[v]
-          : v
+                _cssProperties,
+                (v = hasOwn(_C2D, v)
+                  ? _C2D[v]
+                  : (_C2D[v] = v.replace(REG_DASH, '-$1').toLowerCase()))
+              )
+            ? _cssProperties[v]
+            : v
       })(v)
     )
   }
@@ -58,7 +58,8 @@ export const get_attrs_parser = (function () {
         const a: string[] = []
         if (isArray(v)) {
           for (let c: string, i = 0; i < v.length; i++) {
-            if ((c = style_parser(v[i]))) a.push(c[c.length - 1] === ';' ? c.slice(0, -1) : c)
+            if ((c = style_parser(v[i])))
+              a.push(c[c.length - 1] === ';' ? c.slice(0, -1) : c)
           }
         } else if (v) {
           for (const k in v) {
@@ -139,7 +140,12 @@ export const get_attrs_parser = (function () {
     // prettier-ignore
     const { r: { node, _attrs }, k } = this
     _attrs[k] = v
-    if (node) node[is(v) ? 'setAttributeNS' : 'removeAttributeNS'](NAMESPACES_URI.xlink, k, v)
+    if (node)
+      node[is(v) ? 'setAttributeNS' : 'removeAttributeNS'](
+        NAMESPACES_URI.xlink,
+        k,
+        v
+      )
   }
 
   function propsBasic(this: IWatchCtx, v: any) {
@@ -156,7 +162,11 @@ export const get_attrs_parser = (function () {
   function __dsa_get_descriptor_1(tag_obj: any, k: string, E: any) {
     if (!hasOwn((tag_obj = __DSA_2[tag_obj] || (__DSA_2[tag_obj] = {})), k)) {
       let r: PropertyDescriptor | undefined
-      for (; (E = getPrototypeOf(E)) && !(r = getOwnPropertyDescriptor(E, k)); );
+      for (
+        ;
+        (E = getPrototypeOf(E)) && !(r = getOwnPropertyDescriptor(E, k));
+
+      );
       tag_obj[k] = r && r.set
     }
     return tag_obj[k]

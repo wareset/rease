@@ -39,12 +39,18 @@ function _s1<T, C>(
   }
 }
 
-function _s2(v: ISubscribable<any>, data: { f: any; c: any; s: ISignalStandard<any> }) {
+function _s2(
+  v: ISubscribable<any>,
+  data: { f: any; c: any; s: ISignalStandard<any> }
+) {
   let u0 = noop
   let u1: any = v.subscribe(function (v) {
     const uns0 = u0
     ;(u0 = noop), uns0()
-    if (isSubscribable(v) || (isThenable(v) && ((v = observablefyThenable(v)), true))) {
+    if (
+      isSubscribable(v) ||
+      (isThenable(v) && ((v = observablefyThenable(v)), true))
+    ) {
       u0 = _s2(v as any, data)
     } else {
       data.s.set(v)
@@ -95,7 +101,10 @@ export function watchDeep<T, C = undefined>(
   thisArg?: C
 ): IUnsubscriber {
   let uRes: IUnsubscriber
-  if (isSubscribable(v) || (isThenable(v) && ((v = observablefyThenable(v) as any), true))) {
+  if (
+    isSubscribable(v) ||
+    (isThenable(v) && ((v = observablefyThenable(v) as any), true))
+  ) {
     const data = { f: cb, c: thisArg, s: null } as any
     data.s = signal(data as any)
     let u1 = _s2(v as any, data)
@@ -114,7 +123,14 @@ export function watchDeep<T, C = undefined>(
 
 function _s3(
   this: {
-    d: { l: number; v: any[]; u: any[]; s: ISignalStandard<any>; f: any; c: any }
+    d: {
+      l: number
+      v: any[]
+      u: any[]
+      s: ISignalStandard<any>
+      f: any
+      c: any
+    }
     i: number
     f: boolean
   },

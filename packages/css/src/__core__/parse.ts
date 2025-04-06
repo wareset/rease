@@ -1,7 +1,8 @@
 import { PROPERTIES } from './init'
 
 // export const parse = (function () {
-const REG_GENERAL = /\/\/|\/\*|\*\/|[\r\n\u2028\u2029]|[^,\r\n\u2028\u2029*/\\{}:;`'"]+|./g
+const REG_GENERAL =
+  /\/\/|\/\*|\*\/|[\r\n\u2028\u2029]|[^,\r\n\u2028\u2029*/\\{}:;`'"]+|./g
 
 const TYPE_ROOT = 1
 const TYPE_COMMENT_LINE = 2
@@ -59,7 +60,10 @@ class _CSSNode {
 }
 
 function parseComments(node: _CSSNode) {
-  if (!node.is && (node.type === TYPE_COMMENT_LINE || node.type === TYPE_COMMENT_BLOCK)) {
+  if (
+    !node.is &&
+    (node.type === TYPE_COMMENT_LINE || node.type === TYPE_COMMENT_BLOCK)
+  ) {
     node.is = true
     const a = node.raw
     if (a.length) a.push('*/'), node.tmp.r.push('/*' + a.join(''))
@@ -117,14 +121,18 @@ function parseBlocks(node: _CSSNode) {
     if (a.length) {
       for (let i = a.length, v: string; i-- > 0; ) {
         if ((v = a[i]).length > 1 && REG_NOT_STR.test(v)) {
-          a.splice.apply(a, ([i, 1] as any).concat(v.split(REG_SEL_SPLIT).filter(Boolean)))
+          a.splice.apply(
+            a,
+            ([i, 1] as any).concat(v.split(REG_SEL_SPLIT).filter(Boolean))
+          )
         }
       }
       const parent = node.parent!
 
       const type = a[0]
       const isAtRule = /^@/.test(type)
-      const is = (node.raw = isAtRule && CONCAT_RULES.hasOwnProperty(type) ? parent.raw : [])
+      const is = (node.raw =
+        isAtRule && CONCAT_RULES.hasOwnProperty(type) ? parent.raw : [])
       const isp = parent.raw
       const tmp = node.tmp
       const cls = tmp.c
@@ -140,7 +148,8 @@ function parseBlocks(node: _CSSNode) {
           v = a[i] = '.' + (cls[(v = v.slice(1))] || (cls[v] = cls.id + v))
         else if (v === '*' && a[i + 1] !== '=') {
           if ((v = a[i - 1]) && REG_NOT_SYS.test(v)) a.splice(i, 0, ' '), i++
-          if ((v = a[i + 1]) && REG_NOT_SYS.test(v)) a.splice(i + 1, 0, ' '), i++
+          if ((v = a[i + 1]) && REG_NOT_SYS.test(v))
+            a.splice(i + 1, 0, ' '), i++
           v = a[i]
         }
         if (deep === 0 && (v === ',' || i === a.length - 1)) {
@@ -154,7 +163,8 @@ function parseBlocks(node: _CSSNode) {
               }
 
               const ampIds = [] as number[]
-              for (let i = at.length; i-- > 0; ) if (at[i] === '&') ampIds.push(i)
+              for (let i = at.length; i-- > 0; )
+                if (at[i] === '&') ampIds.push(i)
 
               for (let i = 0, l = isp.length || 1; i < l; i++) {
                 v = isp[i] || ''

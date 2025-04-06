@@ -8,7 +8,9 @@ let parse = function (source, classes) {
 } as typeof parseOrigin
 
 let css_id_count = 0
-const CSS_CACHE_DIRTY: { [k: string]: [number, CSSObj, null | HTMLStyleElement] } = {}
+const CSS_CACHE_DIRTY: {
+  [k: string]: [number, CSSObj, null | HTMLStyleElement]
+} = {}
 
 type CSSObj = {
   readonly [key: `_${string}`]: string
@@ -21,7 +23,8 @@ type CSSObj = {
 const setStyleNode =
   typeof document !== 'undefined'
     ? function (iam: any) {
-        const node = document.getElementById(iam.id) || document.createElement('style')
+        const node =
+          document.getElementById(iam.id) || document.createElement('style')
         node.id = iam.id
         node.textContent = iam.css
         document.head.appendChild(node)
@@ -39,11 +42,15 @@ const removeStyleNode =
       }
     : function () {}
 
-export function css(template: TemplateStringsArray | string[], ...values: any[]) {
+export function css(
+  template: TemplateStringsArray | string[],
+  ...values: any[]
+) {
   const l = template.length * 2 - 1
   const a = Array(l)
   // for (let i = 0, j = 0; (a[i] = template[i++ - j]), i < l; i++) a[i] = arguments[++j]
-  for (let i = 0, j = 0; (a[i] = template[i++ - j]), i < l; i++) a[i] = values[j++]
+  for (let i = 0, j = 0; (a[i] = template[i++ - j]), i < l; i++)
+    a[i] = values[j++]
   const source = a.join('') // .trim()
 
   if (!CSS_CACHE_DIRTY.hasOwnProperty(source)) {

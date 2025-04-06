@@ -12,7 +12,10 @@ import { isArray } from './utils/array'
 import { getPrototypeOf } from './utils/object'
 import { isString, isFunction, isThenable } from './utils/is'
 import { watch, watchDeep, watchAll, watchDeepAll } from './utils/watch'
-import type { ISubscribedOrThenedAll, ISubscribedOrThenedDeepAll } from './utils/watch'
+import type {
+  ISubscribedOrThenedAll,
+  ISubscribedOrThenedDeepAll,
+} from './utils/watch'
 
 import {
   // // r-await t-then r-catch
@@ -64,10 +67,16 @@ function createDblList() {
   return (head.p = head.n = head) as IDblList
 }
 function addHookInDblList(head: IDblList, f: any, c: any) {
-  let sub: IDblList = { p: null as unknown as IDblList, n: null as unknown as IDblList, f, c }
+  let sub: IDblList = {
+    p: null as unknown as IDblList,
+    n: null as unknown as IDblList,
+    f,
+    c,
+  }
   ;(sub.p = (sub.n = head).p).n = sub.n.p = sub
   return function () {
-    if (sub) (sub.p.n = sub.n), (sub.n.p = sub.p), (sub.f = noop), (sub = null as any)
+    if (sub)
+      (sub.p.n = sub.n), (sub.n.p = sub.p), (sub.f = noop), (sub = null as any)
   }
 }
 // IDblList
@@ -83,11 +92,20 @@ function preWatch(this: { r: Rease; d: any; a: any; f: any; c: any }, v: any) {
 function runWatch(this: { f: Function; c: any }, v: any) {
   this.f.call(this.c, v)
 }
-function addWatch(iam: Rease, watchFn: Function, $val$: any, cb?: Function, thisArg?: any) {
+function addWatch(
+  iam: Rease,
+  watchFn: Function,
+  $val$: any,
+  cb?: Function,
+  thisArg?: any
+) {
   let u = noop
   if (iam._.a0) {
     iam._.$1++
-    const data = { f: preWatch, c: { r: iam, d: null as any, f: cb || noop, c: thisArg } }
+    const data = {
+      f: preWatch,
+      c: { r: iam, d: null as any, f: cb || noop, c: thisArg },
+    }
     data.c.d = data
     const un = watchFn($val$, runWatch, data)
     if (un !== noop) {
@@ -113,9 +131,16 @@ function addWatch(iam: Rease, watchFn: Function, $val$: any, cb?: Function, this
 // Await
 //
 function runAwait(this: { r: Rease; f: any; c: any }, v: any) {
-  this.r && (this.f.call(this.c, v), testRunOnReadyHead(this.r), (this.r = null as any))
+  this.r &&
+    (this.f.call(this.c, v), testRunOnReadyHead(this.r), (this.r = null as any))
 }
-function addAwait(iam: Rease, awaitFn: Function, thing: any, cb?: Function, thisArg?: any) {
+function addAwait(
+  iam: Rease,
+  awaitFn: Function,
+  thing: any,
+  cb?: Function,
+  thisArg?: any
+) {
   let u = noop
   if (iam._.a0) {
     iam._.$1++
@@ -144,7 +169,8 @@ function splice_child_from_parent(parent: Rease, idx: number) {
   if (idx > -1) {
     // @ts-ignore
     parent.children.splice(idx, 1)
-    for (let a = parent._.in, j = a.length, aj; j--; ) (aj = a[j]).i > idx && aj.i--
+    for (let a = parent._.in, j = a.length, aj; j--; )
+      (aj = a[j]).i > idx && aj.i--
   }
 }
 
@@ -178,7 +204,8 @@ function set_parent_prev_next(iam: Rease) {
       // @ts-ignore
       pindex ? ((iam.prev = pc[pindex - 1]).next = iam) : (iam.prev = null)
     }
-    for (let a = parent._.in, j = a.length, aj; j--; ) (aj = a[j]).i < pindex || aj.i++
+    for (let a = parent._.in, j = a.length, aj; j--; )
+      (aj = a[j]).i < pindex || aj.i++
   } else {
     // @ts-ignore
     iam.root = iam
@@ -186,7 +213,12 @@ function set_parent_prev_next(iam: Rease) {
     iam.parent = iam.prev = iam.next = null
   }
 }
-function insert(iam: Rease, res: Rease[], jsx: any, idx: { i: number | undefined }) {
+function insert(
+  iam: Rease,
+  res: Rease[],
+  jsx: any,
+  idx: { i: number | undefined }
+) {
   if (jsx !== void 0) {
     const _ = iam._
     if (isArray(jsx)) {
@@ -202,7 +234,8 @@ function insert(iam: Rease, res: Rease[], jsx: any, idx: { i: number | undefined
 //
 // runOnReady
 function runOnReadyThen(this: Rease) {
-  if (--this._.$2 < 1) (this._.$2 = NaN), this.parent && testRunOnReadyHead(this.parent)
+  if (--this._.$2 < 1)
+    (this._.$2 = NaN), this.parent && testRunOnReadyHead(this.parent)
 }
 function runOnReadyHook(iam: Rease, hook: any, thisArg: any) {
   if (isThenable((hook = hook.call(thisArg, iam))) && iam._.a0)
@@ -214,7 +247,8 @@ function runOnReadyHead(iam: Rease) {
   if (head) {
     _.c2 = null
     // iam._.a0 && runOnReadyHook(iam, iam.hookOnReady, iam)
-    for (let n = head; (n = n.n) !== head && _.a0; ) runOnReadyHook(iam, n.f, n.c)
+    for (let n = head; (n = n.n) !== head && _.a0; )
+      runOnReadyHook(iam, n.f, n.c)
     runOnReadyThen.call(iam)
   }
 }
@@ -240,7 +274,8 @@ function runOnMoveHooks(
   // _.a0 && iam.hookOnMove.call(iam, rease, from, to)
   for (let head: IDblList | undefined, a = [_.m2, _.m1], i = 2; i-- > 0; ) {
     if ((head = a[i]))
-      for (let n = head; (n = n.n) !== head && _.a0; ) n.f.call(n.c, rease, from, to, index)
+      for (let n = head; (n = n.n) !== head && _.a0; )
+        n.f.call(n.c, rease, from, to, index)
   }
 
   const ni = _.in
@@ -254,7 +289,9 @@ function runDestroyHooks(iam: Rease, head: IDblList) {
   for (let n = head; (n = n.n) !== head; ) n.f.call(n.c, iam)
 }
 function runEmitHooks(head: IDblList | undefined, iam: Rease, detail: any) {
-  if (head) for (let n = head, _ = iam._; (n = n.n) !== head && _.a0; ) n.f.call(n.c, detail)
+  if (head)
+    for (let n = head, _ = iam._; (n = n.n) !== head && _.a0; )
+      n.f.call(n.c, detail)
 }
 
 function runFuncComponentThen(this: Rease, jsx: any) {
@@ -314,7 +351,9 @@ function create_rease(jsx: any, parent: Rease | null, idx?: number) {
   if (isClass) {
     ;(iam = new c(p)).init()
   } else {
-    ;(iam = new Rease()), ((iam as any)._name = c.name), ((iam as any)._ctor = c)
+    ;(iam = new Rease()),
+      ((iam as any)._name = c.name),
+      ((iam as any)._ctor = c)
     if (isThenable((jsx = c.call(iam, p)))) then(jsx, runFuncComponentThen, iam)
     else runFuncComponentThen.call(iam, jsx)
   }
@@ -329,7 +368,13 @@ function create_rease(jsx: any, parent: Rease | null, idx?: number) {
 }
 
 function normalize_idx(i: number | undefined, l: number) {
-  return typeof i === 'number' && i <= l ? ((i |= 0) < 0 ? ((i = l + i) < 0 ? 0 : i) : i) : l
+  return typeof i === 'number' && i <= l
+    ? (i |= 0) < 0
+      ? (i = l + i) < 0
+        ? 0
+        : i
+      : i
+    : l
 }
 
 class Rease {
@@ -451,7 +496,8 @@ class Rease {
   }
 
   init() {
-    this._.c1 || ((this._.c1 = (this as any).inited = true), testRunOnReadyHead(this))
+    this._.c1 ||
+      ((this._.c1 = (this as any).inited = true), testRunOnReadyHead(this))
   }
 
   insert(jsx: any, index?: number) {
@@ -575,8 +621,11 @@ class Rease {
   emit<Detail>(type: string, detail?: Detail, isCapture?: boolean | null) {
     const _ = this._
     type += '~'
-    if (isCapture != null) runEmitHooks((isCapture ? _.e1 : _.e2)[type], this, detail)
-    else runEmitHooks(_.e1[type], this, detail), runEmitHooks(_.e2[type], this, detail)
+    if (isCapture != null)
+      runEmitHooks((isCapture ? _.e1 : _.e2)[type], this, detail)
+    else
+      runEmitHooks(_.e1[type], this, detail),
+        runEmitHooks(_.e2[type], this, detail)
   }
   emitDeep<Detail>(type: string, detail?: Detail) {
     const _ = this._
@@ -586,13 +635,15 @@ class Rease {
     runEmitHooks(_.e2[t], this, detail)
   }
   notifyParents<Detail>(type: string, detail?: Detail) {
-    for (let parent: Rease | null = this; (parent = parent.parent); ) parent.emit(type, detail)
+    for (let parent: Rease | null = this; (parent = parent.parent); )
+      parent.emit(type, detail)
   }
   notifyChildren<Detail>(type: string, detail?: Detail) {
     const ni = this._.in
     const n = { i: 0 }
     ni.push(n)
-    for (let a = this.children; n.i < a.length; n.i++) a[n.i].emitDeep(type, detail)
+    for (let a = this.children; n.i < a.length; n.i++)
+      a[n.i].emitDeep(type, detail)
     ni.splice(ni.lastIndexOf(n), 1)
   }
   //
@@ -610,14 +661,24 @@ class Rease {
     thisArg?: C
   ) {
     const _ = this._
-    return _.a0 ? addHookInDblList(_.m1 || (_.m1 = createDblList()), hook, thisArg) : noop
+    return _.a0
+      ? addHookInDblList(_.m1 || (_.m1 = createDblList()), hook, thisArg)
+      : noop
   }
   onMove<C = undefined>(
-    hook: (this: C, rease: Rease, from: Rease | null, to: Rease | null, index: number) => any,
+    hook: (
+      this: C,
+      rease: Rease,
+      from: Rease | null,
+      to: Rease | null,
+      index: number
+    ) => any,
     thisArg?: C
   ) {
     const _ = this._
-    return _.a0 ? addHookInDblList(_.m2 || (_.m2 = createDblList()), hook, thisArg) : noop
+    return _.a0
+      ? addHookInDblList(_.m2 || (_.m2 = createDblList()), hook, thisArg)
+      : noop
   }
 
   // hookOnReady(_iam: this) {}
@@ -626,12 +687,18 @@ class Rease {
     return _.a0
       ? _.c2 !== null
         ? addHookInDblList(_.c2 || (_.c2 = createDblList()), hook, thisArg)
-        : (_.$2 ? runOnReadyHook(this, hook, thisArg) : hook.call(thisArg!, this), noop)
+        : (_.$2
+            ? runOnReadyHook(this, hook, thisArg)
+            : hook.call(thisArg!, this),
+          noop)
       : noop
   }
 
   // hookOnDestroyCapture(_iam: this) {}
-  onDestroyCapture<C = undefined>(hook: (this: C, iam: this) => any, thisArg?: C) {
+  onDestroyCapture<C = undefined>(
+    hook: (this: C, iam: this) => any,
+    thisArg?: C
+  ) {
     const _ = this._
     return _.d1 !== null
       ? addHookInDblList(_.d1 || (_.d1 = createDblList()), hook, thisArg)
@@ -662,7 +729,10 @@ class Rease {
   }
   awaitAll<T extends readonly unknown[] | [], C = undefined>(
     things: T,
-    onfulfilled: (this: C, a: { -readonly [P in keyof T]: IThened<T[P]> }) => any,
+    onfulfilled: (
+      this: C,
+      a: { -readonly [P in keyof T]: IThened<T[P]> }
+    ) => any,
     thisArg?: C
   ) {
     return addAwait(this, thenSafeAll, things, onfulfilled, thisArg)
@@ -825,7 +895,8 @@ class Rease {
         )
           return { prev, parent: null }
       }
-      if (_find(isAp, parent, parentCtor)) return { prev: null, parent: parent as FindsRes<P> }
+      if (_find(isAp, parent, parentCtor))
+        return { prev: null, parent: parent as FindsRes<P> }
     }
     return { prev: null, parent: null }
   }
@@ -842,7 +913,11 @@ class Rease {
       (child = parent), (parent = parent.parent);
 
     ) {
-      for (let a = parent.children, i = a.lastIndexOf(child), l = a.length; ++i < l; ) {
+      for (
+        let a = parent.children, i = a.lastIndexOf(child), l = a.length;
+        ++i < l;
+
+      ) {
         if (
           _find(isAc, (next = a[i] as FindsRes<S>), nextCtor) ||
           (!_find(isAp, next, parentCtor) &&
@@ -850,7 +925,8 @@ class Rease {
         )
           return { next, parent: null }
       }
-      if (_find(isAp, parent, parentCtor)) return { next: null, parent: parent as FindsRes<P> }
+      if (_find(isAp, parent, parentCtor))
+        return { next: null, parent: parent as FindsRes<P> }
     }
     return { next: null, parent: null }
   }
@@ -889,7 +965,8 @@ function createElement<P extends { [key: string]: any }>(
 /*@__NO_SIDE_EFFECTS__*/
 function createElement(component: any, props: any, ...children: any[]) {
   props || (props = {})
-  if (children.length) props.children = children.length > 1 ? children : children[0]
+  if (children.length)
+    props.children = children.length > 1 ? children : children[0]
   // slice.call(arguments, 2)
 
   if (isString(component)) {

@@ -32,7 +32,10 @@ export function thenSafe<T, C = undefined>(
     : (onfulfilled.call(thisArg!, v as any), noop)
 }
 
-function __tsa1(this: [any[], number, boolean, [number], Function, any], v: any) {
+function __tsa1(
+  this: [any[], number, boolean, [number], Function, any],
+  v: any
+) {
   this[0][this[1]] = v
   if (this[3][0] < 1 || (this[2] && ((this[2] = false), --this[3][0]) < 1)) {
     this[4].call(this[5], this[0])
@@ -66,10 +69,14 @@ export function thenSafeAll<T extends readonly unknown[] | [], C = undefined>(
 //     onfulfilled?: ((this: C, value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null
 //   ): PromiseLikeResolveOnly<TResult1, C>
 // }
-function _thenable(this: { b: boolean; v: any; c: any; a: any[] | null }, v: any) {
+function _thenable(
+  this: { b: boolean; v: any; c: any; a: any[] | null },
+  v: any
+) {
   if (this.a) {
     this.v = v
-    for (let a = this.a, i = 0, ai; i < a.length; i++) (ai = a[i])[0](ai[1].call(this.c, v))
+    for (let a = this.a, i = 0, ai; i < a.length; i++)
+      (ai = a[i])[0](ai[1].call(this.c, v))
     this.b = true
   }
 }
@@ -77,7 +84,12 @@ export function thenable<T, C = unknown>(
   executor: (this: C, resolve: (value: T | PromiseLike<T>) => void) => any,
   thisArg?: C
 ) {
-  const data = { b: false, v: null as any, c: thisArg, a: [] as [Function, Function][] | null }
+  const data = {
+    b: false,
+    v: null as any,
+    c: thisArg,
+    a: [] as [Function, Function][] | null,
+  }
   let u0 = noop as any
   executor.call(thisArg!, function (value?: any) {
     u0 && (u0(), (u0 = thenSafe(value, _thenable, data)))
@@ -88,7 +100,8 @@ export function thenable<T, C = unknown>(
   function t<R = T>(onfulfilled: (this: C, value: T) => R | PromiseLike<R>) {
     return thenable<R, C>(function (r) {
       if (data.a && onfulfilled) {
-        data.a.push([r, onfulfilled]), data.b && r(onfulfilled.call(this, data.v))
+        data.a.push([r, onfulfilled]),
+          data.b && r(onfulfilled.call(this, data.v))
       }
     }, thisArg)
   }
@@ -139,7 +152,11 @@ function timeout_and_interval_factory(
   _setTimeoutOrInterval: typeof setTimeout | typeof setInterval,
   _clearTimeoutOrInterval: typeof clearTimeout | typeof clearTimeout
 ) {
-  return function <T, C = undefined>(ms?: number, cb?: (this: C) => T, thisArg?: C) {
+  return function <T, C = undefined>(
+    ms?: number,
+    cb?: (this: C) => T,
+    thisArg?: C
+  ) {
     cb || (cb = noop as any)
     let c: any
     // prettier-ignore
@@ -155,5 +172,11 @@ function timeout_and_interval_factory(
   }
 }
 
-export const timeout = /*@__PURE__*/ timeout_and_interval_factory(setTimeout, clearTimeout)
-export const interval = /*@__PURE__*/ timeout_and_interval_factory(setInterval, clearInterval)
+export const timeout = /*@__PURE__*/ timeout_and_interval_factory(
+  setTimeout,
+  clearTimeout
+)
+export const interval = /*@__PURE__*/ timeout_and_interval_factory(
+  setInterval,
+  clearInterval
+)

@@ -58,14 +58,25 @@ function createDblList() {
   return (head.p = head.n = head) as IDblList
 }
 function addInDblList(head: IDblList, f: any, c: any) {
-  let sub: IDblList = { p: null as unknown as IDblList, n: null as unknown as IDblList, f, c }
+  let sub: IDblList = {
+    p: null as unknown as IDblList,
+    n: null as unknown as IDblList,
+    f,
+    c,
+  }
   ;(sub.p = (sub.n = head).p).n = sub.n.p = sub
   return function () {
-    if (sub) (sub.p.n = sub.n), (sub.n.p = sub.p), (sub.f = noop), (sub = null as any)
+    if (sub)
+      (sub.p.n = sub.n), (sub.n.p = sub.p), (sub.f = noop), (sub = null as any)
   }
 }
-function startDblList(head: IDblList | undefined, detail_1?: any, detail_2?: any) {
-  if (head) for (let n = head; (n = n.n) !== head; ) n.f.call(n.c, detail_1, detail_2)
+function startDblList(
+  head: IDblList | undefined,
+  detail_1?: any,
+  detail_2?: any
+) {
+  if (head)
+    for (let n = head; (n = n.n) !== head; ) n.f.call(n.c, detail_1, detail_2)
 }
 // IDblList
 //
@@ -83,7 +94,8 @@ export const TWEEN_DEFAULTS = {
   ticker(t: number) {
     if (FST) {
       for (let CUR = FST; (CUR = CUR.n) !== FST; ) calc(CUR, t)
-      if ((queueNeedRun = FST.n !== FST)) requestAnimationFrame(TWEEN_DEFAULTS.ticker)
+      if ((queueNeedRun = FST.n !== FST))
+        requestAnimationFrame(TWEEN_DEFAULTS.ticker)
     }
   },
   paused: false,
@@ -112,7 +124,9 @@ export type ITweenOptions = {
   easing?: (n: number) => number
   duration?: number
 }
-type DeepPartial<T> = T extends object ? { [P in keyof T]?: DeepPartial<T[P]> } : T
+type DeepPartial<T> = T extends object
+  ? { [P in keyof T]?: DeepPartial<T[P]> }
+  : T
 
 export type ITweenTask<T extends ITweenValue = any> = {
   newValue: DeepPartial<T>
@@ -201,17 +215,20 @@ function calc(dbl: IDBTaskCont, t: number) {
 
       // console.log(progress)
 
-      task.started || ((task.started = true), startDblList(_.os, self.value, self))
+      task.started ||
+        ((task.started = true), startDblList(_.os, self.value, self))
 
       startDblList(
         _.ou,
         (self.value = (
-          task.executor || (task.executor = get_interpolator(self.value, task.newValue))
+          task.executor ||
+          (task.executor = get_interpolator(self.value, task.newValue))
         )(progress, task.easing(progress))),
         self
       )
 
-      if (progress === 1) startDblList(_.of, self.value, self), remove_or_replace_task(_, dbl)
+      if (progress === 1)
+        startDblList(_.of, self.value, self), remove_or_replace_task(_, dbl)
 
       // console.log(progress)
     }
@@ -267,7 +284,8 @@ class ReaseTween<T extends ITweenValue> {
         t: (this.task = create_task(this._, newValue, options)),
       }
       ;(task.p = (task.n = FST).p).n = task.n.p = task
-      queueNeedRun || ((queueNeedRun = true), requestAnimationFrame(TWEEN_DEFAULTS.ticker))
+      queueNeedRun ||
+        ((queueNeedRun = true), requestAnimationFrame(TWEEN_DEFAULTS.ticker))
     }
     return this
   }
@@ -287,18 +305,26 @@ class ReaseTween<T extends ITweenValue> {
   }
 
   pause() {
-    this.paused || ((this.paused = !0), startDblList(this._.op, this.value, this))
+    this.paused ||
+      ((this.paused = !0), startDblList(this._.op, this.value, this))
     return this
   }
   resume() {
-    this.paused && ((this.paused = !1), startDblList(this._.or, this.value, this))
+    this.paused &&
+      ((this.paused = !1), startDblList(this._.or, this.value, this))
     return this
   }
 
-  onPause<C = undefined>(cb: (this: C, value: T, self: this) => any, thisArg?: C) {
+  onPause<C = undefined>(
+    cb: (this: C, value: T, self: this) => any,
+    thisArg?: C
+  ) {
     return addInDblList(this._.op || (this._.op = createDblList()), cb, thisArg)
   }
-  onResume<C = undefined>(cb: (this: C, value: T, self: this) => any, thisArg?: C) {
+  onResume<C = undefined>(
+    cb: (this: C, value: T, self: this) => any,
+    thisArg?: C
+  ) {
     return addInDblList(this._.or || (this._.or = createDblList()), cb, thisArg)
   }
 
@@ -325,7 +351,10 @@ class ReaseTween<T extends ITweenValue> {
 export type { ReaseTween as ITween }
 
 /*@__NO_SIDE_EFFECTS__*/
-export function tween<T extends ITweenValue>(value: T, options?: ITweenOptions) {
+export function tween<T extends ITweenValue>(
+  value: T,
+  options?: ITweenOptions
+) {
   return new ReaseTween(value, options)
 }
 

@@ -21,7 +21,8 @@ type ClassBasic = { [k: string]: any } | string | ClassBasic[]
 type ClassExtra = { [k: `${'class-'}${string}`]: any }
 
 type Events = {
-  [K in keyof GlobalEventHandlersEventMap & string as `on-${K}${'' | `-${string}`}`]: (
+  [K in keyof GlobalEventHandlersEventMap &
+    string as `on-${K}${'' | `-${string}`}`]: (
     this: RElement,
     evt: GlobalEventHandlersEventMap[K]
   ) => void
@@ -137,7 +138,6 @@ declare global {
       // 'r-text': { this: any } & Children
       // 'r-element': { this: string | Element | null; [k: string]: any } & Children
       // 'r-fragment': {} & Children
-
       // 'r-for-in': {
       //   this: any
       //   watch?: any
@@ -148,23 +148,18 @@ declare global {
       //   watch?: any
       //   children: (v: any, k: string | number, a: any) => any
       // }
-
       // 'r-if': { this: any; context?: any } & Children
       // 'r-else-if': { this: any; context?: any } & Children
       // 'r-else': { context?: any } & Children
-
       // 'r-await': { this: any; context?: any } & Children
       // 'r-then': { this: any; context?: any } & Children
       // 'r-catch': { this: any; context?: any } & Children
-
       // 'r-move': {
       //   to: ISubscribableOrThenableDeep<Rease>
       //   index?: ISubscribableOrThenableDeep<number>
       // } & Children
-
       // 'r-switch': { this: any } & Children
       // 'r-case': { this: any; context?: any } & Children
-
       // 'r-watch': { this: any; context?: any } & Children
       // [key: string]: any
     }

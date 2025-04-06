@@ -42,8 +42,18 @@ export {
   interval,
 } from './__core__/utils/then'
 
-export { watch, watchDeep, watchAll, watchDeepAll } from './__core__/utils/watch'
-export { watcher, watcherDeep, watcherAll, watcherDeepAll } from './__core__/utils/watch'
+export {
+  watch,
+  watchDeep,
+  watchAll,
+  watchDeepAll,
+} from './__core__/utils/watch'
+export {
+  watcher,
+  watcherDeep,
+  watcherAll,
+  watcherDeepAll,
+} from './__core__/utils/watch'
 
 export {
   // r-await t-then r-catch

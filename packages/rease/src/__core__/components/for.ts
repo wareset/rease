@@ -24,7 +24,8 @@ function forIn(this: [iam: RForIn, callback: any, old: any], is: any) {
         } else {
           now[k] = [v, (v = iam.insert(cb(v, k, is), last))]
         }
-        if (v.length && (v = children.lastIndexOf(v[v.length - 1])) > -1) last = v + 1
+        if (v.length && (v = children.lastIndexOf(v[v.length - 1])) > -1)
+          last = v + 1
       }
     }
     for (let o = keys(old), j = o.length; j-- > 0; )
@@ -53,7 +54,10 @@ function indexForOf(a: any[], v: any, from: number) {
   for (let i = from, l = a.length; i < l; i++) if (objectIs(a[i], v)) return i
   return -1
 }
-function forOf(this: [iam: RForOf, callback: any, oldV: any[], oldR: any[]], is: any) {
+function forOf(
+  this: [iam: RForOf, callback: any, oldV: any[], oldR: any[]],
+  is: any
+) {
   const { 0: iam, 1: cb, 2: oldV, 3: oldR } = this
   const nowV = [] as any[]
   const nowR = [] as any[]
@@ -74,13 +78,17 @@ function forOf(this: [iam: RForOf, callback: any, oldV: any[], oldR: any[]], is:
         if ((idx = indexForOf(oldV, v, from)) > -1) {
           nowR.push((v = oldR[idx])), (oldR[idx] = oldR), (from = idx + 1)
         } else {
-          nowR.push((v = iam.insert(cb(v, '' + (idx = +k) === k ? idx : k, is), last)))
+          nowR.push(
+            (v = iam.insert(cb(v, '' + (idx = +k) === k ? idx : k, is), last))
+          )
         }
-        if (v.length && (v = children.lastIndexOf(v[v.length - 1])) > -1) last = v + 1
+        if (v.length && (v = children.lastIndexOf(v[v.length - 1])) > -1)
+          last = v + 1
       }
     }
     for (let i = oldR.length, a; i-- > 0; )
-      if ((a = oldR[i]) !== oldR) for (let i = a.length; i-- > 0; ) a[i].destroy()
+      if ((a = oldR[i]) !== oldR)
+        for (let i = a.length; i-- > 0; ) a[i].destroy()
   }
 }
 export class RForOf extends Rease {

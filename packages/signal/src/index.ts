@@ -6,7 +6,9 @@ let $batcher_: any // ISignal<{ f: (v?: any) => any; c: any; a: any }>
 let SECURE: any
 const SECURE_CONST = {}
 function service(iam: any) {
-  return SECURE ? null : ((SECURE = SECURE_CONST), (iam = iam._()), (SECURE = null), iam)
+  return SECURE
+    ? null
+    : ((SECURE = SECURE_CONST), (iam = iam._()), (SECURE = null), iam)
 }
 
 let STORE = function (value: any, props: any) {
@@ -39,7 +41,9 @@ let STORE = function (value: any, props: any) {
     h: ISubscriber
     p: ISubscriber
     // if first subscriber
-    f: ((iam: ReaseSignal<any>) => void | ((iam: ReaseSignal<any>) => void)) | null
+    f:
+      | ((iam: ReaseSignal<any>) => void | ((iam: ReaseSignal<any>) => void))
+      | null
     // if last unsubscriber
     l: ((iam: ReaseSignal<any>) => void) | null | void
     // preset
@@ -195,7 +199,8 @@ let STORE = function (value: any, props: any) {
     const items = cmp.i
     const cache = cmp.x
     for (let i = 0, h = cmp._.h, ci; i < cache.length && h !== h.n; i++) {
-      if ((ci = cache[i]).u === noop) ci.u = computedItemSubscribe(cmp, items[i])
+      if ((ci = cache[i]).u === noop)
+        ci.u = computedItemSubscribe(cmp, items[i])
     }
     cmp.t = true
     computedTestBase.call(cmp)
@@ -304,7 +309,9 @@ let STORE = function (value: any, props: any) {
     constructor(
       value: T,
       props?: {
-        prepare?: (iam: ReaseSignal<T>) => void | ((iam: ReaseSignal<T>) => void)
+        prepare?: (
+          iam: ReaseSignal<T>
+        ) => void | ((iam: ReaseSignal<T>) => void)
         capture?: (newValue: T, oldValue: T) => T
         captureInitial?: boolean
         compute?: (observe: any[] | null, value: T) => T
@@ -340,10 +347,16 @@ let STORE = function (value: any, props: any) {
         r: true,
         n: null,
         // fst lst
-        f: props && props.prepare ? ((this.prepared = true), props.prepare) : null,
+        f:
+          props && props.prepare
+            ? ((this.prepared = true), props.prepare)
+            : null,
         l: null,
         // pre ps
-        o: props && props.capture ? ((this.captured = true), props.capture) : null,
+        o:
+          props && props.capture
+            ? ((this.captured = true), props.capture)
+            : null,
         // computed list
         w: null,
       }
@@ -352,7 +365,9 @@ let STORE = function (value: any, props: any) {
       }
       _.p = _.h.n = _.h.p = _.h
       _.c && ((_.c._ = _), _.c.o && setObserve(_.c))
-      _.o && props!.captureInitial && batch(setWithCaptureFirstBatch, _, [value])
+      _.o &&
+        props!.captureInitial &&
+        batch(setWithCaptureFirstBatch, _, [value])
     }
 
     get() {
@@ -361,7 +376,9 @@ let STORE = function (value: any, props: any) {
       COMPUTED = null
       if (COMPUTED_PREV) computedItemCheck(COMPUTED_PREV, _)
       const u =
-        _.h === _.h.n && (_.c || _.f) ? this.subscribe(noop) : _.c && computedTestFast(_.c)
+        _.h === _.h.n && (_.c || _.f)
+          ? this.subscribe(noop)
+          : _.c && computedTestFast(_.c)
       const v = _.v
       if (u) u()
       COMPUTED = COMPUTED_PREV
@@ -478,7 +495,9 @@ declare class _ISignal<G> {
   private readonly _value: G
   subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void
   toString(
-    ...a: G extends { toString(...a: any): any } ? Parameters<G['toString']> : any
+    ...a: G extends { toString(...a: any): any }
+      ? Parameters<G['toString']>
+      : any
   ): G extends { toString(...a: any): infer I } ? I : string
   valueOf(
     ...a: G extends { valueOf(...a: any): any } ? Parameters<G['valueOf']> : any
@@ -579,7 +598,9 @@ export { batchify }
 function signal<G, S = G, O extends IObserve = null>(
   value: S,
   props: {
-    prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
+    prepare?: (
+      iam: ISignalComputed<G>
+    ) => void | ((iam: ISignalComputed<G>) => void)
     compute: (observe: IObserveValues<O>, oldValue: G) => S
     observe?: O
     capture: (newValue: S, oldValue: G | S) => G
@@ -590,7 +611,9 @@ function signal<G, S = G, O extends IObserve = null>(
 function signal<G, S = G, O extends IObserve = null>(
   value: G,
   props: {
-    prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
+    prepare?: (
+      iam: ISignalComputed<G>
+    ) => void | ((iam: ISignalComputed<G>) => void)
     compute: (observe: IObserveValues<O>, oldValue: G) => S
     observe?: O
     capture: (newValue: S, oldValue: G) => G
@@ -601,7 +624,9 @@ function signal<G, S = G, O extends IObserve = null>(
 function signal<G, O extends IObserve = null>(
   value: G,
   props: {
-    prepare?: (iam: ISignalComputed<G>) => void | ((iam: ISignalComputed<G>) => void)
+    prepare?: (
+      iam: ISignalComputed<G>
+    ) => void | ((iam: ISignalComputed<G>) => void)
     compute: (observe: IObserveValues<O>, oldValue: G) => G
     observe?: O
     defense?: undefined
@@ -612,7 +637,9 @@ function signal<G, O extends IObserve = null>(
 function signal<G, S = G>(
   value: G | S,
   props: {
-    prepare?: (iam: ISignalStandard<G, S>) => void | ((iam: ISignalStandard<G, S>) => void)
+    prepare?: (
+      iam: ISignalStandard<G, S>
+    ) => void | ((iam: ISignalStandard<G, S>) => void)
     capture: (newValue: G | S, oldValue: G | S) => G
     captureInitial: true
     defense?: undefined
@@ -621,7 +648,9 @@ function signal<G, S = G>(
 function signal<G, S = G>(
   value: G,
   props: {
-    prepare?: (iam: ISignalStandard<G, S>) => void | ((iam: ISignalStandard<G, S>) => void)
+    prepare?: (
+      iam: ISignalStandard<G, S>
+    ) => void | ((iam: ISignalStandard<G, S>) => void)
     capture: (newValue: G | S, oldValue: G) => G
     captureInitial?: false
     defense?: undefined
@@ -632,7 +661,9 @@ function signal<G, S = G>(
 function signal<G, S = G>(
   value: S,
   props: {
-    prepare?: (iam: ISignalDefensed<G, S>) => void | ((iam: ISignalDefensed<G, S>) => void)
+    prepare?: (
+      iam: ISignalDefensed<G, S>
+    ) => void | ((iam: ISignalDefensed<G, S>) => void)
     capture: (newValue: G | S, oldValue: G | S) => G
     captureInitial: true
     defense: null | object | boolean | number | bigint | string | symbol
@@ -641,7 +672,9 @@ function signal<G, S = G>(
 function signal<G, S = G>(
   value: G,
   props: {
-    prepare?: (iam: ISignalDefensed<G, S>) => void | ((iam: ISignalDefensed<G, S>) => void)
+    prepare?: (
+      iam: ISignalDefensed<G, S>
+    ) => void | ((iam: ISignalDefensed<G, S>) => void)
     capture: (newValue: S, oldValue: G) => G
     captureInitial?: false
     defense: null | object | boolean | number | bigint | string | symbol
@@ -652,7 +685,9 @@ function signal<G, S = G>(
 function signal<G>(
   value: G,
   props: {
-    prepare?: (iam: ISignalDefensed<G>) => void | ((iam: ISignalDefensed<G>) => void)
+    prepare?: (
+      iam: ISignalDefensed<G>
+    ) => void | ((iam: ISignalDefensed<G>) => void)
     defense: null | object | boolean | number | bigint | string | symbol
   }
 ): ISignalDefensed<G>
@@ -661,7 +696,9 @@ function signal<G>(
 function signal<G>(
   value?: G,
   props?: {
-    prepare?: (iam: ISignalStandard<G>) => void | ((iam: ISignalStandard<G>) => void)
+    prepare?: (
+      iam: ISignalStandard<G>
+    ) => void | ((iam: ISignalStandard<G>) => void)
     defense?: undefined
   }
 ): ISignalStandard<G>
@@ -759,20 +796,20 @@ export { effect }
 // isSignal, isSignalStrict, isSignalComputed
 //
 /*@__NO_SIDE_EFFECTS__*/
-function isSignal<T>(thing: any): thing is ISignal<T> {
-  return thing instanceof STORE
+function isSignal<T>(any: any): any is ISignal<T> {
+  return any instanceof STORE
 }
 /*@__NO_SIDE_EFFECTS__*/
-function isSignalComputed<G>(thing: any): thing is ISignalComputed<G> {
-  return thing instanceof STORE && !!service(thing).c
+function isSignalComputed<G>(any: any): any is ISignalComputed<G> {
+  return any instanceof STORE && !!service(any).c
 }
 /*@__NO_SIDE_EFFECTS__*/
-function isSignalDefensed<G, S = G>(thing: any): thing is ISignalDefensed<G, S> {
-  return thing instanceof STORE && !!service(thing).d
+function isSignalDefensed<G, S = G>(any: any): any is ISignalDefensed<G, S> {
+  return any instanceof STORE && !!service(any).d
 }
 /*@__NO_SIDE_EFFECTS__*/
-function isSignalStandard<G, S = G>(thing: any): thing is ISignalStandard<G, S> {
-  return thing instanceof STORE && ((thing = service(thing)), !thing.c && !thing.d)
+function isSignalStandard<G, S = G>(any: any): any is ISignalStandard<G, S> {
+  return any instanceof STORE && ((any = service(any)), !any.c && !any.d)
 }
 export { isSignal, isSignalStandard, isSignalComputed, isSignalDefensed }
 

@@ -19,7 +19,10 @@ export type IMaybeSubscribable<T> = T | ISubscribable<T>
 
 export type ISubscribableOrThenable<T> = ISubscribable<T> | IThenable<T>
 
-export type IMaybeSubscribableOrThenable<T> = T | ISubscribable<T> | IThenable<T>
+export type IMaybeSubscribableOrThenable<T> =
+  | T
+  | ISubscribable<T>
+  | IThenable<T>
 
 // prettier-ignore
 export type ISubscribableOrThenableDeep<T> =
@@ -73,8 +76,9 @@ export type ISubscribableOrThenableDeep<T> =
 //   >>>
 //   >>>
 
-// prettier-ignore
-export type IMaybeSubscribableOrThenableDeep<T> = T | ISubscribableOrThenableDeep<T>
+export type IMaybeSubscribableOrThenableDeep<T> =
+  | T
+  | ISubscribableOrThenableDeep<T>
 
 export type ISubscriber<T, C = any> = (this: C, value: T) => any
 

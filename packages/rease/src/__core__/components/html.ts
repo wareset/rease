@@ -54,7 +54,10 @@ if (typeof document !== 'undefined') {
     )
 
     if (prev) {
-      bNode = 'node' in prev ? prev.node! : (prev.nodes[prev.nodes.length - 1] as Element)
+      bNode =
+        'node' in prev
+          ? prev.node!
+          : (prev.nodes[prev.nodes.length - 1] as Element)
       if (!bNode || PORTAL_TAG_NAMES.hasOwnProperty(bNode.localName)) {
         return getParentAndBeforeNode(prev)
       }
@@ -70,15 +73,20 @@ if (typeof document !== 'undefined') {
     } else if (parent) {
       pNode = parent.node!
     }
-    return { p: pNode, b: (bNode ? bNode.nextSibling : pNode && pNode.firstChild) || null }
+    return {
+      p: pNode,
+      b: (bNode ? bNode.nextSibling : pNode && pNode.firstChild) || null,
+    }
   }
 
   function createElementNS(tagName: string, pNode: any) {
     return DOCUMENT.createElementNS(
       NAMESPACES_URI.hasOwnProperty(tagName)
         ? NAMESPACES_URI[tagName as 'svg']
-        : (pNode && pNode.localName !== 'foreignObject' ? pNode : DOCUMENT.documentElement)
-            .namespaceURI,
+        : (pNode && pNode.localName !== 'foreignObject'
+            ? pNode
+            : DOCUMENT.documentElement
+          ).namespaceURI,
       tagName
     ) as Element
   }
@@ -177,13 +185,19 @@ function xmlInsertNodes(
   // let { p: pNode, b: bNode } = getParentAndBeforeNode(iam)
   if (pNode) {
     const nodes = iam.nodes
-    if (!nodes.length || nodes[0].parentElement!.namespaceURI !== pNode.namespaceURI) {
+    if (
+      !nodes.length ||
+      nodes[0].parentElement!.namespaceURI !== pNode.namespaceURI
+    ) {
       const pCloned = pNode.cloneNode(false) as Element
       pCloned.innerHTML = iam.data
       xmlDeleteNodes(iam)
       // nodes.push.apply(nodes, pCloned.childNodes as any)
       for (let a = pCloned.childNodes, i = a.length; i-- > 0; ) {
-        nodes[i] = a[i].nodeType === 3 ? createText((<Text>a[i]).data, pCloned, a[i])! : a[i]
+        nodes[i] =
+          a[i].nodeType === 3
+            ? createText((<Text>a[i]).data, pCloned, a[i])!
+            : a[i]
       }
     }
     for (let i = nodes.length; i-- > 0; ) {
@@ -241,7 +255,9 @@ function textDataWatch(this: RText, data: any): void {
     const node = this.node
     if (node) {
       const text = node.childNodes.length === 1 && (node.childNodes[0] as Text)
-      text && text.nodeType === 3 ? (text.data = data) : (node.textContent = data)
+      text && text.nodeType === 3
+        ? (text.data = data)
+        : (node.textContent = data)
     }
   }
 }
@@ -279,7 +295,10 @@ function initedNode(iam: RElement) {
   let node = iam.node! as any
   for (let a = node.childNodes, i = a.length; i-- > 0; ) {
     if (REASE_NODE_MARK in (node = a[i])) break
-    if (node.nodeType !== 1 || !RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)) {
+    if (
+      node.nodeType !== 1 ||
+      !RESERVED_LOCAL_NAMES.hasOwnProperty(node.localName)
+    ) {
       removeNode(node)
     }
   }
@@ -292,7 +311,11 @@ export class RElement extends _RNode_ {
   _style?: { [key: string]: any }
   _unevt?: (() => void)[]
 
-  constructor(props: { this: string | Element | null; children?: any; [k: string]: any }) {
+  constructor(props: {
+    this: string | Element | null
+    children?: any
+    [k: string]: any
+  }) {
     super()
     let type: string
     let is = props.this

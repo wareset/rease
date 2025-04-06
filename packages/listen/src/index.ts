@@ -138,7 +138,9 @@ let onCustomResize = function (E: any): any {
     h: number
   }
 
-  type IElement = (HTMLElement | SVGElement) & { [KEY_DATA]: IResizeData | null }
+  type IElement = (HTMLElement | SVGElement) & {
+    [KEY_DATA]: IResizeData | null
+  }
 
   function checkData(E: IElement): void {
     const data = E[KEY_DATA],
@@ -200,7 +202,9 @@ let onCustomResize = function (E: any): any {
     //   }
   } else {
     const refresher =
-      (WINDOW.requestAnimationFrame as typeof setTimeout) || WINDOW.setTimeout || noop
+      (WINDOW.requestAnimationFrame as typeof setTimeout) ||
+      WINDOW.setTimeout ||
+      noop
 
     let looping = false
     function runLoop() {
@@ -278,7 +282,10 @@ function _listen<Type extends keyof GlobalEventHandlersEventMap>(
   }
 
   if (TYPE) {
-    if (TYPE === 'load' && (E !== window || document.readyState === 'complete')) {
+    if (
+      TYPE === 'load' &&
+      (E !== window || document.readyState === 'complete')
+    ) {
       callback.call(E, defineTargetForCustomEvent(E, createCustomEvent(TYPE)))
       return noop
     }
@@ -351,7 +358,13 @@ function _listen<Type extends keyof GlobalEventHandlersEventMap>(
       }
     }
 
-    unsub = add_event_listener(E, TYPE as any, callback as any, !!MODS.capture, !!MODS.passive)
+    unsub = add_event_listener(
+      E,
+      TYPE as any,
+      callback as any,
+      !!MODS.capture,
+      !!MODS.passive
+    )
 
     if (TYPE === 'resize') {
       if (E !== window) {

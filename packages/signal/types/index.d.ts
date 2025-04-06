@@ -113,8 +113,8 @@ declare function computed<G, O extends IObserve = null>(observe: O, compute: (ob
 export { computed };
 declare function effect<G = undefined, O extends IObserve = null>(observe: O, compute: <V = G | undefined>(value: V, observe: IObserveValues<O>) => G, onChange?: (value: G) => any): () => void;
 export { effect };
-declare function isSignal<T>(thing: any): thing is ISignal<T>;
-declare function isSignalComputed<G>(thing: any): thing is ISignalComputed<G>;
-declare function isSignalDefensed<G, S = G>(thing: any): thing is ISignalDefensed<G, S>;
-declare function isSignalStandard<G, S = G>(thing: any): thing is ISignalStandard<G, S>;
+declare function isSignal<T>(any: any): any is ISignal<T>;
+declare function isSignalComputed<G>(any: any): any is ISignalComputed<G>;
+declare function isSignalDefensed<G, S = G>(any: any): any is ISignalDefensed<G, S>;
+declare function isSignalStandard<G, S = G>(any: any): any is ISignalStandard<G, S>;
 export { isSignal, isSignalStandard, isSignalComputed, isSignalDefensed };
