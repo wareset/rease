@@ -1,0 +1,2 @@
+/* eslint-disable */
+if(exports.cancelAnimationFrame=void 0,exports.requestAnimationFrame=void 0,"function"==typeof requestAnimationFrame)exports.cancelAnimationFrame=cancelAnimationFrame,exports.requestAnimationFrame=requestAnimationFrame;else{var e="object"==typeof performance?performance:Date;exports.cancelAnimationFrame=clearTimeout,exports.requestAnimationFrame=function(n){return setTimeout((function(){n(e.now())}),16.6667)}}

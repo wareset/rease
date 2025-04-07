@@ -1,8 +1,8 @@
-export * from './_raf'
-export * from './_easing'
+export * from './raf'
+export * from './easing'
 
-import { easeLinear } from './_easing'
-import { requestAnimationFrame } from './_raf'
+import { easeLinear, easeQuadIn } from './easing'
+import { requestAnimationFrame } from './raf'
 
 // x === y ? x !== 0 || 1 / x === 1 / y : x !== x && y !== y
 /*
@@ -70,13 +70,10 @@ function addInDblList(head: IDblList, f: any, c: any) {
       (sub.p.n = sub.n), (sub.n.p = sub.p), (sub.f = noop), (sub = null as any)
   }
 }
-function startDblList(
-  head: IDblList | undefined,
-  detail_1?: any,
-  detail_2?: any
-) {
+function notifyDblList(head: IDblList | undefined, self: ReaseTween<any>) {
   if (head)
-    for (let n = head; (n = n.n) !== head; ) n.f.call(n.c, detail_1, detail_2)
+    for (let n = head; (n = n.n) !== head; )
+      n.f.call(n.c, self.value, self, self.task)
 }
 // IDblList
 //
@@ -130,7 +127,15 @@ type DeepPartial<T> = T extends object
 
 export type ITweenTask<T extends ITweenValue = any> = {
   newValue: DeepPartial<T>
-  executor: null | ((progress: number, easing: number) => any)
+  executor:
+    | null
+    | ((
+        progress: number,
+        easing: number,
+        easingFn: (n: number) => number,
+        oldValue: number,
+        newValue: any
+      ) => any)
 
   passTime: number
   lastTime: number
@@ -168,23 +173,51 @@ function get_interpolator(a: any, b: any) {
     if (c === typeof b)
       switch (c) {
         case 'number':
-          c = b - a
-          return function (p: number, e: number) {
-            return p < 1 ? e * c + a : b
+          c = a
+          let p3 = 0
+          let p2 = 0
+          let ba = b - a
+          return function (
+            p: number,
+            e: number,
+            eFn: (n: number) => number,
+            oldValue: number,
+            newValue: number
+          ) {
+            if (p < 1) {
+              // if (p2 !== p2) p3 = 1 - (p2 = p)
+              if (c !== oldValue) ba = b - (a = oldValue)
+
+              if (b !== newValue) {
+                ba = (b = newValue) - (a = oldValue)
+                p3 = 1 - (p2 = p)
+              }
+
+              c = a + ba * (p3 ? eFn((p - p2) / p3) : e)
+            } else {
+              c = newValue
+            }
+            return c
           }
         case 'object':
           if (a && b) {
             c = {}
             for (const k in b) c[k] = get_interpolator(a[k], b[k])
-            return function (p: number, e: number) {
-              for (const k in c) a[k] = c[k](p, e)
+            return function (p: number, e: number, eFn: (n: number) => number) {
+              for (const k in c) a[k] = c[k](p, e, eFn, a[k], b[k])
               return a
             }
           }
       }
   }
-  return function (p: number) {
-    return p < 1 ? a : b
+  return function (
+    p: number,
+    _e: number,
+    _eFn: (n: number) => number,
+    oldValue: number,
+    newValue: number
+  ) {
+    return p < 1 ? oldValue : newValue
   }
 }
 
@@ -205,7 +238,7 @@ function calc(dbl: IDBTaskCont, t: number) {
   if (self.paused || TWEEN_DEFAULTS.paused) {
     task.lastTime = 0
   } else if (task.skipped) {
-    task.started && startDblList(_.of, self.value, self)
+    task.started && notifyDblList(_.of, self)
     remove_or_replace_task(_, dbl)
   } else if (task.lastTime > 0) {
     if ((task.passTime -= task.lastTime - (task.lastTime = t)) >= task.delay) {
@@ -215,20 +248,25 @@ function calc(dbl: IDBTaskCont, t: number) {
 
       // console.log(progress)
 
-      task.started ||
-        ((task.started = true), startDblList(_.os, self.value, self))
+      task.started || ((task.started = true), notifyDblList(_.os, self))
 
-      startDblList(
+      notifyDblList(
         _.ou,
-        (self.value = (
+        ((self.value = (
           task.executor ||
           (task.executor = get_interpolator(self.value, task.newValue))
-        )(progress, task.easing(progress))),
-        self
+        )(
+          progress,
+          task.easing(progress),
+          task.easing,
+          self.value,
+          task.newValue
+        )),
+        self)
       )
 
       if (progress === 1)
-        startDblList(_.of, self.value, self), remove_or_replace_task(_, dbl)
+        notifyDblList(_.of, self), remove_or_replace_task(_, dbl)
 
       // console.log(progress)
     }
@@ -274,6 +312,10 @@ class ReaseTween<T extends ITweenValue> {
     FST || ((FST = { p: null, n: null } as any), (FST.p = FST.n = FST))
   }
 
+  // set(newCurValue: DeepPartial<T>) {
+
+  // }
+
   to(newValue: DeepPartial<T>, options?: ITweenOptions) {
     if (this.task) this._.tasks.push([newValue, options])
     else {
@@ -305,13 +347,11 @@ class ReaseTween<T extends ITweenValue> {
   }
 
   pause() {
-    this.paused ||
-      ((this.paused = !0), startDblList(this._.op, this.value, this))
+    this.paused || ((this.paused = !0), notifyDblList(this._.op, this))
     return this
   }
   resume() {
-    this.paused &&
-      ((this.paused = !1), startDblList(this._.or, this.value, this))
+    this.paused && ((this.paused = !1), notifyDblList(this._.or, this))
     return this
   }
 
@@ -329,19 +369,34 @@ class ReaseTween<T extends ITweenValue> {
   }
 
   onStart<C = undefined>(
-    cb: (this: C, value: T, self: this & { task: ITweenTask<T> }) => any,
+    cb: (
+      this: C,
+      value: T,
+      self: this & { task: ITweenTask<T> },
+      task: ITweenTask<T>
+    ) => any,
     thisArg?: C
   ) {
     return addInDblList(this._.os || (this._.os = createDblList()), cb, thisArg)
   }
   onUpdate<C = undefined>(
-    cb: (this: C, value: T, self: this & { task: ITweenTask<T> }) => any,
+    cb: (
+      this: C,
+      value: T,
+      self: this & { task: ITweenTask<T> },
+      task: ITweenTask<T>
+    ) => any,
     thisArg?: C
   ) {
     return addInDblList(this._.ou || (this._.ou = createDblList()), cb, thisArg)
   }
   onFinish<C = undefined>(
-    cb: (this: C, value: T, self: this & { task: ITweenTask<T> }) => any,
+    cb: (
+      this: C,
+      value: T,
+      self: this & { task: ITweenTask<T> },
+      task: ITweenTask<T>
+    ) => any,
     thisArg?: C
   ) {
     return addInDblList(this._.of || (this._.of = createDblList()), cb, thisArg)

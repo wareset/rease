@@ -16,9 +16,11 @@
   "types": "types/index.d.ts",
   "files": [
     "README.md",
+    "easing/**/*",
     "index.d.ts",
     "index.js",
     "index.mjs",
+    "raf/**/*",
     "types/**/*"
   ],
   "exports": {
@@ -27,6 +29,16 @@
       "import": "./index.mjs",
       "require": "./index.js",
       "types": "./types/index.d.ts"
+    },
+    "./easing": {
+      "import": "./easing/index.mjs",
+      "require": "./easing/index.js",
+      "types": "./types/easing.d.ts"
+    },
+    "./raf": {
+      "import": "./raf/index.mjs",
+      "require": "./raf/index.js",
+      "types": "./types/raf.d.ts"
     }
   },
   "scripts": {

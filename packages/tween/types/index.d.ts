@@ -1,6 +1,6 @@
-export * from './_raf';
-export * from './_easing';
-import { easeLinear } from './_easing';
+export * from './raf';
+export * from './easing';
+import { easeLinear } from './easing';
 type IDblList = {
     p: IDblList;
     n: IDblList;
@@ -27,7 +27,7 @@ type DeepPartial<T> = T extends object ? {
 } : T;
 export type ITweenTask<T extends ITweenValue = any> = {
     newValue: DeepPartial<T>;
-    executor: null | ((progress: number, easing: number) => any);
+    executor: null | ((progress: number, easing: number, easingFn: (n: number) => number, oldValue: number, newValue: any) => any);
     passTime: number;
     lastTime: number;
     progress: number;
@@ -57,13 +57,13 @@ declare class ReaseTween<T extends ITweenValue> {
     onResume<C = undefined>(cb: (this: C, value: T, self: this) => any, thisArg?: C): () => void;
     onStart<C = undefined>(cb: (this: C, value: T, self: this & {
         task: ITweenTask<T>;
-    }) => any, thisArg?: C): () => void;
+    }, task: ITweenTask<T>) => any, thisArg?: C): () => void;
     onUpdate<C = undefined>(cb: (this: C, value: T, self: this & {
         task: ITweenTask<T>;
-    }) => any, thisArg?: C): () => void;
+    }, task: ITweenTask<T>) => any, thisArg?: C): () => void;
     onFinish<C = undefined>(cb: (this: C, value: T, self: this & {
         task: ITweenTask<T>;
-    }) => any, thisArg?: C): () => void;
+    }, task: ITweenTask<T>) => any, thisArg?: C): () => void;
 }
 export type { ReaseTween as ITween };
 export declare function tween<T extends ITweenValue>(value: T, options?: ITweenOptions): ReaseTween<T>;
