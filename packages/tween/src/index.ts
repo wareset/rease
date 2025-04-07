@@ -1,7 +1,7 @@
 export * from './raf'
 export * from './easing'
 
-import { easeLinear, easeQuadIn } from './easing'
+import { easeLinear } from './easing'
 import { requestAnimationFrame } from './raf'
 
 // x === y ? x !== 0 || 1 / x === 1 / y : x !== x && y !== y
@@ -71,9 +71,11 @@ function addInDblList(head: IDblList, f: any, c: any) {
   }
 }
 function notifyDblList(head: IDblList | undefined, self: ReaseTween<any>) {
-  if (head)
-    for (let n = head; (n = n.n) !== head; )
-      n.f.call(n.c, self.value, self, self.task)
+  if (head) {
+    const task = self.task
+    const value = task ? task.value : self.value
+    for (let n = head; (n = n.n) !== head; ) n.f.call(n.c, value, self, task)
+  }
 }
 // IDblList
 //
@@ -81,7 +83,7 @@ function notifyDblList(head: IDblList | undefined, self: ReaseTween<any>) {
 type IDBTaskCont = {
   p: IDBTaskCont
   n: IDBTaskCont
-  s: ReaseTween<any>
+  // s: ReaseTween<any>
   t: ITweenTask
 }
 
@@ -120,12 +122,15 @@ export type ITweenOptions = {
   delay?: number
   easing?: (n: number) => number
   duration?: number
+  immutable?: boolean
 }
 type DeepPartial<T> = T extends object
   ? { [P in keyof T]?: DeepPartial<T[P]> }
   : T
 
 export type ITweenTask<T extends ITweenValue = any> = {
+  self: ReaseTween<T>
+  value: T
   newValue: DeepPartial<T>
   executor:
     | null
@@ -146,17 +151,21 @@ export type ITweenTask<T extends ITweenValue = any> = {
 } & Required<ITweenOptions>
 
 function create_task(
-  _: ReaseTween<any>['_'],
+  self: ReaseTween<any>,
   newValue: DeepPartial<any>,
   options?: ITweenOptions
 ): ITweenTask {
+  const _ = self._
   return {
+    self,
+    value: self.value,
     newValue,
     executor: null,
 
     delay: select_val(options && options.delay, _.delay),
     easing: select_val(options && options.easing, _.easing),
     duration: select_val(options && options.duration, _.duration),
+    immutable: select_val(options && options.immutable, _.immutable),
 
     passTime: 0,
     lastTime: 0,
@@ -167,7 +176,7 @@ function create_task(
   }
 }
 
-function get_interpolator(a: any, b: any) {
+function get_interpolator(a: any, b: any, immutable: boolean) {
   if (a !== b && a === a) {
     let c = typeof a as any
     if (c === typeof b)
@@ -186,10 +195,12 @@ function get_interpolator(a: any, b: any) {
           ) {
             if (p < 1) {
               // if (p2 !== p2) p3 = 1 - (p2 = p)
-              if (c !== oldValue) ba = b - (a = oldValue)
+              if (c !== oldValue && !immutable) {
+                ba = b - (a = c = oldValue)
+              }
 
               if (b !== newValue) {
-                ba = (b = newValue) - (a = oldValue)
+                ba = (b = newValue) - (a = c)
                 p3 = 1 - (p2 = p)
               }
 
@@ -202,10 +213,11 @@ function get_interpolator(a: any, b: any) {
         case 'object':
           if (a && b) {
             c = {}
-            for (const k in b) c[k] = get_interpolator(a[k], b[k])
+            for (const k in b) c[k] = get_interpolator(a[k], b[k], immutable)
             return function (p: number, e: number, eFn: (n: number) => number) {
-              for (const k in c) a[k] = c[k](p, e, eFn, a[k], b[k])
-              return a
+              const a2 = immutable ? new b.constructor() : a
+              for (const k in c) a2[k] = c[k](p, e, eFn, a[k], b[k])
+              return a2
             }
           }
       }
@@ -221,25 +233,25 @@ function get_interpolator(a: any, b: any) {
   }
 }
 
-function remove_or_replace_task(_: ReaseTween<any>['_'], dbl: IDBTaskCont) {
-  if (_.tasks.length) {
-    const { 0: newValue, 1: options } = _.tasks.shift()!
-    dbl.t = dbl.s.task = create_task(_, newValue, options)
+function remove_or_replace_task(self: ReaseTween<any>, dbl: IDBTaskCont) {
+  if (self._.tasks.length) {
+    const { 0: newValue, 1: options } = self._.tasks.shift()!
+    dbl.t = self.task = create_task(self, newValue, options)
   } else {
     ;(dbl.p.n = dbl.n), (dbl.n.p = dbl.p)
-    dbl.s.task = null
+    self.task = null
   }
 }
 
 function calc(dbl: IDBTaskCont, t: number) {
   const task = dbl.t
-  const self = dbl.s
+  const self = task.self
   const _ = self._
   if (self.paused || TWEEN_DEFAULTS.paused) {
     task.lastTime = 0
   } else if (task.skipped) {
     task.started && notifyDblList(_.of, self)
-    remove_or_replace_task(_, dbl)
+    remove_or_replace_task(self, dbl)
   } else if (task.lastTime > 0) {
     if ((task.passTime -= task.lastTime - (task.lastTime = t)) >= task.delay) {
       let progress = (task.passTime - task.delay) / task.duration
@@ -250,23 +262,20 @@ function calc(dbl: IDBTaskCont, t: number) {
 
       task.started || ((task.started = true), notifyDblList(_.os, self))
 
-      notifyDblList(
-        _.ou,
-        ((self.value = (
-          task.executor ||
-          (task.executor = get_interpolator(self.value, task.newValue))
-        )(
-          progress,
-          task.easing(progress),
-          task.easing,
-          self.value,
-          task.newValue
-        )),
-        self)
-      )
+      task.value = (
+        task.executor ||
+        (task.executor = get_interpolator(
+          task.value,
+          task.newValue,
+          task.immutable
+        ))
+      )(progress, task.easing(progress), task.easing, task.value, task.newValue)
+      task.immutable || (self.value = task.value)
+
+      notifyDblList(_.ou, self)
 
       if (progress === 1)
-        notifyDblList(_.of, self), remove_or_replace_task(_, dbl)
+        notifyDblList(_.of, self), remove_or_replace_task(self, dbl)
 
       // console.log(progress)
     }
@@ -304,6 +313,7 @@ class ReaseTween<T extends ITweenValue> {
       delay: select_val(options.delay, TWEEN_DEFAULTS.delay),
       easing: select_val(options.easing, TWEEN_DEFAULTS.easing),
       duration: select_val(options.duration, TWEEN_DEFAULTS.duration),
+      immutable: select_val(options.immutable, false),
     }
     this.value = value
     this.task = null
@@ -320,10 +330,9 @@ class ReaseTween<T extends ITweenValue> {
     if (this.task) this._.tasks.push([newValue, options])
     else {
       const task: IDBTaskCont = {
-        s: this,
         p: null as unknown as IDBTaskCont,
         n: null as unknown as IDBTaskCont,
-        t: (this.task = create_task(this._, newValue, options)),
+        t: (this.task = create_task(this, newValue, options)),
       }
       ;(task.p = (task.n = FST).p).n = task.n.p = task
       queueNeedRun ||
@@ -355,14 +364,14 @@ class ReaseTween<T extends ITweenValue> {
     return this
   }
 
-  onPause<C = undefined>(
-    cb: (this: C, value: T, self: this) => any,
+  onPause<T2 = T, C = undefined>(
+    cb: (this: C, value: T2, self: this, task: ITweenTask<T> | null) => any,
     thisArg?: C
   ) {
     return addInDblList(this._.op || (this._.op = createDblList()), cb, thisArg)
   }
-  onResume<C = undefined>(
-    cb: (this: C, value: T, self: this) => any,
+  onResume<T2 = T, C = undefined>(
+    cb: (this: C, value: T2, self: this, task: ITweenTask<T> | null) => any,
     thisArg?: C
   ) {
     return addInDblList(this._.or || (this._.or = createDblList()), cb, thisArg)
@@ -379,10 +388,10 @@ class ReaseTween<T extends ITweenValue> {
   ) {
     return addInDblList(this._.os || (this._.os = createDblList()), cb, thisArg)
   }
-  onUpdate<C = undefined>(
+  onUpdate<T2 = T, C = undefined>(
     cb: (
       this: C,
-      value: T,
+      value: T2,
       self: this & { task: ITweenTask<T> },
       task: ITweenTask<T>
     ) => any,
@@ -390,10 +399,10 @@ class ReaseTween<T extends ITweenValue> {
   ) {
     return addInDblList(this._.ou || (this._.ou = createDblList()), cb, thisArg)
   }
-  onFinish<C = undefined>(
+  onFinish<T2 = T, C = undefined>(
     cb: (
       this: C,
-      value: T,
+      value: T2,
       self: this & { task: ITweenTask<T> },
       task: ITweenTask<T>
     ) => any,

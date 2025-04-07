@@ -21,11 +21,14 @@ export type ITweenOptions = {
     delay?: number;
     easing?: (n: number) => number;
     duration?: number;
+    immutable?: boolean;
 };
 type DeepPartial<T> = T extends object ? {
     [P in keyof T]?: DeepPartial<T[P]>;
 } : T;
 export type ITweenTask<T extends ITweenValue = any> = {
+    self: ReaseTween<T>;
+    value: T;
     newValue: DeepPartial<T>;
     executor: null | ((progress: number, easing: number, easingFn: (n: number) => number, oldValue: number, newValue: any) => any);
     passTime: number;
@@ -53,15 +56,15 @@ declare class ReaseTween<T extends ITweenValue> {
     purge(): this;
     pause(): this;
     resume(): this;
-    onPause<C = undefined>(cb: (this: C, value: T, self: this) => any, thisArg?: C): () => void;
-    onResume<C = undefined>(cb: (this: C, value: T, self: this) => any, thisArg?: C): () => void;
+    onPause<T2 = T, C = undefined>(cb: (this: C, value: T2, self: this, task: ITweenTask<T> | null) => any, thisArg?: C): () => void;
+    onResume<T2 = T, C = undefined>(cb: (this: C, value: T2, self: this, task: ITweenTask<T> | null) => any, thisArg?: C): () => void;
     onStart<C = undefined>(cb: (this: C, value: T, self: this & {
         task: ITweenTask<T>;
     }, task: ITweenTask<T>) => any, thisArg?: C): () => void;
-    onUpdate<C = undefined>(cb: (this: C, value: T, self: this & {
+    onUpdate<T2 = T, C = undefined>(cb: (this: C, value: T2, self: this & {
         task: ITweenTask<T>;
     }, task: ITweenTask<T>) => any, thisArg?: C): () => void;
-    onFinish<C = undefined>(cb: (this: C, value: T, self: this & {
+    onFinish<T2 = T, C = undefined>(cb: (this: C, value: T2, self: this & {
         task: ITweenTask<T>;
     }, task: ITweenTask<T>) => any, thisArg?: C): () => void;
 }
