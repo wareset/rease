@@ -1,7 +1,7 @@
 declare class _ISignal<G> {
     readonly prepared?: true | undefined;
     readonly captured?: true | undefined;
-    private readonly _value;
+    private readonly '_value';
     subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void;
     toString(...a: G extends {
         toString(...a: any): any;

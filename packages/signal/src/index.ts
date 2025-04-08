@@ -191,7 +191,8 @@ let STORE = function (value: any, props: any) {
     cmp.l--
     w.push(cmp)
     return function () {
-      w.splice(w.lastIndexOf(cmp), 1), u()
+      const idx = w.lastIndexOf(cmp)
+      idx < 0 || w.splice(idx, 1), u()
     }
   }
 
@@ -279,7 +280,7 @@ let STORE = function (value: any, props: any) {
   }
 
   function setWithCaptureFirstBatch(this: IService, value: any) {
-    this.s._value = this.v = this.o!(value, this.v)
+    this.s['_value'] = this.v = this.o!(value, this.v)
   }
   function setWithCaptureBatch(this: IService, value: any) {
     setValue(this, this.o!(value, this.v))
@@ -287,7 +288,7 @@ let STORE = function (value: any, props: any) {
   function setValue(_: IService, value: any) {
     // if (_.c) computedCheckBeforeSet(_.c)
     if (!object_is(_.v, value)) {
-      ;(_.s._value = _.v = value), (GVERSION = {})
+      ;(_.s['_value'] = _.v = value), (GVERSION = {})
       // iam._.c && (iam._.c.g = GVERSION)
       computedNeedTest(_.w), run_queue(_)
     }
@@ -300,7 +301,7 @@ let STORE = function (value: any, props: any) {
 
   class ReaseSignal<T = unknown> {
     private _: () => any
-    _value: T
+    '_value': T
     readonly computed?: boolean
     readonly prepared?: boolean
     readonly captured?: boolean
@@ -321,7 +322,7 @@ let STORE = function (value: any, props: any) {
     ) {
       const _: IService = {
         s: this,
-        v: (this._value = value),
+        v: (this['_value'] = value),
         q: value,
         d:
           props && !props.compute && props.defense !== void 0
@@ -492,7 +493,7 @@ declare class _ISignal<G> {
   // readonly computed?: true | undefined
   readonly prepared?: true | undefined
   readonly captured?: true | undefined
-  private readonly _value: G
+  private readonly '_value': G
   subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void
   toString(
     ...a: G extends { toString(...a: any): any }
