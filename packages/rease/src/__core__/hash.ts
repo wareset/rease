@@ -9,9 +9,7 @@ export function hash(s?: string, maxSymbolsForHash?: number) {
       let r = 1 / z1,
         c: number,
         l = s.length,
-        n =
-          (maxSymbolsForHash && Math.abs(Math.floor(l / maxSymbolsForHash))) ||
-          1,
+        n = (maxSymbolsForHash && (l / maxSymbolsForHash) >>> 1) || 1,
         i = 0;
       i < l;
       i += n
