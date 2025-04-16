@@ -3,15 +3,9 @@ let LAST_ = 1 as any
 let run_queue: any
 let $batcher_: any // ISignal<{ f: (v?: any) => any; c: any; a: any }>
 
-let SECURE: any
-const SECURE_CONST = {}
-function service(iam: any) {
-  return SECURE
-    ? null
-    : ((SECURE = SECURE_CONST), (iam = iam._()), (SECURE = null), iam)
-}
+let service = noop as any
 
-let STORE = function (value: any, props: any) {
+let SIGNAL = function (value: any, props: any) {
   interface ISubscriber {
     // next sub
     n: ISubscriber
@@ -82,6 +76,11 @@ let STORE = function (value: any, props: any) {
     (function (x, y) {
       return x === y ? x !== 0 || 1 / x === 1 / y : x !== x && y !== y
     } as typeof Object.is)
+
+  let SECURE: any
+  service = function (iam: any) {
+    return SECURE ? null : ((SECURE = 1), (iam = iam._()), (SECURE = 0), iam)
+  }
 
   function THROW(s: string) {
     throw '@rease/signal: ' + s
@@ -257,7 +256,7 @@ let STORE = function (value: any, props: any) {
       const uns = u
       ;(u = noop), uns.unsubscribe ? uns.unsubscribe() : uns()
     }
-    const iam = new STORE(void 0, {
+    const iam = new SIGNAL(void 0, {
       prepare() {
         return (u = $value$.subscribe(sub)), uns
       },
@@ -362,7 +361,7 @@ let STORE = function (value: any, props: any) {
         w: null,
       }
       this._ = function () {
-        return SECURE === SECURE_CONST && _
+        return SECURE && _
       }
       _.p = _.h.n = _.h.p = _.h
       _.c && ((_.c._ = _), _.c.o && setObserve(_.c))
@@ -446,11 +445,11 @@ let STORE = function (value: any, props: any) {
     }
   }
 
-  STORE = ReaseSignal
-  const proto = STORE.prototype
+  SIGNAL = ReaseSignal
+  const proto = SIGNAL.prototype
   _Object.defineProperty(proto, '$', { get: proto.get, set: proto.set })
 
-  $batcher_ = service(new STORE({ f: noop })) as IService
+  $batcher_ = service(new SIGNAL({ f: noop })) as IService
   $batcher_.s.subscribe(function (v: any) {
     v.f.apply(v.c, v.a)
   })
@@ -482,7 +481,7 @@ let STORE = function (value: any, props: any) {
     }
   }
 
-  return new STORE(value, props)
+  return new SIGNAL(value, props)
 } as any
 
 //
@@ -706,7 +705,7 @@ function signal<G>(
 
 /*@__NO_SIDE_EFFECTS__*/
 function signal(value?: any, props?: any) {
-  return new STORE(value, props)
+  return new SIGNAL(value, props)
 }
 export { signal }
 //
@@ -745,7 +744,7 @@ function computed<G = undefined, O extends IObserve = null>(
   }
 ): ISignalComputed<G>
 function computed(observe: any, compute: any, props: any) {
-  return new STORE(void 0, {
+  return new SIGNAL(void 0, {
     compute,
     observe,
     prepare: props && props.prepare,
@@ -764,7 +763,7 @@ function computed<G, O extends IObserve = null>(
 ): ISignalComputed<G>
 /*@__NO_SIDE_EFFECTS__*/
 function computed(observe: any, compute: any, initValue?: any) {
-  return new STORE(initValue, { compute, observe })
+  return new SIGNAL(initValue, { compute, observe })
 }
 export { computed }
 //
@@ -784,7 +783,7 @@ function effect<G = undefined, O extends IObserve = null>(
   onChange?: (value: G) => any
 ): () => void
 function effect(observe: any, compute: any, onChange: any) {
-  return new STORE(void 0, { compute, observe }).subscribe(onChange || noop)
+  return new SIGNAL(void 0, { compute, observe }).subscribe(onChange || noop)
 }
 export { effect }
 //
@@ -798,19 +797,19 @@ export { effect }
 //
 /*@__NO_SIDE_EFFECTS__*/
 function isSignal<T>(any: any): any is ISignal<T> {
-  return any instanceof STORE
+  return any instanceof SIGNAL
 }
 /*@__NO_SIDE_EFFECTS__*/
 function isSignalComputed<G>(any: any): any is ISignalComputed<G> {
-  return any instanceof STORE && !!service(any).c
+  return isSignal(any) && !!service(any).c
 }
 /*@__NO_SIDE_EFFECTS__*/
 function isSignalDefensed<G, S = G>(any: any): any is ISignalDefensed<G, S> {
-  return any instanceof STORE && !!service(any).d
+  return isSignal(any) && !!service(any).d
 }
 /*@__NO_SIDE_EFFECTS__*/
 function isSignalStandard<G, S = G>(any: any): any is ISignalStandard<G, S> {
-  return any instanceof STORE && ((any = service(any)), !any.c && !any.d)
+  return isSignal(any) && ((any = service(any)), !any.c && !any.d)
 }
 export { isSignal, isSignalStandard, isSignalComputed, isSignalDefensed }
 
