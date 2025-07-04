@@ -43,19 +43,19 @@
     "tasks": "nodemon --watch ./tasks --inspect ./tasks/index.mjs",
     "build": "tsc"
   },
-  "peerDependencies": {
-    "rease": "0.4.x"
-  },
   "devDependencies": {
     "@types/sax": "1.2.6",
     "@vscode/web-custom-data": "0.4.8",
     "nodemon": "^3.1.1",
     "sax": "1.3.0",
     "ts-node": "^10.9.2",
-    "typescript": "5.7.2",
     "w3c--svgwg": "git+https://github.com/w3c/svgwg.git"
   },
   "dependencies": {
     "csstype": "3.1.2"
+  },
+  "peerDependencies": {
+    "rease": "0.4.x",
+    "typescript": "5.x"
   }
 }
