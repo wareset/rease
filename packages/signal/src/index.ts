@@ -234,13 +234,13 @@ let SIGNAL = function (value: any, props: any) {
         (ai = a[i]).t || ((ai.t = true), computedNeedTest(ai._.w))
   }
 
-  function runsub(this: IService, sub: any) {
-    sub.v === runsub && sub.f.call(sub.c, (sub.v = this.v))
+  function runSub(this: IService, sub: any) {
+    sub.v === runSub && sub.f.call(sub.c, (sub.v = this.v))
   }
   function subFirst(this: IService, sub: any) {
     if (this.c) computedFirstSub(this.c)
     if (this.f) this.l = this.f(this.s)
-    runsub.call(this, sub)
+      runSub.call(this, sub)
   }
   function subLast(this: IService) {
     if (this.l) this.l(this.s)
@@ -292,7 +292,7 @@ let SIGNAL = function (value: any, props: any) {
       computedNeedTest(_.w), run_queue(_)
     }
   }
-  function createDefence(defense: any) {
+  function createDefense(defense: any) {
     return function (sec: any) {
       object_is(sec, defense) || THROW('defense')
     }
@@ -325,7 +325,7 @@ let SIGNAL = function (value: any, props: any) {
         q: value,
         d:
           props && !props.compute && props.defense !== void 0
-            ? ((this.defensed = true), createDefence(props.defense))
+            ? ((this.defensed = true), createDefense(props.defense))
             : null,
         c:
           props && props.compute
@@ -404,12 +404,12 @@ let SIGNAL = function (value: any, props: any) {
       let sub: ISubscriber | null = {
         n: null as any,
         p: null as any,
-        v: runsub,
+        v: runSub,
         f: callback,
         c: thisArg,
       }
       _.p = (sub.p = (sub.n = _.p.n).p).n = sub.n.p = sub
-      batch(sub.n === sub.p && (_.c || _.f) ? subFirst : runsub, _, [sub])
+      batch(sub.n === sub.p && (_.c || _.f) ? subFirst : runSub, _, [sub])
       return function () {
         if (sub) {
           ;(sub.p.n = sub.n), (sub.n.p = sub.p)
