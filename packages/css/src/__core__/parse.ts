@@ -1,293 +1,339 @@
 import { PROPERTIES } from './init'
 
-// export const parse = (function () {
-const REG_GENERAL =
-  /\/\/|\/\*|\*\/|[\r\n\u2028\u2029]|[^,\r\n\u2028\u2029*/\\{}:;`'"]+|./g
-
-const TYPE_ROOT = 1
-const TYPE_COMMENT_LINE = 2
-const TYPE_COMMENT_BLOCK = 3
-const TYPE_STRING = 4
-const TYPE_VALUE = 5
-const TYPE_BLOCK = 6
-// const TYPE_CIRCLES = 'CIRCLES'
-// const TYPE_SQUARES = 'SQUARES'
-
-const CONCAT_RULES = {
-  '@container': 1,
-  '@document': 1,
-  '@layer': 1,
-  '@media': 1,
-  '@scope': 1,
-  '@starting-style': 1,
-  '@supports': 1,
-}
-
-const REG_NOT_STR = /^[^`'"]/
-const REG_SEL_SPLIT = /\s*([\s>+~^|=])\s*|([()[\]&])/
-const REG_NOT_SYS = /^[^,\s>+~]/
-const REG_IS_HIDDEN_SEL = /^\._/
-const REG_TRIM_SYS = /^[\s>+~]+|[\s>+~]+$/g
-
-const REG_ONE_SPACE = /\s+/g
-
-class _CSSNode {
-  type: number
+type Classes = { id: string; [k: string]: any }
+type Context = { r: string[]; l: CSSNode }
+type CSSNode = {
+  type?: string
   raw: string[]
-  rules: [string, string][]
+  rules: [string, ' ', string[]][]
   all: string[] | null
 
   is: boolean
 
-  parent: _CSSNode | null
-  children: _CSSNode[]
-  // comments: _CSSNode[]
-
-  tmp: { r: string[]; l: _CSSNode; c: any }
-
-  constructor(type: number, parent: _CSSNode) {
-    this.type = type
-    this.raw = []
-    this.rules = []
-    this.all = null
-    this.is = false
-
-    this.parent = parent
-    parent.children.push(this), (this.tmp = parent.tmp)
-
-    this.children = []
-  }
+  parent: CSSNode
+  children: CSSNode[]
 }
 
-function parseComments(node: _CSSNode) {
-  if (
-    !node.is &&
-    (node.type === TYPE_COMMENT_LINE || node.type === TYPE_COMMENT_BLOCK)
-  ) {
-    node.is = true
-    const a = node.raw
-    if (a.length) a.push('*/'), node.tmp.r.push('/*' + a.join(''))
-  }
+// const DEEPED_RULES = {
+//   __proto__: null,
+//   '@container': 1,
+//   '@document': 1,
+//   '@layer': 1,
+//   '@media': 1,
+//   '@scope': 1,
+//   '@starting-style': 1,
+//   '@supports': 1,
+// }
+const CONCAT_RULES = {
+  __proto__: null,
+  '@layer': 1,
+  '@media': 1,
+  '@supports': 1,
 }
 
-function parseValues(node: _CSSNode) {
-  if (!node.is && node.type === TYPE_VALUE) {
-    node.is = true
-    const a = node.raw
-    if (a.length) {
-      const a0 = a[0]
-      const a1 = a[1]
-      if (a1 !== ':') a1 && a.splice(1, 0, ' ')
-      else a[0] = PROPERTIES.hasOwnProperty(a0) ? PROPERTIES[a0] : a0
-      a.push(';')
-      const attr = a.join('')
+// const TYPE_ROOT = 'ROOT'
+// const TYPE_PROPERTY = 'PROPERTY'
+// const TYPE_AT_RULE = 'AT_RULE'
+// const TYPE_SELECTOR = 'SELECTOR'
 
-      const tmp = node.tmp
-      const result = tmp.r
-      const lastAll = tmp.l.all!
-
-      const parent = node.parent!
-      let all = parent.all!
-      if (!all) {
-        const raw = parent.raw
-        const isSelector = raw.length > 0
-        const rules = parent.rules
-
-        const l = rules.length
-        all = parent.all = Array(isSelector ? l + 1 : l)
-        for (let i = 0; i < l; i++) all[i] = rules[i].join('')
-        if (isSelector) all[l] = raw.join(',')
-      }
-      node.all = all
-
-      if (all !== lastAll) {
-        let j = 0
-        let l = all.length
-        for (; j < l && all[j] === lastAll[j]; j++);
-        for (let l = lastAll.length; l-- > j; ) result.push('}')
-        for (; j < l; j++) result.push(all[j], '{')
-      }
-
-      result.push(attr)
-      tmp.l = node
-    }
+function createCSSNode(parent: CSSNode) {
+  const NODE: CSSNode = {
+    raw: [],
+    rules: [],
+    all: null,
+    is: false,
+    parent,
+    children: [],
   }
+  parent.children.push(NODE)
+  return NODE
 }
 
-function parseBlocks(node: _CSSNode) {
-  if (!node.is && node.type === TYPE_BLOCK) {
-    node.is = true
-    const a = node.raw
-    if (a.length) {
-      for (let i = a.length, v: string; i-- > 0; ) {
-        if ((v = a[i]).length > 1 && REG_NOT_STR.test(v)) {
-          a.splice.apply(
-            a,
-            ([i, 1] as any).concat(v.split(REG_SEL_SPLIT).filter(Boolean))
-          )
-        }
-      }
-      const parent = node.parent!
+// \/\/[^\r\n\u2028\u2029]*|
+const REG_HEAD =
+  /(('|")(?:[^\\]|\\.?)*?)(?:\2|$)|(\/\*[^]*?(?:\*\/|$))|((?:[^\\'"/{};]+|\\.?|\/(?![*]))+)|./g
 
-      const type = a[0]
-      const isAtRule = /^@/.test(type)
-      const is = (node.raw =
-        isAtRule && CONCAT_RULES.hasOwnProperty(type) ? parent.raw : [])
-      const isp = parent.raw
-      const tmp = node.tmp
-      const cls = tmp.c
-
-      let rule = ''
-      let deep = 0
-      let isAmpersand = false
-      for (let i = 0, j = 0, at: string[], v: string; i < a.length; i++) {
-        if ((v = a[i]) === '&') isAmpersand = true
-        else if (v === '(' || v === '[') deep++
-        else if (v === ')' || v === ']') deep--
-        else if (REG_IS_HIDDEN_SEL.test(v))
-          v = a[i] = '.' + (cls[(v = v.slice(1))] || (cls[v] = cls.id + v))
-        else if (v === '*' && a[i + 1] !== '=') {
-          if ((v = a[i - 1]) && REG_NOT_SYS.test(v)) a.splice(i, 0, ' '), i++
-          if ((v = a[i + 1]) && REG_NOT_SYS.test(v))
-            a.splice(i + 1, 0, ' '), i++
-          v = a[i]
-        }
-        if (deep === 0 && (v === ',' || i === a.length - 1)) {
-          if ((at = a.slice(j, v === ',' ? i : i + 1)).length) {
-            v = at[0]
-            if (!isAtRule) {
-              if (!isAmpersand) {
-                v === ' ' || v === '>' || v === '+' || v === '~'
-                  ? at.unshift('&')
-                  : at.unshift('&', ' ')
-              }
-
-              const ampIds = [] as number[]
-              for (let i = at.length; i-- > 0; )
-                if (at[i] === '&') ampIds.push(i)
-
-              for (let i = 0, l = isp.length || 1; i < l; i++) {
-                v = isp[i] || ''
-                for (let i = ampIds.length; i-- > 0; ) at[ampIds[i]] = v
-                if ((v = at.join('').replace(REG_TRIM_SYS, ''))) is.push(v)
-              }
-            } else {
-              if (!rule) rule = at.slice(1).join('')
-              else rule = ' (' + at.join('') + ' or' + rule + ')'
-            }
-          }
-          j = i + 1
-          isAmpersand = false
-        }
-      }
-
-      node.rules = parent.rules.slice()
-      if (isAtRule) {
-        for (let a = node.rules, i = a.length, v; i-- > 0; ) {
-          if ((v = a[i])[0] === type) {
-            const v1 = v[1]
-            a[i] = [type, v1 && rule ? v1 + ' and' + rule : v1 || rule]
-            return
-          }
-        }
-        node.rules.push([type, rule])
-      }
-    }
-  }
-}
-
-export function parse(source: string, classes: { [k: string]: any }) {
-  const root = new _CSSNode(TYPE_ROOT, { children: [] } as unknown as _CSSNode)
+export function parse(source: string, classes: Classes) {
+  const root = createCSSNode({ children: [] } as any)
+  // root.type = TYPE_ROOT
   root.all = []
-  root.tmp = { r: [], l: root, c: classes }
-  let NODE = new _CSSNode(TYPE_VALUE, root)
+  root.raw[0] = ''
+  REG_HEAD.lastIndex = 0
+  const ctx: Context = { r: [], l: root }
+  let PARENT = root
+  let NODE!: CSSNode | null // = createCSSNode(TYPE_VALUE, root)
 
-  let slash = 0
-
-  REG_GENERAL.lastIndex = 0
-  for (let m: RegExpExecArray, v: string; (m = REG_GENERAL.exec(source)!); ) {
-    v = m[0]
-    switch (NODE.type) {
-      case TYPE_STRING:
-        NODE.raw.push(v)
-        if (slash < 1) {
-          switch (v) {
-            case '\\':
-              slash = 2
-              break
-            case NODE.raw[0]:
-              NODE = NODE.parent!
-              NODE.raw.push(NODE.children.pop()!.raw.join(''))
-          }
-        }
-        slash > 0 && slash--
-        break
-      case TYPE_COMMENT_LINE:
-        switch (v) {
-          case '\r':
-          case '\n':
-          case '\u2028':
-          case '\u2029':
-            parseComments(NODE)
-            NODE = NODE.parent!
-            break
-          default:
-            NODE.raw.push(v)
+  let v: string
+  let match: RegExpExecArray | null
+  for (; (match = REG_HEAD.exec(source)); ) {
+    // console.log(match)
+    switch (false) {
+      // other
+      case !match[4]:
+        if ((v = match[4].trim())) {
+          // console.log('other:', v)
+          NODE || (NODE = createCSSNode(PARENT))
+          NODE.raw.push(v)
         }
         break
-      case TYPE_COMMENT_BLOCK:
-        switch (v) {
-          case '*/':
-            parseComments(NODE)
-            NODE = NODE.parent!
-            break
-          default:
-            NODE.raw.push(v)
-        }
+      // string
+      case !match[1]:
+        // console.log('string:', match[1])
+        NODE || (NODE = createCSSNode(PARENT))
+        NODE.raw.push(match[1], match[2])
+        break
+      // comment
+      case !match[3]:
+        // console.log('comment:', match[3])
         break
       default:
-        switch (v) {
-          // Strings
-          case '`':
-          case "'":
-          case '"':
-            NODE = new _CSSNode(TYPE_STRING, NODE)
-            NODE.raw.push(v)
-            break
-          // Comments
-          case '//':
-            NODE = new _CSSNode(TYPE_COMMENT_LINE, NODE)
-            break
-          case '/*':
-            NODE = new _CSSNode(TYPE_COMMENT_BLOCK, NODE)
-            break
-          // Brackets
-          case '{':
-            NODE.type = TYPE_BLOCK
-            parseBlocks(NODE)
-            NODE = new _CSSNode(TYPE_VALUE, NODE)
-            break
-          case '}':
-            parseValues(NODE)
-            // if (NODE.raw.length) parseValues(NODE)
-            // else NODE.parent!.children.pop()
-            NODE = new _CSSNode(TYPE_VALUE, NODE.parent!.parent!)
-            break
+        switch (match[0]) {
           case ';':
-            if (NODE.raw.length) {
-              parseValues(NODE)
-              NODE = new _CSSNode(TYPE_VALUE, NODE.parent!)
+            if (NODE) {
+              parseProperty(NODE, ctx)
+              PARENT = NODE.parent
             }
             break
+          case '}':
+            if (NODE) {
+              parseProperty(NODE, ctx)
+            }
+            PARENT = PARENT.parent
+            break
+          case '{':
+            if (NODE) {
+              NODE.raw[0][0] === '@'
+                ? parseAtRule(NODE)
+                : parseSelector(NODE, classes)
+            } else {
+              NODE = createCSSNode(PARENT)
+              NODE.raw[0] = '*'
+              parseSelector(NODE, classes)
+            }
+            PARENT = NODE
+            break
           default:
-            if ((v = v.trim())) NODE.raw.push(v.replace(REG_ONE_SPACE, ' '))
+            throw match[0]
         }
+        NODE = null
     }
   }
-  parseValues(NODE)
-  for (let a = root.tmp.r, i = root.tmp.l.all!.length; i-- > 0; ) a.push('}')
-  // if (NODE.raw.length) parseValues(NODE)
-  // else NODE.parent!.children.pop()
-  return root.tmp.r.join('')
+  if (NODE) parseProperty(NODE, ctx)
+  for (let a = ctx.r, i = removeSemi(ctx.r, ctx.l.all!.length, 0); i-- > 0; ) {
+    a.push('}')
+  }
+
+  // console.log(root)
+  // console.log(ctx)
+  return ctx.r.join('')
 }
-// })()
+
+function removeSemi(list: string[], from: number, to: number) {
+  if (from > to) {
+    const l = list.length - 1
+    if (list[l] === ';') list.length = l
+  }
+  return from
+}
+
+const REG_FOR_ANDOR = /\)([a-z]+)\s*\(/g
+const REG_FOR_EQUAL = /(\[|\]|[<>=]=?)/g
+const REG_FOR_SPACE = /(\))\s*|\s+/g
+const REG_FOR_VALUE = /([.#(\[])\s+|\s+([%)\]]|$)|\s*([,:*/!])\s*/g
+const REG_FOR_CALCS = /([%.\da-z)\]])([-+])\s*([.\d(\[]|var\()/gi
+function replaceRawProperty(v: string) {
+  return v[0] !== "'" && v[0] !== '"'
+    ? v
+        .replace(REG_FOR_ANDOR, ') $1 (')
+        .replace(REG_FOR_EQUAL, ' $1 ')
+        .replace(REG_FOR_SPACE, '$1 ')
+        .replace(REG_FOR_VALUE, '$1$2$3')
+        .replace(REG_FOR_CALCS, '$1 $2 $3')
+    : v
+}
+const REG_FOR_PROP = /^[-a-z]+/i
+function parseProperty(node: CSSNode, ctx: Context) {
+  // node.type = TYPE_PROPERTY
+  // console.log([...node.raw])
+  let attr = node.raw.map(replaceRawProperty).join('')
+  const matchForProp = attr.match(REG_FOR_PROP)
+  if (matchForProp) {
+    const oldProp = matchForProp[0]
+    const newProp = PROPERTIES[oldProp]
+    if (newProp && newProp !== oldProp) {
+      attr += ';' + newProp + attr.slice(oldProp.length)
+    }
+  }
+
+  const result = ctx.r
+  const lastAll = ctx.l.all!
+
+  const parent = node.parent!
+  let all = parent.all!
+  if (!all) {
+    const raw = parent.raw
+    const isSelector = raw.length > 0
+    const rules = parent.rules
+
+    const l = rules.length
+    all = parent.all = Array(isSelector ? l + 1 : l)
+    for (let i = 0; i < l; i++) all[i] = rules[i].join('')
+    if (isSelector) all[l] = raw.join(',')
+  }
+  node.all = all
+
+  if (all !== lastAll) {
+    let j = 0
+    let l = all.length
+    for (; j < l && all[j] === lastAll[j]; j++);
+    for (let l = removeSemi(result, lastAll.length, j); l-- > j; )
+      result.push('}')
+    for (; j < l; j++) result.push(all[j], '{')
+  }
+
+  result.push(attr, ';')
+  ctx.l = node
+}
+
+const REG_FOR_AT_RULE_TYPE = /^(@[^\s(\[]*)\s*/
+const REG_FOR_AT_RULE_SPLIT_RULES = /([,()\[\]]|\sor\s)/
+function parseAtRule(node: CSSNode) {
+  // node.type = TYPE_AT_RULE
+  const raw = node.raw
+  const typeMatch = raw[0].split(REG_FOR_AT_RULE_TYPE)
+  const type = typeMatch[1]
+
+  for (let i = ((raw[0] = typeMatch[2]), raw.length), v: string; i-- > 0; ) {
+    v = raw[i]
+    if (v[0] !== "'" && v[0] !== '"') {
+      raw.splice.apply(
+        raw,
+        ([i, 1] as any).concat(
+          v
+            .replace(REG_FOR_ANDOR, ') $1 (')
+            .replace(REG_FOR_EQUAL, ' $1 ')
+            .replace(REG_FOR_SPACE, '$1 ')
+            .replace(REG_FOR_VALUE, '$1$2$3')
+            .replace(REG_FOR_CALCS, '$1 $2 $3')
+            .split(REG_FOR_AT_RULE_SPLIT_RULES)
+          // .filter(Boolean)
+        )
+      )
+    }
+  }
+
+  const rule: string[] = []
+  for (let i = 0, j = 0, l = raw.length - 1, deep = 0, v: string; i <= l; ++i) {
+    v = raw[i]
+    if (v === '(' || v === '[') deep++
+    else if (v === ')' || v === ']') deep--
+    else if (deep === 0 && v === ' or ') v = raw[i] = ','
+
+    if (deep === 0 && (v === ',' || i === l)) {
+      v = raw.slice(j, i === l ? i + 1 : ((j = i + 1), i)).join('')
+      if (v.length) rule.push(v)
+    }
+  }
+
+  // console.log(raw)
+  // console.log(rule)
+  const rules = (node.rules = node.parent.rules.slice())
+  node.raw = node.parent.raw // type in DEEPED_RULES ? node.parent.raw : []
+  if (type in CONCAT_RULES)
+    for (let i = rules.length, v: string[], d: string; i-- > 0; ) {
+      if (rules[i][0] === type) {
+        v = rules[i][2]
+        const res: string[] = []
+        for (let i = 0, il = v.length; i < il; ++i) {
+          for (let j = 0, jl = rule.length; j < jl; ++j) {
+            switch (type) {
+              case '@layer':
+                d = '.'
+                break
+              default:
+                d = ' and '
+            }
+
+            res.push(v[i] + d + rule[j])
+          }
+        }
+        // if (i === rules.length - 1) {
+        rules[i] = [type, ' ', res]
+        // } else {
+        //   rules.splice(i, 1)
+        //   rules.push([type, ' ', res])
+        // }
+        return
+      }
+    }
+  rules.push([type, ' ', rule])
+}
+// \s>+~^|=
+const REG_TRIM_SYS = /^[\s>+~]+|[\s>+~]+$/g
+const REG_FOR_SPLIT_SELECTOR =
+  /(&|\\.)|([.#:(\[])\s*|\s*([)\]])|\s*([,\s>+~|=]|[*$^]\s*=)\s*/g
+const REG_FOR_CLASS = /^[^\s>+~|.:,(\[]/
+function parseSelector(node: CSSNode, cls: Classes) {
+  // node.type = TYPE_SELECTOR
+  const raw = node.raw
+  // console.log([...raw])
+  for (let i = raw.length, v: string; i-- > 0; ) {
+    v = raw[i]
+    if (v[0] !== "'" && v[0] !== '"') {
+      raw.splice.apply(
+        raw,
+        ([i, 1] as any).concat(v.split(REG_FOR_SPLIT_SELECTOR).filter(Boolean))
+      )
+    }
+  }
+
+  // console.log(raw)
+  // console.log(raw.join(''))
+  const clsId = cls.id
+  const newRaw: string[] = (node.raw = [])
+  const parentRaw = node.parent.raw
+  let isAmpersand = false
+  for (let i = 0, j = 0, l = raw.length - 1, deep = 0, v: string; i <= l; ++i) {
+    v = raw[i]
+    if (v === '&') isAmpersand = true
+    else if (v === '(' || v === '[') deep++
+    else if (v === ')' || v === ']') deep--
+    else if (v === '.' && raw[i + 1][0] === '_') {
+      const cnList: string[] = []
+      for (let j = i, v; (v = raw[++j]) && REG_FOR_CLASS.test(v); ) {
+        cnList.push(v)
+      }
+      const cn = cnList.join('')
+      cls[cn] || (cls[cn] = clsId + cn)
+      raw[i] += clsId
+      // console.log(1, raw)
+      // console.log(2, cn)
+    }
+
+    if (deep === 0 && (v === ',' || i === l)) {
+      const sel = raw.slice(j, i === l ? i + 1 : ((j = i + 1), i))
+      // console.log(sel.join(''))
+
+      const ampIds = [] as number[]
+      if (isAmpersand) {
+        isAmpersand = false
+        for (let i = sel.length; i-- > 0; ) if (sel[i] === '&') ampIds.push(i)
+      } else {
+        v = sel[0]
+        v === ' ' || v === '>' || v === '+' || v === '~'
+          ? sel.unshift('&')
+          : sel.unshift('&', ' ')
+        ampIds[0] = 0
+      }
+
+      for (let i = 0, l = parentRaw.length; i < l; ++i) {
+        v = parentRaw[i]
+        for (let i = ampIds.length; i-- > 0; ) sel[ampIds[i]] = v
+        if ((v = sel.join('').replace(REG_TRIM_SYS, ''))) newRaw.push(v)
+      }
+    }
+  }
+
+  // console.log(newRaw)
+  node.rules = node.parent.rules.slice()
+}

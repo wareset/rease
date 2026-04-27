@@ -1,0 +1,576 @@
+/* 1. АТ-ПРАВИЛА (At-rules) */
+@charset "UTF-8";
+@import url("fineprint.css") print;
+@namespace svg url(http://w3.org);
+
+/* Каскадные слои */
+@layer base, theme, components;
+
+@layer base {
+  :root {
+    --main-bg: #fff;
+    --accent-color: hsl(200, 50%, 50%);
+  }
+}
+
+/* 2. ВСЕ ТИПЫ СЕЛЕКТОРОВ */
+
+/* Универсальный и по тегу */
+* { box-sizing: border-box; }
+div { display: block; }
+
+/* Класс, ID и атрибуты */
+.class-name { color: red; }
+#id-name { margin: 10px; }
+[title] { cursor: help; }
+[target="_blank"] { font-weight: bold; }
+[class~="logo"] { border: 1px solid; } /* содержит слово */
+[lang|="en"] { quotes: "“" "”"; }    /* начинается с en- */
+[href^="https"] { color: green; }     /* префикс */
+[href$=".pdf"] { after: content(" (PDF)"); } /* суффикс */
+[href*="google"] { outline: 1px solid; }    /* подстрока */
+
+/* Комбинаторы */
+section article { color: gray; }       /* вложенный */
+header > nav { display: flex; }        /* прямой потомок */
+h1 + p { margin-top: 0; }              /* соседний (сразу за) */
+h1 ~ p { color: blue; }                /* все последующие соседи */
+
+/* 3. ПСЕВДОКЛАССЫ */
+
+/* Состояние */
+a:hover, a:active, a:focus, a:visited { text-decoration: none; }
+input:enabled, input:disabled, input:checked { opacity: 0.5; }
+input:required, input:optional, input:valid, input:invalid { border-width: 2px; }
+input:placeholder-shown { font-style: italic; }
+
+/* Структурные */
+li:first-child, li:last-child { list-style: none; }
+li:nth-child(2n+1), li:nth-of-type(odd) { background: #eee; }
+li:only-child, div:empty { display: none; }
+li:not(.active) { opacity: 0.8; }
+:is(h1, h2, h3) { font-family: sans-serif; }
+:where(.card) { margin: 0; } /* нулевая специфичность */
+:has(img) { padding: 0; }    /* родитель, содержащий img */
+
+/* 4. ПСЕВДОЭЛЕМЕНТЫ */
+p::first-line { font-weight: bold; }
+p::first-letter { float: left; font-size: 2em; }
+.box::before, .box::after { content: ""; display: table; }
+::selection { background: var(--accent-color); }
+input::placeholder { color: #ccc; }
+
+/* 5. СОВРЕМЕННЫЕ ПРАВИЛА И ФУНКЦИИ */
+
+/* Media Queries (Range syntax) */
+@media (width <= 800px) {
+  .sidebar { display: none; }
+}
+
+@media (prefers-color-scheme: dark) {
+  body { background: #333; color: #fff; }
+}
+
+/* Container Queries */
+.container { container-type: inline-size; }
+@container (min-width: 400px) {
+  .card { grid-template-columns: 1fr 1fr; }
+}
+
+/* Логические свойства (Logical Properties) */
+.element {
+  margin-block-start: 1rem;
+  padding-inline-end: 20px;
+  inset: 0; /* shorthand для top/right/bottom/left */
+}
+
+/* Сложные значения и функции */
+.fancy-box {
+  width: calc(100% - (2 * 10px));
+  height: clamp(100px, 20vh, 500px);
+  background: linear-gradient(to right, red, blue), 
+              url('img.png') no-repeat center/cover;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  filter: blur(5px) brightness(0.8);
+  transform: translate3d(0, 0, 0) rotate(45deg);
+}
+
+/* 6. ШРИФТЫ И АНИМАЦИИ */
+@font-face {
+  font-family: 'MyFont';
+  src: url('font.woff2') format('woff2');
+  font-display: swap;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.animated {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+/* Специфические правила */
+@support (display: grid) {
+  .main { display: grid; }
+}
+
+@page { margin: 1cm; }
+
+/* 7. NATIVE CSS NESTING (Вложенность) */
+
+.card {
+  padding: 20px;
+  background: white;
+
+  /* Вложенный элемент (автоматически понимает, что это потомок) */
+  .card-title {
+    font-size: 1.5rem;
+    color: black;
+  }
+
+  /* Использование амперсанда (&) для модификаторов и псевдоклассов */
+  &:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+
+  &.is-active {
+    border: 2px solid blue;
+  }
+
+  /* Вложенные медиа-запросы и сложные правила */
+  @media (max-width: 600px) {
+    padding: 10px;
+    
+    .card-title {
+      font-size: 1.2rem;
+    }
+  }
+
+  /* Комбинирование с селекторами атрибутов внутри */
+  & [disabled] {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  /* Вложенность через запятую */
+  h1, h2 {
+    margin-bottom: 0.5em;
+    
+    /* Ссылаемся на родителя внутри другого селектора */
+    .dark-theme & {
+      color: white;
+    }
+  }
+}
+
+/* 8. МАТЕМАТИЧЕСКИЕ И ТРИГОНОМЕТРИЧЕСКИЕ ФУНКЦИИ */
+
+.math-test {
+  /* Базовая арифметика */
+  --width: calc(100% / 3 + 15px);
+  
+  /* Сравнение */
+  width: min(500px, 100vw, 80%);
+  height: max(200px, 10vh);
+  padding: clamp(1rem, 5%, 3rem);
+
+  /* Округление (новые функции) */
+  margin-top: round(up, 15px, 10px); /* округлит до 20px */
+  margin-bottom: rem(15px, 10px);   /* остаток 5px */
+  border-width: mod(18px, 5px);    /* остаток 3px */
+
+  /* Экспоненты и корни */
+  font-size: hypot(3rem, 4rem);    /* корень из суммы квадратов (5rem) */
+  line-height: sqrt(4);            /* корень (2) */
+  opacity: pow(0.9, 2);            /* возведение в степень */
+  letter-spacing: exp(0.5);        /* экспонента */
+
+  /* Тригонометрия (угол может быть в deg, rad, grad, turn) */
+  --angle: 45deg;
+  transform: rotate(sin(var(--angle))) 
+             translateX(cos(0.25turn));
+  
+  /* Обратные функции (asin, acos, atan, atan2) */
+  --slope: atan2(100px, 100px); /* 45deg */
+  
+  /* Логарифмы */
+  z-index: log(100, 10); /* 2 */
+}
+
+/* Применение в анимации для плавности */
+@keyframes wave {
+  0% { transform: translateY(sin(0deg)); }
+  100% { transform: translateY(sin(360deg)); }
+}
+
+/* 9. SVG-СПЕЦИФИЧНЫЕ СВОЙСТВА */
+/* Эти свойства работают только для SVG-элементов или внутри встроенных SVG */
+
+svg {
+  /* Заливка и контуры */
+  fill: url(#gradient-id) evenodd;
+  fill-opacity: 0.5;
+  stroke: var(--accent-color);
+  stroke-width: 2px;
+  stroke-linecap: round;
+  stroke-linejoin: bevel;
+  stroke-dasharray: 10, 5, 2;
+  stroke-dashoffset: 0;
+
+  /* Эффекты и выравнивание */
+  shape-rendering: optimizeSpeed;
+  vector-effect: non-scaling-stroke;
+  color-interpolation: sRGB;
+  alignment-baseline: central;
+  dominant-baseline: middle;
+}
+
+/* Маски и пути */
+.mask-element {
+  clip-path: url("#clip-path-id");
+  mask: image(url("mask.png"), skyblue);
+  mask-type: luminance;
+}
+
+/* 10. ПРАВИЛА ДЛЯ ПЕЧАТИ (Print CSS) */
+/* Проверка на обработку медиа-типов и специфических @-правил */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 2cm;
+    
+    /* Содержимое колонтитулов (стандарт CSS Books) */
+    @top-center {
+      content: "Отчет за 2024 год";
+    }
+    @bottom-right {
+      content: "Страница " counter(page);
+    }
+  }
+
+  body {
+    background: none !important;
+    color: #000;
+  }
+
+  /* Разрывы страниц */
+  h2 {
+    break-before: page;
+    page-break-after: avoid;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  /* Печать URL рядом со ссылками */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+
+  /* Управление цветопередачей */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* 11. ЭКЗОТИЧЕСКИЕ И УСТАРЕВШИЕ (Compatibility check) */
+.legacy-test {
+  /* IE-фильтры (часто ломают современные парсеры) */
+  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+  
+  /* Свойства с префиксами */
+  -webkit-appearance: none;
+  -moz-user-select: none;
+  
+  /* Zoom (нестандартное, но часто встречающееся) */
+  zoom: 1;
+}
+
+/* 12. CSS HOUDINI (Typed OM & Custom Properties) */
+
+/* Регистрация типизированной переменной */
+@property --gradient-stop {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+/* 13. SCROLL-DRIVEN ANIMATIONS (Анимация по скроллу) */
+
+/* Определение именованной шкалы прокрутки */
+.scroll-container {
+  scroll-timeline-name: --main-timeline;
+  scroll-timeline-axis: block;
+  overflow-y: scroll;
+}
+
+.scrolling-element {
+  /* Привязка анимации к скроллу */
+  animation: grow both linear;
+  animation-timeline: --main-timeline;
+  
+  /* Анимация в зависимости от видимости (View Timeline) */
+  view-timeline-name: --revealing-image;
+  view-timeline-axis: block;
+}
+
+.image-reveal {
+  animation: reveal-effect both linear;
+  /* Анимация начнется, когда элемент появится внизу и закончится, когда он уйдет на 20% вверх */
+  animation-range: entry 10% exit 20%;
+  animation-timeline: --revealing-image;
+}
+
+/* 14. СЛОЖНЫЕ КЛЮЧЕВЫЕ КАДРЫ И СВОЙСТВА */
+
+@keyframes grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+@keyframes reveal-effect {
+  entry 0% { opacity: 0; transform: translateY(50px); }
+  entry 100% { opacity: 1; transform: translateY(0); }
+}
+
+/* 15. ТЕКСТОВЫЕ ЭФФЕКТЫ И ПЕРЕНОСЫ (Modern Typography) */
+
+.typography-stress-test {
+  /* Переносы и выравнивание */
+  hyphens: auto;
+  text-wrap: balance; /* или pretty */
+  text-emphasis: circle red;
+  
+  /* Современные тени */
+  text-shadow: 1px 1px 2px black, 0 0 1em blue, 0 0 0.2em blue;
+  
+  /* Использование новых цветовых пространств */
+  background-color: oklch(0.7 0.2 150);
+  border-color: color(display-p3 1 0.5 0);
+  color: color-mix(in srgb, var(--accent-color) 30%, white);
+}
+
+/* 16. ANCHOR POSITIONING (Самая свежая фича) */
+
+.anchor-el {
+  anchor-name: --my-anchor;
+}
+
+.floating-menu {
+  position: absolute;
+  /* Привязка позиции к другому элементу (якорю) */
+  top: anchor(--my-anchor bottom);
+  left: anchor(--my-anchor center);
+}
+
+/* 17. ГЛУБОКАЯ ВЛОЖЕННОСТЬ И СПЕЦИФИЧНЫЕ КОНТЕКСТЫ */
+
+/* Изоляция стилей через @scope */
+@scope (.card) to (.card-footer) {
+  /* :scope ссылается на корень (.card) */
+  :scope {
+    border: 1px solid black;
+    background: white;
+  }
+
+  /* Правило применится только внутри .card, но не затронет .card-footer */
+  img {
+    border-radius: 50%;
+    
+    /* Вложенный @supports внутри @scope */
+    @supports (aspect-ratio: 1) {
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+  }
+}
+
+/* Каскадные слои с вложенностью */
+@layer framework {
+  @layer components {
+    .btn {
+      padding: 10px;
+      
+      /* Вложенный @media внутри слоя */
+      @media (width > 600px) {
+        padding: 20px;
+        
+        /* Вложенный @container внутри @media внутри @layer */
+        @container (inline-size > 200px) {
+          &::after {
+            content: " ✨";
+          }
+        }
+      }
+    }
+  }
+}
+
+/* @starting-style (для плавного появления элементов из display: none) */
+.popover {
+  transition: opacity 0.5s, transform 0.5s;
+  opacity: 1;
+  transform: scale(1);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+/* @document (устаревшее/нестандартное, но важное для парсеров расширений) */
+@document url("https://example.com"),
+          url-prefix("https://example.comadmin/"),
+          domain("example.com"),
+          regexp("https:.*") {
+  body {
+    outline: 5px solid red;
+  }
+}
+
+/* СТРЕСС-ТЕСТ: Максимальная вложенность */
+@layer theme {
+  @media screen {
+    @supports (display: grid) {
+      .main-grid {
+        display: grid;
+        
+        @container (width > 100px) {
+          @scope (&) {
+            article {
+              color: var(--text-color);
+              
+              /* Вложенный селектор */
+              &:hover {
+                background: highlight;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* @font-palette-values (настройка вариативных цветных шрифтов) */
+@font-palette-values --CoolPalette {
+  font-family: "Rocher Color";
+  base-palette: 1;
+  override-colors: 
+    0 #ff0000, 
+    1 #00ff00;
+}
+
+/* 18. MEDIA QUERIES LEVEL 5 (Пользовательские предпочтения и среда) */
+
+/* Проверка на наличие JS и возможности рендеринга */
+@media (scripting: enabled) {
+  .no-js-fallback { display: none; }
+}
+
+/* Проверка динамического диапазона экрана (HDR) */
+@media (video-dynamic-range: high) {
+  .hero-video { contrast: 1.2; }
+}
+
+/* Проверка на тип ввода (мышь vs тач) */
+@media (pointer: coarse) {
+  button { min-height: 44px; } /* Удобно для пальцев */
+}
+
+/* Кастомные медиа-запросы (пока за флагом, но парсер должен знать синтаксис) */
+@custom-media --tablet (width >= 768px) and (width <= 1024px);
+
+@media (--tablet) {
+  .content { columns: 2; }
+}
+
+/* 19. ДИНАМИЧЕСКИЕ ПЕРЕМЕННЫЕ И ЦВЕТОВЫЕ ФУНКЦИИ */
+
+.dynamic-test {
+  /* Переменная, имя которой зависит от другой (теоретический Houdini / CSS переменных) */
+  --base-size: 16px;
+  --computed-font: calc(var(--base-size) * 1.5);
+  
+  /* Смешивание цветов в разных пространствах (Level 5) */
+  background: color-mix(in oklab, red 30%, blue);
+  border-color: color-mix(in srgb-linear, var(--accent-color), transparent 50%);
+  
+  /* Относительный синтаксис цветов (Relative Color Syntax) */
+  /* Берем существующий цвет и меняем только прозрачность или яркость */
+  --new-bg: rgb(from var(--main-bg) r g b / 0.5);
+  --brighter-accent: oklch(from var(--accent-color) calc(l + 0.1) c h);
+}
+
+/* 20. СВОЙСТВА ДЛЯ УПРАВЛЕНИЯ ТЕКСТОМ (ADVANCED TYPOGRAPHY) */
+
+h1 {
+  /* Балансировка строк (чтобы не было "висячих" слов) */
+  text-wrap: balance;
+  /* Управление межбуквенным интервалом для выравнивания по ширине */
+  text-spacing-trim: space-all;
+  /* Новые подчеркивания */
+  text-decoration: underline wavy var(--accent-color) 2px;
+  text-underline-offset: 0.2em;
+  text-decoration-skip-ink: all;
+}
+
+/* 21. ПРОВЕРКА НА ПУСТЫЕ И НЕСТАНДАРТНЫЕ БЛОКИ */
+
+@media screen and (min-width: 0px) {} /* Пустой медиа-запрос */
+
+.empty-rule {} /* Пустое правило */
+
+[class=" "][id=""] { content: "пустые атрибуты"; } /* Селекторы с пробелами */
+
+/* Селектор с экранированием спецсимволов */
+.special\:class\#name\.with-dots {
+  color: purple;
+}
+
+/* Чередование вложенности: Media -> Supports -> Media -> Container -> Scope */
+
+@media screen and (min-width: 500px) {
+  /* Уровень 1: Media */
+  
+  @supports (display: grid) {
+    /* Уровень 2: Supports внутри Media */
+    
+    @media (orientation: landscape) {
+      /* Уровень 3: Снова Media внутри Supports */
+      
+      .main-layout {
+        display: grid;
+
+        @container (inline-size > 300px) {
+          /* Уровень 4: Container внутри Media */
+          
+          @scope (&) {
+            /* Уровень 5: Scope внутри Container */
+            
+            aside {
+              background: ghostwhite;
+              
+              /* И даже здесь может быть еще один @supports или @media */
+              @supports (clip-path: circle()) {
+                clip-path: circle(50%);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

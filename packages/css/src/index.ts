@@ -8,9 +8,9 @@ let parse = function (source, classes) {
 } as typeof parseOrigin
 
 let css_id_count = 0
-const CSS_CACHE_DIRTY: {
-  [k: string]: [number, CSSObj, null | HTMLStyleElement]
-} = {}
+const CSS_CACHE_DIRTY = {
+  __proto__: null,
+} as unknown as { [k: string]: [number, CSSObj, null | HTMLStyleElement] }
 
 type CSSObj = {
   readonly [key: `_${string}`]: string
@@ -53,34 +53,36 @@ export function css(
     a[i] = values[j++]
   const source = a.join('') // .trim()
 
-  if (!CSS_CACHE_DIRTY.hasOwnProperty(source)) {
-    const iam = { id: 'rcss_' + ++css_id_count } as any
+  if (!(source in CSS_CACHE_DIRTY)) {
+    const iam = { __proto__: null, id: 'css_' + ++css_id_count, css: '' } as any
     iam.css = parse(source, iam)
     CSS_CACHE_DIRTY[source] = [0, iam, setStyleNode(iam)]
   }
 
   let active = true
-  const iam = {} as any
   const cache_source = CSS_CACHE_DIRTY[source]
   const now = cache_source[1] as any
+  const iam = {
+    destroyed: false,
+    destroy() {
+      iam.destroyed = true
+      if (active) {
+        active = false
+        if (source in CSS_CACHE_DIRTY && --cache_source[0] < 1) {
+          // const node = cache_source[2]
+          // if (node) {
+          //   const parent = node.parentNode
+          //   parent && parent.removeChild(node)
+          // }
+          removeStyleNode(cache_source[2]!)
+          delete CSS_CACHE_DIRTY[source]
+        }
+      }
+    },
+  } as any
   cache_source[0]++
   for (const k in now) iam[k] = now[k]
-  iam.destroyed = false
-  iam.destroy = function () {
-    iam.destroyed = true
-    if (active) {
-      active = false
-      if (CSS_CACHE_DIRTY.hasOwnProperty(source) && --cache_source[0] < 1) {
-        // const node = cache_source[2]
-        // if (node) {
-        //   const parent = node.parentNode
-        //   parent && parent.removeChild(node)
-        // }
-        removeStyleNode(cache_source[2]!)
-        delete CSS_CACHE_DIRTY[source]
-      }
-    }
-  }
+
   return iam as CSSObj
 } // as (template: TemplateStringsArray | string[], ...values: any[]) => CSSObj
 // })()

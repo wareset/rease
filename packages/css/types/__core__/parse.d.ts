@@ -1,3 +1,6 @@
-export declare function parse(source: string, classes: {
+type Classes = {
+    id: string;
     [k: string]: any;
-}): string;
+};
+export declare function parse(source: string, classes: Classes): string;
+export {};

@@ -1,4 +1,6 @@
-export const PROPERTIES: { [k: string]: string } = {}
+export const PROPERTIES = {
+  __proto__: null,
+} as unknown as { [key: string]: string }
 
 let needStylePrefixesInit = true
 export function init(): void {
@@ -8,7 +10,11 @@ export function init(): void {
       const RX = /^-[^-]+-/
       const CS = getComputedStyle(document.documentElement)
       for (let k in CS) {
-        if (+k > -1) (k = CS[k]), (PROPERTIES[k.replace(RX, '')] = k)
+        if (+k > -1) {
+          k = CS[k]
+          const origin = k.replace(RX, '')
+          origin !== k && (PROPERTIES[origin] = k)
+        }
       }
     } catch {}
   }
