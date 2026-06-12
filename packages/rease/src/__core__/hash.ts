@@ -4,7 +4,7 @@ export function hash(s?: string, maxSymbolsForHash?: number) {
   if (s == null) {
     z1 = Math.random()
   } else {
-    z1 = 0.9973
+    z1 = 1
     for (
       let r = 1 / z1,
         c: number,
@@ -15,9 +15,13 @@ export function hash(s?: string, maxSymbolsForHash?: number) {
       i += n
     ) {
       if ((c = s.charCodeAt(i)) === 13) i -= n - 1
-      else
-        (z1 += (c * z1 * 997.3) / (c + z1) + r),
-          (z1 -= z1 | 0) < 0 && (z1 = (z1 | 0) - z1)
+      else {
+        // (z1 += (c * z1 * 997.3) / (c + z1) + r),
+        //   (z1 -= z1 | 0) < 0 && (z1 = (z1 | 0) - z1)
+
+        z1 += (c * z1) / (c + z1)
+        for (; z1 > 1.5; ) z1 /= 10
+      }
     }
   }
   return (z1 * 6e16 + 4e16).toString(36)

@@ -4,11 +4,11 @@ export declare function watchDeep<T, C = undefined>(v: T, cb: ISubscriber<ISubsc
 export type ISubscribedOrThenedAll<T extends readonly unknown[] | []> = {
     -readonly [P in keyof T]: ISubscribedOrThened<T[P]>;
 };
-export declare const watchAll: <T extends [] | readonly unknown[], C = undefined>(a: T, cb: ISubscriber<ISubscribedOrThenedAll<T>, C>, thisArg?: C) => IUnsubscriber;
+export declare const watchAll: <T extends readonly unknown[] | [], C = undefined>(a: T, cb: ISubscriber<ISubscribedOrThenedAll<T>, C>, thisArg?: C) => IUnsubscriber;
 export type ISubscribedOrThenedDeepAll<T extends readonly unknown[] | []> = {
     -readonly [P in keyof T]: ISubscribedOrThenedDeep<T[P]>;
 };
-export declare const watchDeepAll: <T extends [] | readonly unknown[], C = undefined>(a: T, cb: ISubscriber<ISubscribedOrThenedDeepAll<T>, C>, thisArg?: C) => IUnsubscriber;
+export declare const watchDeepAll: <T extends readonly unknown[] | [], C = undefined>(a: T, cb: ISubscriber<ISubscribedOrThenedDeepAll<T>, C>, thisArg?: C) => IUnsubscriber;
 export declare class ReaseWatcher<T = any, S = any> {
     private _;
     readonly deep: boolean;

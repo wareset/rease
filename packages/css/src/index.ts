@@ -1,5 +1,6 @@
 import { init as _cssInit, PROPERTIES as _cssProperties } from './__core__/init'
 import { parse as parseOrigin } from './__core__/parse'
+import { hash } from './__core__/hash'
 
 export { _cssInit, _cssProperties }
 // export const css = (function () {
@@ -7,10 +8,9 @@ let parse = function (source, classes) {
   return _cssInit(), (parse = parseOrigin)(source, classes)
 } as typeof parseOrigin
 
-let css_id_count = 0
 const CSS_CACHE_DIRTY = {
   __proto__: null,
-} as unknown as { [k: string]: [number, CSSObj, null | HTMLStyleElement] }
+} as unknown as { [k: string]: [number, object, null | HTMLStyleElement] }
 
 type CSSObj = {
   readonly [key: `_${string}`]: string
@@ -52,35 +52,36 @@ export function css(
   for (let i = 0, j = 0; (a[i] = template[i++ - j]), i < l; i++)
     a[i] = values[j++]
   const source = a.join('') // .trim()
+  const id = hash(source)
 
-  if (!(source in CSS_CACHE_DIRTY)) {
-    const iam = { __proto__: null, id: 'css_' + ++css_id_count, css: '' } as any
+  if (!(id in CSS_CACHE_DIRTY)) {
+    const iam = { __proto__: null, id, css: '' }
     iam.css = parse(source, iam)
-    CSS_CACHE_DIRTY[source] = [0, iam, setStyleNode(iam)]
+    CSS_CACHE_DIRTY[id] = [0, iam, setStyleNode(iam)]
   }
 
   let active = true
-  const cache_source = CSS_CACHE_DIRTY[source]
-  const now = cache_source[1] as any
+  const cache = CSS_CACHE_DIRTY[id]
+  const now = cache[1] as any
   const iam = {
     destroyed: false,
     destroy() {
       iam.destroyed = true
       if (active) {
         active = false
-        if (source in CSS_CACHE_DIRTY && --cache_source[0] < 1) {
+        if (id in CSS_CACHE_DIRTY && --cache[0] < 1) {
           // const node = cache_source[2]
           // if (node) {
           //   const parent = node.parentNode
           //   parent && parent.removeChild(node)
           // }
-          removeStyleNode(cache_source[2]!)
-          delete CSS_CACHE_DIRTY[source]
+          removeStyleNode(cache[2]!)
+          delete CSS_CACHE_DIRTY[id]
         }
       }
     },
   } as any
-  cache_source[0]++
+  cache[0]++
   for (const k in now) iam[k] = now[k]
 
   return iam as CSSObj
