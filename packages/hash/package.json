@@ -1,0 +1,56 @@
+{
+  "name": "@rease/hash",
+  "version": "0.4.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "description": "String hash or random hash generator",
+  "keywords": [
+    "rease",
+    "hash"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/wareset/rease/tree/main/packages/hash",
+  "bugs": {
+    "url": "https://github.com/wareset/rease/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wareset/rease.git",
+    "directory": "packages/hash"
+  },
+  "author": "rease <cftcview@gmail.com>",
+  "main": "index",
+  "module": "index.mjs",
+  "types": "types/index.d.ts",
+  "files": [
+    "README.md",
+    "index.d.ts",
+    "index.js",
+    "index.mjs",
+    "types/**/*"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.js",
+      "types": "./types/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "dester -m",
+    "dev": "dester -mw"
+  },
+  "devDependencies": {
+    "dester": "1.0.x"
+  },
+  "peerDependencies": {
+    "typescript": "*"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  }
+}
