@@ -52,7 +52,7 @@
     "w3c--svgwg": "git+https://github.com/w3c/svgwg.git"
   },
   "dependencies": {
-    "csstype": "3.1.2"
+    "csstype": "3.x"
   },
   "peerDependencies": {
     "rease": "0.4.x",
