@@ -31,7 +31,8 @@
   },
   "scripts": {
     "build": "dester -m",
-    "dev": "dester -mw"
+    "dev": "dester -mw",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "dester": "1.0.x"
