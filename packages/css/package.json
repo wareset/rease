@@ -19,8 +19,7 @@
     "index.d.ts",
     "index.js",
     "index.mjs",
-    "types/**/*",
-    "package.json"
+    "types/**/*"
   ],
   "exports": {
     "./package.json": "./package.json",
@@ -32,8 +31,7 @@
   },
   "scripts": {
     "build": "dester -m",
-    "dev": "dester -mw",
-    "prepare": "npm run build"
+    "dev": "dester -mw"
   },
   "devDependencies": {
     "dester": "1.0.x"

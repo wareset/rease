@@ -1,11 +1,16 @@
 {
   "name": "rease-monorepo",
-  "private": false,
+  "version": "1.0.0",
+  "private": true,
   "license": "MIT",
   "description": "This is the monorepo for rease",
   "workspaces": [
     "packages/*"
   ],
+  "scripts": {
+    "build": "lerna run build",
+    "prepare": "lerna run build"
+  },
   "devDependencies": {
     "lerna": "6.6.2"
   }
