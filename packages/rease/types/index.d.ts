@@ -1,4 +1,5 @@
 export * from '@rease/css';
+export * from '@rease/hash';
 export * from '@rease/listen';
 export * from '@rease/signal';
 export * from '@rease/tween';
@@ -10,5 +11,4 @@ export { watcher, watcherDeep, watcherAll, watcherDeepAll, } from './__core__/ut
 export { RAwait, RThen, RCatch, RForIn, RForOf, RFragment, RHtml, RText, RElement, RIf, RElseIf, RElse, RMove, RSwitch, RCase, RWatch, } from './__core__/components';
 export { Rease } from './__core__/Rease';
 export { createElement, createElement as h, render } from './__core__/Rease';
-export { hash } from './__core__/hash';
 export { toHTMLString } from './__core__/toHTMLString';

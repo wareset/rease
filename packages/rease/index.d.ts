@@ -18,7 +18,6 @@ export { RWatch } from "./types";
 export { Rease } from "./types";
 export { createElement } from "./types";
 export { h } from "./types";
-export { hash } from "./types";
 export { interval } from "./types";
 export { isCatchable } from "./types";
 export { isFunction } from "./types";

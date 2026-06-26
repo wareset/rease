@@ -9,15 +9,16 @@
     "rease",
     "types"
   ],
+  "license": "MIT",
+  "homepage": "https://github.com/wareset/rease/tree/main/packages/jsxtype",
+  "bugs": {
+    "url": "https://github.com/wareset/rease/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wareset/rease.git",
     "directory": "packages/jsxtype"
   },
-  "bugs": {
-    "url": "https://github.com/wareset/rease/issues"
-  },
-  "license": "MIT",
   "author": "rease <cftcview@gmail.com>",
   "main": "",
   "types": "index.d.ts",
@@ -64,6 +65,11 @@
   },
   "peerDependencies": {
     "rease": "0.4.x",
-    "typescript": "5.x"
+    "typescript": "*"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
   }
 }

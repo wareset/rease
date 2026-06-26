@@ -9,15 +9,16 @@
     "rease",
     "css"
   ],
+  "license": "MIT",
+  "homepage": "https://github.com/wareset/rease/tree/main/packages/css",
+  "bugs": {
+    "url": "https://github.com/wareset/rease/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wareset/rease.git",
     "directory": "packages/css"
   },
-  "bugs": {
-    "url": "https://github.com/wareset/rease/issues"
-  },
-  "license": "MIT",
   "author": "rease <cftcview@gmail.com>",
   "main": "index",
   "module": "index.mjs",
@@ -45,6 +46,11 @@
     "dester": "1.0.x"
   },
   "peerDependencies": {
-    "typescript": "5.x"
+    "typescript": "*"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
   }
 }

@@ -9,15 +9,16 @@
     "rease",
     "listen"
   ],
+  "license": "MIT",
+  "homepage": "https://github.com/wareset/rease/tree/main/packages/listen",
+  "bugs": {
+    "url": "https://github.com/wareset/rease/issues"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/wareset/rease.git",
     "directory": "packages/rease"
   },
-  "bugs": {
-    "url": "https://github.com/wareset/rease/issues"
-  },
-  "license": "MIT",
   "author": "rease <cftcview@gmail.com>",
   "main": "index",
   "module": "index.mjs",
@@ -45,6 +46,11 @@
     "dester": "1.0.x"
   },
   "peerDependencies": {
-    "typescript": "5.x"
+    "typescript": "*"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
   }
 }

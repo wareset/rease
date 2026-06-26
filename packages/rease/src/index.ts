@@ -1,4 +1,5 @@
 export * from '@rease/css'
+export * from '@rease/hash'
 export * from '@rease/listen'
 export * from '@rease/signal'
 export * from '@rease/tween'
@@ -87,7 +88,5 @@ export {
 
 export { Rease } from './__core__/Rease'
 export { createElement, createElement as h, render } from './__core__/Rease'
-
-export { hash } from './__core__/hash'
 
 export { toHTMLString } from './__core__/toHTMLString'

@@ -19,7 +19,6 @@ export { RWatch } from "../types/jsx-runtime";
 export { Rease } from "../types/jsx-runtime";
 export { createElement } from "../types/jsx-runtime";
 export { h } from "../types/jsx-runtime";
-export { hash } from "../types/jsx-runtime";
 export { interval } from "../types/jsx-runtime";
 export { isCatchable } from "../types/jsx-runtime";
 export { isFunction } from "../types/jsx-runtime";
