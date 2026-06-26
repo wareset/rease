@@ -90,10 +90,10 @@ style ===
     destroyed: false,
 
     // ID for for style element and salt for scoped classes
-    id: 'rcss_1',
+    id: 'glgh6w852pc',
 
     // scoped class
-    _scoped_class: 'rcss_1_scoped_class',
+    _scoped_class: 'glgh6w852pc_scoped_class',
 
     // final css
     css: '.block{display:block;}.block__element{color:red;}@media...',
@@ -106,34 +106,29 @@ Formatted CSS example of what happened:
 .block {
   display: block;
 }
-
 .block__element {
   color: red;
 }
-
 @media (min-width: 900px) {
   .block__element {
     color: green;
   }
-
   @supports (display: flex) {
     .block__element {
       display: flex;
     }
   }
 }
-
 @media (min-width: 900px) and (max-width: 1900px) {
   .block__element {
     color: lime;
   }
 }
-
 .outer_class > .block > span {
+  user-drag: none;
   -webkit-user-drag: none;
 }
-
-.block .rcss_1_scoped_class {
+.block .glgh6w852pc_scoped_class {
   position: relative;
 }
 ```
