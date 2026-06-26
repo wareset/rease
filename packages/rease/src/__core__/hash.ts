@@ -6,8 +6,7 @@ export function hash(s?: string, maxSymbolsForHash?: number) {
   } else {
     z1 = 1
     for (
-      let r = 1 / z1,
-        c: number,
+      let c: number,
         l = s.length,
         n = (maxSymbolsForHash && (l / maxSymbolsForHash) >>> 1) || 1,
         i = 0;
@@ -20,6 +19,7 @@ export function hash(s?: string, maxSymbolsForHash?: number) {
         //   (z1 -= z1 | 0) < 0 && (z1 = (z1 | 0) - z1)
 
         z1 += (c * z1) / (c + z1)
+        // 1.52702839737111883966491632236284203827381134033203125
         for (; z1 > 1.5; ) z1 /= 10
       }
     }

@@ -206,14 +206,14 @@ let onCustomResize = function (E: any): any {
       WINDOW.setTimeout ||
       noop
 
-    let looping = false
+    let isLoop = false
     function runLoop() {
-      looping || ((looping = true), refresher(loop, 16.6667))
+      isLoop || ((isLoop = true), refresher(loop, 16.6667))
     }
     // console.info(PACKAGE + 'setTimeout')
     const ELEMENTS: IElement[] = []
     function loop(): void {
-      looping = false
+      isLoop = false
       if (!document.hidden) {
         for (let i = 0, E: IElement; i < ELEMENTS.length; i++) {
           checkData((E = ELEMENTS[i]))
@@ -272,7 +272,7 @@ function _listen<Type extends keyof GlobalEventHandlersEventMap>(
 
   // console.log({ TYPE, MODS, KEYS, KLEN, OPTS })
 
-  let unsub: ReturnType<typeof add_event_listener> = noop
+  let unSub: ReturnType<typeof add_event_listener> = noop
 
   if (KLEN > 0) {
     TYPE || (TYPE = 'keydown')
@@ -293,7 +293,7 @@ function _listen<Type extends keyof GlobalEventHandlersEventMap>(
     if (MODS.once) {
       let cb = callback
       callback = function (this: any, e: any) {
-        unsub(), cb.call(this, e), (cb = noop)
+        unSub(), cb.call(this, e), (cb = noop)
       }
     }
 
@@ -358,7 +358,7 @@ function _listen<Type extends keyof GlobalEventHandlersEventMap>(
       }
     }
 
-    unsub = add_event_listener(
+    unSub = add_event_listener(
       E,
       TYPE as any,
       callback as any,
@@ -368,9 +368,9 @@ function _listen<Type extends keyof GlobalEventHandlersEventMap>(
 
     if (TYPE === 'resize') {
       if (E !== window) {
-        const un = unsub,
+        const un = unSub,
           un2 = onCustomResize(E)
-        unsub = function () {
+        unSub = function () {
           un(), un2()
         }
       }
@@ -381,7 +381,7 @@ function _listen<Type extends keyof GlobalEventHandlersEventMap>(
     throw PACKAGE + 'event: ' + type
   }
 
-  return unsub
+  return unSub
 }
 
 // return _listen

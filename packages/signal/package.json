@@ -9,6 +9,14 @@
     "rease",
     "signal"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wareset/rease.git",
+    "directory": "packages/signal"
+  },
+  "bugs": {
+    "url": "https://github.com/wareset/rease/issues"
+  },
   "license": "MIT",
   "author": "rease <cftcview@gmail.com>",
   "main": "index",
