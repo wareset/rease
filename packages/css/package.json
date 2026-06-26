@@ -19,7 +19,8 @@
     "index.d.ts",
     "index.js",
     "index.mjs",
-    "types/**/*"
+    "types/**/*",
+    "package.json"
   ],
   "exports": {
     "./package.json": "./package.json",
