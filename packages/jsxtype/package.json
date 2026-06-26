@@ -61,15 +61,10 @@
     "w3c--svgwg": "git+https://github.com/w3c/svgwg.git"
   },
   "dependencies": {
-    "csstype": "3.x"
-  },
-  "peerDependencies": {
-    "rease": "0.4.x",
+    "csstype": "3.x",
     "typescript": "*"
   },
-  "peerDependenciesMeta": {
-    "typescript": {
-      "optional": true
-    }
+  "peerDependencies": {
+    "rease": "0.4.x"
   }
 }

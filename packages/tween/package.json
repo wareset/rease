@@ -55,14 +55,7 @@
     "dev": "dester -mw"
   },
   "devDependencies": {
-    "dester": "1.0.x"
-  },
-  "peerDependencies": {
+    "dester": "1.0.x",
     "typescript": "*"
-  },
-  "peerDependenciesMeta": {
-    "typescript": {
-      "optional": true
-    }
   }
 }
