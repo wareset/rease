@@ -1,6 +1,6 @@
 {
   "name": "rease-monorepo",
-  "private": true,
+  "private": false,
   "license": "MIT",
   "description": "This is the monorepo for rease",
   "workspaces": [
