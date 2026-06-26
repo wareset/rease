@@ -240,7 +240,7 @@ let SIGNAL = function (value: any, props: any) {
   function subFirst(this: IService, sub: any) {
     if (this.c) computedFirstSub(this.c)
     if (this.f) this.l = this.f(this.s)
-      runSub.call(this, sub)
+    runSub.call(this, sub)
   }
   function subLast(this: IService) {
     if (this.l) this.l(this.s)
@@ -313,7 +313,7 @@ let SIGNAL = function (value: any, props: any) {
           iam: ReaseSignal<T>
         ) => void | ((iam: ReaseSignal<T>) => void)
         capture?: (newValue: T, oldValue: T) => T
-        captureInitial?: boolean
+        captureNow?: boolean
         compute?: (observe: any[] | null, value: T) => T
         observe?: any[]
         defense?: any
@@ -365,9 +365,7 @@ let SIGNAL = function (value: any, props: any) {
       }
       _.p = _.h.n = _.h.p = _.h
       _.c && ((_.c._ = _), _.c.o && setObserve(_.c))
-      _.o &&
-        props!.captureInitial &&
-        batch(setWithCaptureFirstBatch, _, [value])
+      _.o && props!.captureNow && batch(setWithCaptureFirstBatch, _, [value])
     }
 
     get() {
@@ -458,7 +456,7 @@ let SIGNAL = function (value: any, props: any) {
   let queue_count = 0
   run_queue = function (_: IService) {
     if (_.r) {
-      if (++queue_count > 4e4) THROW('looping')
+      if (++queue_count > 4e4) THROW('loop')
       _.n = null
       _.r = false
       if (LAST_) {
@@ -490,8 +488,15 @@ let SIGNAL = function (value: any, props: any) {
 //
 declare class _ISignal<G> {
   // readonly computed?: true | undefined
+  // означает, что у сигнала есть функция подготовки перед выводом результата
   readonly prepared?: true | undefined
+  // означает, что перед изменением будет вызываться какая-то функция валидации
   readonly captured?: true | undefined
+  // означает, что сигнал сам создаёт значение на основе функции
+  readonly computed?: true | undefined
+  // означает, что сигнал нельзя изменить без пароля
+  readonly defensed?: true | undefined
+  // это значение для проверки в консоли, его изменение ни на что не повлияет
   private readonly '_value': G
   subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void
   toString(
@@ -604,7 +609,7 @@ function signal<G, S = G, O extends IObserve = null>(
     compute: (observe: IObserveValues<O>, oldValue: G) => S
     observe?: O
     capture: (newValue: S, oldValue: G | S) => G
-    captureInitial: true
+    captureNow: true
     defense?: undefined
   }
 ): ISignalComputed<G>
@@ -617,7 +622,7 @@ function signal<G, S = G, O extends IObserve = null>(
     compute: (observe: IObserveValues<O>, oldValue: G) => S
     observe?: O
     capture: (newValue: S, oldValue: G) => G
-    captureInitial?: false
+    captureNow?: false
     defense?: undefined
   }
 ): ISignalComputed<G>
@@ -641,7 +646,7 @@ function signal<G, S = G>(
       iam: ISignalStandard<G, S>
     ) => void | ((iam: ISignalStandard<G, S>) => void)
     capture: (newValue: G | S, oldValue: G | S) => G
-    captureInitial: true
+    captureNow: true
     defense?: undefined
   }
 ): ISignalStandard<G, S>
@@ -652,7 +657,7 @@ function signal<G, S = G>(
       iam: ISignalStandard<G, S>
     ) => void | ((iam: ISignalStandard<G, S>) => void)
     capture: (newValue: G | S, oldValue: G) => G
-    captureInitial?: false
+    captureNow?: false
     defense?: undefined
   }
 ): ISignalStandard<G, S>
@@ -665,7 +670,7 @@ function signal<G, S = G>(
       iam: ISignalDefensed<G, S>
     ) => void | ((iam: ISignalDefensed<G, S>) => void)
     capture: (newValue: G | S, oldValue: G | S) => G
-    captureInitial: true
+    captureNow: true
     defense: null | object | boolean | number | bigint | string | symbol
   }
 ): ISignalDefensed<G, S>
@@ -676,7 +681,7 @@ function signal<G, S = G>(
       iam: ISignalDefensed<G, S>
     ) => void | ((iam: ISignalDefensed<G, S>) => void)
     capture: (newValue: S, oldValue: G) => G
-    captureInitial?: false
+    captureNow?: false
     defense: null | object | boolean | number | bigint | string | symbol
   }
 ): ISignalDefensed<G, S>
@@ -716,7 +721,7 @@ export { signal }
 // const $q = signal<number>(12, {
 //   // compute: ([a, b]) => a + b,
 //   // observe: [1, 10],
-//   captureInitial: true,
+//   captureNow: true,
 //   capture(v, _o) {
 //     return v
 //   },
@@ -796,7 +801,7 @@ export { effect }
 // isSignal, isSignalStrict, isSignalComputed
 //
 /*@__NO_SIDE_EFFECTS__*/
-function isSignal<T>(any: any): any is ISignal<T> {
+function isSignal<G>(any: any): any is ISignal<G> {
   return any instanceof SIGNAL
 }
 /*@__NO_SIDE_EFFECTS__*/

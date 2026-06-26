@@ -1,6 +1,8 @@
 declare class _ISignal<G> {
     readonly prepared?: true | undefined;
     readonly captured?: true | undefined;
+    readonly computed?: true | undefined;
+    readonly defensed?: true | undefined;
     private readonly '_value';
     subscribe<C>(callback: (this: C, value: G) => void, thisArg?: C): () => void;
     toString(...a: G extends {
@@ -58,7 +60,7 @@ declare function signal<G, S = G, O extends IObserve = null>(value: S, props: {
     compute: (observe: IObserveValues<O>, oldValue: G) => S;
     observe?: O;
     capture: (newValue: S, oldValue: G | S) => G;
-    captureInitial: true;
+    captureNow: true;
     defense?: undefined;
 }): ISignalComputed<G>;
 declare function signal<G, S = G, O extends IObserve = null>(value: G, props: {
@@ -66,7 +68,7 @@ declare function signal<G, S = G, O extends IObserve = null>(value: G, props: {
     compute: (observe: IObserveValues<O>, oldValue: G) => S;
     observe?: O;
     capture: (newValue: S, oldValue: G) => G;
-    captureInitial?: false;
+    captureNow?: false;
     defense?: undefined;
 }): ISignalComputed<G>;
 declare function signal<G, O extends IObserve = null>(value: G, props: {
@@ -78,25 +80,25 @@ declare function signal<G, O extends IObserve = null>(value: G, props: {
 declare function signal<G, S = G>(value: G | S, props: {
     prepare?: (iam: ISignalStandard<G, S>) => void | ((iam: ISignalStandard<G, S>) => void);
     capture: (newValue: G | S, oldValue: G | S) => G;
-    captureInitial: true;
+    captureNow: true;
     defense?: undefined;
 }): ISignalStandard<G, S>;
 declare function signal<G, S = G>(value: G, props: {
     prepare?: (iam: ISignalStandard<G, S>) => void | ((iam: ISignalStandard<G, S>) => void);
     capture: (newValue: G | S, oldValue: G) => G;
-    captureInitial?: false;
+    captureNow?: false;
     defense?: undefined;
 }): ISignalStandard<G, S>;
 declare function signal<G, S = G>(value: S, props: {
     prepare?: (iam: ISignalDefensed<G, S>) => void | ((iam: ISignalDefensed<G, S>) => void);
     capture: (newValue: G | S, oldValue: G | S) => G;
-    captureInitial: true;
+    captureNow: true;
     defense: null | object | boolean | number | bigint | string | symbol;
 }): ISignalDefensed<G, S>;
 declare function signal<G, S = G>(value: G, props: {
     prepare?: (iam: ISignalDefensed<G, S>) => void | ((iam: ISignalDefensed<G, S>) => void);
     capture: (newValue: S, oldValue: G) => G;
-    captureInitial?: false;
+    captureNow?: false;
     defense: null | object | boolean | number | bigint | string | symbol;
 }): ISignalDefensed<G, S>;
 declare function signal<G>(value: G, props: {
@@ -113,7 +115,7 @@ declare function computed<G, O extends IObserve = null>(observe: O, compute: (ob
 export { computed };
 declare function effect<G = undefined, O extends IObserve = null>(observe: O, compute: <V = G | undefined>(value: V, observe: IObserveValues<O>) => G, onChange?: (value: G) => any): () => void;
 export { effect };
-declare function isSignal<T>(any: any): any is ISignal<T>;
+declare function isSignal<G>(any: any): any is ISignal<G>;
 declare function isSignalComputed<G>(any: any): any is ISignalComputed<G>;
 declare function isSignalDefensed<G, S = G>(any: any): any is ISignalDefensed<G, S>;
 declare function isSignalStandard<G, S = G>(any: any): any is ISignalStandard<G, S>;
